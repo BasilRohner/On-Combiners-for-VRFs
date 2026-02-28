@@ -1,0 +1,54 @@
+\chapter{Appendix}
+\label{ch:appendix}
+
+\subsection{Proof of \Cref{lemma:3.1}}
+
+\restateLemma
+
+\begin{proof}
+
+\todo[should this even be included?]
+
+It is sufficient to find a $(1;2)$-robust black-box combiner for VRF where all candidates are uniquely provable. Given a combiner we can then construct a $(1;n)$-robust black-box combiner for VRF by nesting the combiners iteratively. A construction for the combiner is given in \cref{fig:construction1}. The key generation works by querying both candidates on the given security parameter and grouping the secret and public keys respectively. Evaluation again queries both candidate schemes on the input with their respective secret key and returns the xor of the outputs while the the individual outputs and proofs consistute the new proof. The verification algorithm checks whether the image $y$ is the result of xoring the individual outputs of the candidates and whether the individual images $y_1, y_2$ verify with respect to the verification key the proof and the pre-image. To ensure that the combiner is still efficient we sim \todo[problematic if one candidate is incorrect, then we cannot achieve perfect correctness because we can only try ourselves whether it is correct, also problematic if one candidate doesn't terminate. Although non-termination might not be a problem if we assume that oracles always immediately give output.]
+
+% \begin{figure}[H]
+% 	\centering 
+% 	\begin{pcvstack}[boxed]
+% 		\begin{pchstack}
+% 			\procedure[linenumbering]
+% 			{$\alg{Gen}{\Comb\vrf}(1^\lambda)$}
+% 			{
+% 				(sk_1, pk_1) \sample \alg{Gen}{\mathcal O_{\vrf1}}(1^\lambda)\\ 
+% 				(sk_2, pk_2) \sample \alg{Gen}{\mathcal O_{\vrf2}}(1^\lambda)\\ 
+% 				sk \gets (sk_1, sk_2)\\ 
+% 				pk \gets (pk_1, pk_2)\\ 
+% 				\pcreturn (sk, pk)
+% 			}
+% 			\procedure[linenumbering]
+% 			{$\alg{Eval}{\Comb\vrf}(sk, x)$}
+% 			{
+% 				(sk_1, sk_2) \gets sk\\ 
+% 				(y_1, \pi_1) \sample \alg{Eval}{\mathcal O_{\vrf1}}(sk_1, x)\\ 
+% 				(y_2, \pi_2) \sample \alg{Eval}{\mathcal O_{\vrf2}}(sk_2, x)\\ 
+% 				y \gets y_1 \xor y_2\\ 
+% 				\pi \gets (\pi_1, \pi_2, y_1, y_2)\\ 
+% 				\pcreturn (y, \pi)
+% 			}
+% 		\end{pchstack}
+% 		\procedure[linenumbering]
+% 		{$\alg{Vfy}{\Comb\vrf}(pk, x, y, \pi)$}
+% 		{
+% 			(pk_1, pk_2) \gets pk\\ 
+% 			(\pi_1, \pi_2, y_1, y_2) \gets \pi\\ 
+% 			b_1 \gets \alg{Vfy}{\mathcal O_{\vrf1}}(pk_1, x, y_1, \pi_1)\\ 
+% 			b_2 \gets \alg{Vfy}{\mathcal O_{\vrf2}}(pk_2, x, y_2, \pi_2)\\ 
+% 			\pcif (y \neq y_1 \xor y_2) \land b_1 \land b_2
+% 		}
+% 	\end{pcvstack}
+% 	\caption{$(1;2)$-Robust Black-Box Combiner for VRF with uniquely provable candidates.}
+% 	\label{fig:construction1}
+% \end{figure}
+
+The combiner is clearly efficient since every algorithm consists of one call to the respective algorithm of each candidate scheme (whi)
+
+\end{proof}

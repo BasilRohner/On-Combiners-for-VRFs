@@ -1,0 +1,68 @@
+# Core LaTeX auxiliary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.lb
+*.thm
+
+# Intermediate build files
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+
+# Index and glossary files
+*.idx
+*.ilg
+*.ind
+*.ist
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+
+# Nomenclature
+*.nlo
+*.nls
+
+# Listings
+*.lol
+
+# Minted
+_minted*
+*.pyg
+
+# Latexmk
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.synctex.gz(busy)
+
+*.dvi
+
+# Generated PDFs
+# *.pdf
+
+.DS_Store
+.vscode
+
+# Unnessecary template files
+explanations_to_remove.tex
+mathtips.tex
+introduction.tex
+rules.tex
+structure_explanation.tex
+typography.tex

@@ -1,0 +1,185 @@
+
+\chapter{Introduction}\label{ch:paper_introduction}
+
+\section{Motivation and Previous Work}
+
+\paragraph{Verifiable Random Functions.} 
+Verifiable random functions (VRF) \cite{FOCS:MicRabVad99} are cryptographic primitive that allows the owner 
+of a secret key to obtain output-proof pairs by executing an evaluation algorithm on specified points 
+such that the outputs pass all computational tests for randomness with high probability in the absence of the corresponding proof, 
+and such that the correct evaluation of any image can be verified by a party with access to the corresponding public key and proof. 
+In practice VRFs are used in signatures with strong verifiability guarantees \cite{C:GolOst92},
+resettable zero-knowledge proofs \cite{C:MicRey01}, lottery systems \cite{RSA:MicRiv02a,Liang2020},
+transaction escrow schemes \cite{EC:JarShm04}, updatable zero-knowledge databases \cite{AC:Liskov05},
+e-cash systems \cite{EPRINT:AuSusMu07a}, and in Proof-of-Stake blockains through leader election protocols \cite{ChenMicali2016, C:KRDO17, EC:DGKR18, EPRINT:BASV23b}\todo{additional applications}.
+In addition to the standard properties, VRFs have been studied with regards to additional, more advanced,
+properties such as public and secret-key aggregability \cite{} in the context of efficiently verifiable blockchain protocols \cite{} 
+and unbiasability\cite{} in the context of distributed leader election protocols\cite{} and additional fairness guarantess in DeFI \cite{}. 
+
+We also consider primitives with relaxed properties such as verifiable unpredictable functions (VUFs) \cite{FOCS:MicRabVad99},
+which only require the outputs of the evaluation function to be unpredictable instead of pseudorandom,
+and weak verifiable random functions (wVRFs) \cite{TCC:BGRV09} that only require pseudorandomness on the image of random points. 
+While VRFs can be reduced to VUF using a hardcore bit construction \cite{FOCS:MicRabVad99}, there exists no black-box reduction 
+from VRF to wVRF which the authors \cite{EPRINT:FioSch10} show using a separation using enhanced trapdoor permutations.
+
+\paragraph{Aggregable Verifiable Random Functions.} 
+We consider aggregability of VRFs with respect to their
+secret-keys, also referred to as key-homomorphism, and with respect to their public-key.
+Key-homomorphism requires the function underlying the evaluation algorithm to constitute a group homomorphism form a group structure on 
+the secret-key space to a group structure on the output codomain for any fixed evaluation point \todo{same must hold for verification algorithm}.
+On the other hand a VRF is public-key aggregable if there exists an algorithm for aggregating image-proof pairs 
+into a single image-proof pair and an algorithm that given an aggregated image-proof pair and the corresponding set of verification keys
+verifies the aggregated image with respect to a fixed evaluation point. A seicure aggregable VRF is a public-key aggregable VRF 
+that satisfies \todo{properties}.
+
+\paragraph{Unbiasable Verifiable Random Functions.} 
+VRFs are used in Proof of Stack (PoS) blockchain systems
+for secret leader election protocols \cite{}. A leader election protocol is a distributed algorithm
+in which multiple parties determine a leader in a way that the leader is kept secret and such that 
+no subset of colluding malicious parties may influence the result of the election. Generally this is done 
+by having every party evaluate the VRF at a given point and selecting the party with the smallest result 
+as the leader. Original VRF don't provide strong enough security guarantees such that the described 
+protocol is secure however since even for a secure VRF there might exist key pairs for which the outputs of the 
+VRF could be biased towards lower values. Unbiasability \cite{} is a security property that ensures that 
+even if the adversary may arbitrarily choose the keys, the output distribution of the evalution 
+cannot be skewed. 
+
+\paragraph{Robust (Black-Box) Combiners.} 
+Robust combiners are constructions that take many instances of the same cryptographic primitive, called candidate schemes,
+in form of a description of their Turing machine, and securely implement that cryptographic primitive if a threshhold of the candidate schemes are secure.
+Since we generally intend for the combiner to derive its security from the subset of secure candidate schemes,
+and not by implementing a secure instance of the underlying primitive itself and ignoring the candidates,
+we require black-box reductions from the combiner construction to any sufficiently large subset of its candidates.
+In this work mainly consider robust black-box combiners, a subclass of combiners that restricts access of the combiner 
+to its candidate schemes to oracles which can be queried but not inspected for their underlying description. 
+Robust combiners allow the hedging of trust in cryptographic hardness assumptions underlying computational security properties,
+by basing their security on a subset of hard problems rather than a a single hard problem. 
+In practice robust combiners are uesful to reduce the dependency of a systems 
+on the security of a specific third party implementation, e.g. a cryptographic library.
+In theory robust combiners are related to universal cryptographic construction, i.e.
+constructions that implement a secure instance of a cryptographic primitive under the only assumption 
+that a secure instance of the cryptographic primitive exists, a prominent example is Levin's universal one-way function\cite{}.
+Finally combiners play a central role in the transition towards post-quantum cryptography where 
+hardness assumptions are not as well studied as the respective assumptions for the classic cryptography counterpart, 
+in particular the combination of classical and post-quantum cryptographic assumptions has been a fruitful research field. 
+
+Combiners have been considered for a wide variety of cryptographic primitivey, including 
+key exchange protocols \cite{}, signature schemes \cite{}, oblivious-transfer \cite{}, zero-knowledge proofs \cite{}, 
+commitment schemes \cite{}, and indistinguishability obfuscation \cite{}. While pseudorandom functions (PRFs) 
+admit easy robust $(n;1)$ combiners by simply XOR'ing the outputs of the candidate schemes, 
+evaluated on independent keys the combination of VRFs, the combination of VRFs is less obvious.
+To the best of our knowledge, there has been no prior research on robust combiners for verifiable random functions.
+
+\section*{Our Contribution}
+
+We introduce a new definition of a robust black-box combiner, a robust black-box DAG combiner,
+which models the implemented algorithms of the combiner as computations that follows the structure 
+of a vertex-colored directed acyclic graph starting from a source and ending in a sink, where for each vertex 
+in the graph we query a specific oracle of a specific candidate on the output of a probabilistic polynomial 
+time Turing machine of all predecessors. We show that the notion of a robust black-box DAG combiner 
+is sufficiently strong to capture all ppt. robust black-box combiners. We use this new model to show 
+the impossibility of combining multiple instances of wVRFs which extends to the impossibility of combining 
+VUFs and VRFs without additional assumptions. We argue that the combination of the unique provability property 
+is however less important since it is of information theoretic or statistical nature and therefore 
+doesn't rely on any computational hardness assumption. In fact, good VRF constructions such as ECVRF \cite{},
+lattice VRF \cite{} and \cite{} mathematically prove unique provability mathematically, rendering 
+combination less important. We consider the possibility to combine more advanced security properties 
+on VRFs such as unbiasability for which we construct a combiner for uniform constructions which relies on collision resistant
+hash functions and randomness extractors to combine unbiasable VRFs under the additional assumption that 
+all candidate schemnes are uniquely provable. We also investigate combiners for secret-key aggregability and public-key 
+aggregability. Secret-key aggregability is a publicly verifiable property due to an efficient algorithm by 
+Blum, Luby and Rubinfeld \cite{} which allows checks for the homomorphism property of a function 
+in time independent of the size of the underlying groups. Combiners for publiy-key aggregability 
+\todo[]. Finally we investigate additional properties such as constrainability \cite{} \todo[] and which all admit the 
+simple pseudorandomness combiner construction.
+
+\section{Technical Overview}
+
+\paragraph{Robust Black-Box DAG Combiner.}
+We present another specification of robust black-box combiners,
+termed robust black-box DAG combiners, which describe a form 
+of black-box combiners that are structured by a directed acyclic graph 
+for each implemented algorithm of the underlying cryptographic primitive
+in \Cref{def:robust_blackbox_dag_combiner}. We show that the newly introduced
+notion in \Cref{def:robust_blackbox_dag_combiner} is in fact equivalent to the
+standard definition of robust black-box combiners \Cref{def:robust_blackbox_combiner}, a result
+we formalize in the following theorem.
+
+\todo{restate}
+\begin{theorem}
+    
+\end{theorem}
+
+\paragraph{Impossibility of Black-Box VRF Combiner.}
+Subsequently we show that there exists no robust $(n;k)$ black-box combiner that takes 
+as input $n$ candidates, of which $k$ securely implement a VRF according to \Cref{def:vrf}
+the combiner implements a VF in \Cref{def:vf}
+that is statistically correct according to \Cref{def:correctness}, uniquely provable according to 
+\Cref{def:unique_provability}, and weakly pseudorandom according to \Cref{def:weak_pseudorandomness}.
+That is even assuming that $n-1$ candidates implement secure VRFs according to \Cref{def:vrf}
+the combiner cannot guarantee to implement a statistically correct weak VRF.
+We formally state this in the following theorem.
+
+\todo{restate}
+\begin{theorem}
+    
+\end{theorem}
+
+\paragraph{Relaxed Combiners for VRF.}
+Having established \Cref{thm:impossibility_wvrf_comb} we move on by assuming that every candidate scheme 
+is uniquely provable, which enables a simple robust $(n;1)$ black-box combiner for VRF in 
+\Cref{fig:prf_combiner} which samples independent keys per candidate generically for the key-generation 
+algorithm, for evaluation the combiner evaluates every candidate on the input with their corresponding 
+secret key, returns the XOR of the images with the proof contiaining all views of the candidate schemes. 
+For verification the combiner verifies that all candidates views in the proof are consistent by 
+querying every candidates verification oracle and then recomputes the output to compare it with the 
+image. The construction allows us to state the following theorem. 
+
+\todo{restate}
+\begin{theorem}
+    
+\end{theorem}
+
+\paragraph{Relaxed Combiners for Unbiasable VRF.}
+Having relaxed the unique provability property of the candidates we consider combiner constructions 
+for more advanced notions of VRFs. 
+A VRF is fully unbiasable if no efficient adversary can craft a set of keys 
+such that the output distribution distribution is skewed into any direction.
+We show that fully unbiasable VRF as defined in \Cref{def:unbiasability}
+admit non-uniform robust $(2;1)$ black-box combiners that base their property on collision resistant hash functions
+and $2$-source randomness extractors. \todo{this is unclear}. Formally we formulate the following theorem. 
+
+\todo{restate}
+\begin{theorem}
+    
+\end{theorem}
+
+\paragraph{Relaxed Combiners for Aggregable VRF.}
+Then we consider aggregable VRF we define in \Cref{def:aggvrf}
+which additionally allow the aggregation of many image-proof pairs into a single image-proof pair 
+to realize efficient batch verification. Key-homomorphic, secret-key aggregable, VRF require that the evaluation 
+algorithm forms a group homomorphism with respect to group structures on the secret-key space 
+and the product of the output codomain and the proof space. Using efficient grouphomomorphism tests 
+by \cite{} we can construct a $(n;1)$ robust combiner for statistically key-homomorphic VRF that works 
+by publicly checking the homomorphism property before running the algorithm.
+
+\todo{restate}
+\begin{theorem}
+    
+\end{theorem}
+
+For public-key aggregability 
+
+\paragraph{Relaxed Combiners for Constrainable VRF.}
+Finally we consider constrainable VRF, defined in \Cref{def:constrvrf}.
+Constrainable VRF additionally allow the user to generate constrained keys, 
+which only allow the evaluation on a constrained set of evaluation points.
+
+
+% \section*{Thesis Outline}
+% 
+% \begin{itemize}
+%     \item \textbf{\Cref{ch:notation} (Notation and Preliminaries):}
+%     \item \textbf{\Cref{ch:analysis} (Algorithm and Analysis):} 
+%     \item \textbf{\Cref{ch:conclusion} (Conclusion):} 
+% \end{itemize}

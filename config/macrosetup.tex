@@ -1,0 +1,438 @@
+%% Custom commands
+%% ===============
+
+%% Special characters for number sets, e.g. real or complex numbers.
+\newcommand{\C}{\ensuremath{\mathbb{C}}}
+\newcommand{\K}{\ensuremath{\mathbb{K}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Q}{\ensuremath{\mathbb{Q}}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\F}{\ensuremath{\mathbb{F}}}
+\newcommand{\I}{\ensuremath{\mathbb{I}}}
+
+%% Most common use
+
+% Annoying that this is necessary
+\AtBeginDocument{ 
+  \renewcommand{\O}{\ensuremath{\mathcal{O}}}
+}
+
+\newcommand{\A}{\ensuremath{\mathcal{A}}}
+\newcommand{\B}{\ensuremath{\mathcal{B}}}
+\newcommand{\G}{\ensuremath{\mathcal{G}}}
+\renewcommand{\S}{\ensuremath{\mathcal{S}}}
+\renewcommand{\K}{\ensuremath{\mathcal{K}}}
+\newcommand{\M}{\ensuremath{\mathcal{M}}}
+\newcommand{\T}{\ensuremath{\mathcal{T}}}
+\newcommand{\U}{\ensuremath{\mathcal{U}}}
+\renewcommand{\P}{\ensuremath{\mathcal{P}}}
+\newcommand{\X}{\ensuremath{\mathcal{X}}}
+\newcommand{\Y}{\ensuremath{\mathcal{Y}}}
+\newcommand{\V}{\ensuremath{\mathcal{V}}}
+\newcommand{\E}{\ensuremath{\mathcal{E}}}
+
+\renewcommand{\a}{\alpha}
+\renewcommand{\b}{\beta}
+\renewcommand{\c}{\gamma}
+\renewcommand{\d}{\delta}
+\newcommand{\e}{\varepsilon}
+\newcommand{\f}{\varphi}
+\newcommand{\g}{\gamma}
+\newcommand{\h}{\eta}
+\renewcommand{\k}{\kappa}
+\renewcommand{\l}{\lambda}
+\newcommand{\m}{\mu}
+\newcommand{\n}{\nu}
+\newcommand{\p}{\pi}
+\renewcommand{\r}{\rho}
+\newcommand{\s}{\sigma}
+\renewcommand{\t}{\tau}
+\renewcommand{\u}{\upsilon}
+\newcommand{\x}{\ensuremath{\mathbf{x}}}
+\renewcommand{\v}{\ensuremath{\mathbf{v}}}
+\newcommand{\z}{\ensuremath{\mathbf{z}}}
+\newcommand{\y}{\ensuremath{\mathbf{y}}}
+\newcommand{\w}{\omega}
+
+% Very natural
+\renewcommand{\o}{\circ}
+
+%% Additional simple symbols 
+\newcommand{\sample}{\ensuremath{\gets_\$}} 
+\newcommand{\bin}{\ensuremath{\{0,1\}}}      
+\newcommand{\vrf}{v}                          % for vrf instances
+\newcommand{\VRF}{\textup{\textbf{VRF}}}      % for the VRF primitive
+\newcommand{\PPTM}{\textup{\textsf{ PPTM }}}
+\newcommand{\iddots}{\ensuremath{{\cdot^{\cdot^{\cdot}}}}}
+\newcommand{\SK}{\mathcal{SK}}
+\newcommand{\PK}{\mathcal{PK}}
+
+\newcommand{\PSPACE}{\ensuremath{\textup{\textsf{PSPACE}}}}
+\newcommand{\NP}{\ensuremath{\textup{\textsf{NP}}}}
+\newcommand{\PP}{\ensuremath{\textup{\textsf{P}}}}
+
+\newcommand{\err}{\ensuremath{\eps}}
+\newcommand{\runtime}{\ensuremath{\mathfrak{t}}}
+\newcommand{\errtime}{\ensuremath{(\runtime, \eps)}}
+\newcommand{\errtimelen}{\ensuremath{(\runtime, \eps, \mathfrak{a}, \mathfrak{b})}}
+\newcommand{\sk}{\ensuremath{\textup{\textsf{sk}}}}
+\newcommand{\pk}{\ensuremath{\textup{\textsf{pk}}}}
+\newcommand{\pcreq}{\operatorname{\textbf{req}}}
+\newcommand{\interp}[1]{\ensuremath{[\![#1]\!]}}
+
+\DeclareMathOperator{\pptm}{p.p.t.m.}
+\DeclareMathOperator{\ppt}{ppt}
+
+%% Fixed/scaling delimiter examples (see mathtools documentation)
+\let\abs\relax
+\let\norm\relax
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
+
+% Define generic paired delimiters:
+\DeclarePairedDelimiter{\Paren}{(}{)}
+\DeclarePairedDelimiter{\Bracket}{[}{]}
+\DeclarePairedDelimiter{\Brace}{\{}{\}}
+
+% \begin{figure}[tb]
+% 	\begin{pcvstack}[center, space=1em]
+% 		\procedure[linenumbering]%
+% 		{Experiment $\Exp{VF}{up}(\lambda, \A)$}
+% 		{
+% 			... 
+% 		}
+% 	\end{pcvstack}
+% 	\caption{Unique provability security experiment.}
+% 	\label{fig:up_experiment}
+% \end{figure}
+
+% Big-O
+\NewDocumentCommand{\Oh}{som}{%
+  \ensuremath{\mathcal{O}\IfBooleanTF{#1}{%
+    \Paren*{#3}%          % *-version => auto-size
+  }{%
+    \IfNoValueTF{#2}{%
+      \Paren{#3}%         % no optional => normal size
+    }{%
+      \Paren[#2]{#3}%     % optional => \big, \Big, etc.
+    }%
+  }%
+}}
+
+%Big Omega:
+\NewDocumentCommand{\Om}{som}{%
+\ensuremath{\Omega\IfBooleanTF{#1}{%
+    \Paren*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Paren{#3}%
+    }{%
+      \Paren[#2]{#3}%
+    }%
+  }%
+}}
+
+% Big Theta:
+\NewDocumentCommand{\Th}{som}{%
+\ensuremath{\Theta\IfBooleanTF{#1}{%
+    \Paren*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Paren{#3}%
+    }{%
+      \Paren[#2]{#3}%
+    }%
+  }%
+}}
+
+% little-o:
+\NewDocumentCommand{\oh}{som}{%
+\ensuremath{o\IfBooleanTF{#1}{%
+    \Paren*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Paren{#3}%
+    }{%
+      \Paren[#2]{#3}%
+    }%
+  }%
+}}
+
+% little-omega:
+\NewDocumentCommand{\om}{som}{%
+\ensuremath{\omega\IfBooleanTF{#1}{%
+    \Paren*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Paren{#3}%
+    }{%
+      \Paren[#2]{#3}%
+    }%
+  }%
+}}
+
+% Probability:  \Prob{Event} =>  P{Event},   \Prob*{...} => auto-sized { ... }
+%    By default, we use curly braces for probabilities.
+\NewDocumentCommand{\Prob}{som}{%
+\ensuremath{\Pr% or \mathbb{P}, if you prefer
+  \IfBooleanTF{#1}{%
+    % *-version => auto-sized braces
+    \Bracket*{#3}%
+  }{%
+    % no star
+    \IfNoValueTF{#2}{%
+      % no optional argument => normal size braces
+      \Bracket{#3}%
+    }{%
+      % optional argument => \big, \Big, etc.
+      \Bracket[#2]{#3}%
+    }%
+  }%
+}}
+
+% Expectation:  \E{X} => E[X],   \E*{X} => auto-sized [ X ]
+\NewDocumentCommand{\E}{som}{%
+\ensuremath{\mathbb{E}
+  \IfBooleanTF{#1}{%
+    \Bracket*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Bracket{#3}%
+    }{%
+      \Bracket[#2]{#3}%
+    }%
+  }%
+}}
+
+\NewDocumentCommand{\Max}{s o m m}{%
+\ensuremath{\max
+  \IfBooleanTF{#1}{%
+    \Brace*{#3,\, #4}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Brace{#3,\, #4}%
+    }{%
+      \Brace[#2]{#3,\, #4}
+    }%
+  }%
+}}
+
+\NewDocumentCommand{\Min}{s o m m}{%
+\ensuremath{\min
+  \IfBooleanTF{#1}{%
+    \Brace*{#3,\, #4}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Brace{#3,\, #4}%
+    }{%
+      \Brace[#2]{#3,\, #4}
+    }%
+  }%
+}}
+
+% Prefer to ues \Exp{} for Experiment notation 
+
+% Exponential:  \Exp{x} => exp(x)
+% \NewDocumentCommand{\Exp}{som}{%
+% \ensuremath{\exp
+%   \IfBooleanTF{#1}{%
+%     \Paren*{#3}%
+%   }{%
+%     \IfNoValueTF{#2}{%
+%       \Paren{#3}%
+%     }{%
+%       \Paren[#2]{#3}%
+%     }%
+%   }%
+% }}
+
+% You might want \Log, \Var, \Cov, etc. Similarly:
+\NewDocumentCommand{\Log}{som}{%
+\ensuremath{\log
+  \IfBooleanTF{#1}{%
+    \Paren*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Paren{#3}%
+    }{%
+      \Paren[#2]{#3}%
+    }%
+  }%
+}}
+
+\NewDocumentCommand{\Var}{som}{%
+\ensuremath{\mathrm{Var}
+  \IfBooleanTF{#1}{%
+    \Bracket*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Bracket{#3}%
+    }{%
+      \Bracket[#2]{#3}%
+    }%
+  }%
+}}
+
+
+\NewDocumentCommand{\SetBuilder}{s o m m}{%
+\ensuremath{\IfBooleanTF{#1}{%
+    % Star version: auto-sized braces
+    \Brace*{\,#3 : #4\,}%
+  }{%
+    % Non-star version
+    \IfNoValueTF{#2}{%
+      % No optional argument => normal-size braces
+      \Brace{\,#3 : #4\,}%
+    }{%
+      % Optional argument => user-specified size, e.g. \big, \Big, \bigg
+      \Brace[#2]{\,#3 : #4\,}%
+    }%
+  }%
+}}
+
+%% Additional Macros
+
+%% Type-setting for the different objects
+
+% Primitives: \prim{x} => denote the cryptographic primitive x
+\NewDocumentCommand{\prim}{m}{
+\ensuremath{
+	\textup{\textsf{#1}}
+}
+}
+
+% Properties: \prop{x} => denote the property x
+\NewDocumentCommand{\prop}{m}{
+  \ensuremath{
+    \textup{#1}
+  }
+}
+
+% \alg{x}{y} => Algorithm x of construction y
+\NewDocumentCommand{\alg}{smm}{
+\ensuremath{
+	\IfBooleanTF{#1}{
+    \textup{\textsf{#2}}_{#3}
+    }{
+      \textup{\textsf{#2}}_{\prim{#3}}
+	}
+}
+}
+
+% \Exp{x,A}{z} => z security experiment/game for instance x and adversary A
+\NewDocumentCommand{\Exp}{smm}{
+\ensuremath{
+	\IfBooleanTF{#1}{
+      \textup{\textbf{Exp}}_{#2}^{\textup{#3}}
+      }{
+      \textup{\textbf{Exp}}_{\prim{#2}}^{\textup{#3}}
+	}
+}
+}
+
+% \Adv{x,A}{z} => advantage of adversary A in \Exp{x,A}{z}
+\NewDocumentCommand{\Adv}{smmm}{
+\ensuremath{
+	\IfBooleanTF{#1}{
+		\textup{\textbf{Adv}}_{#2}^{\textup{#3}}(#4)
+	}{
+		\textup{\textbf{Adv}}_{\prim{#2}}^{\textup{#3}}(#4)
+	}
+}
+}
+
+% \impl{x} => denote the implementation x
+\NewDocumentCommand{\impl}{m}{
+	\textup{\text{#1}}
+}
+
+% \todo[x] => x needs to be done here
+% \NewDocumentCommand{\todo}{o}{
+% 	\ensuremath{
+% 		\IfNoValueTF{#1}{
+% 			\color{red}
+% 			\textbf{ Todo! }
+% 			\color{black}
+% 		}{
+% 			\color{red}
+% 			\textbf{ TODO: }\text{#1}
+% 			\color{black}
+% 		}
+% 	}
+% }
+
+% \negl[n] => function negligible in n
+\NewDocumentCommand{\negl}{so}{
+  \ensuremath{
+    \IfNoValueTF{#2}{
+      \textup{\textsf{negl}}(\lambda)
+    }{
+      \IfBooleanTF{#1}{
+        \textup{\textsf{negl}}\Paren*{#2}
+      }{
+        \textup{\textsf{negl}}\Paren{#2}
+      }
+    }
+  }
+}
+
+% \poly[n] => function polynomial in n
+\NewDocumentCommand{\poly}{so}{
+  \ensuremath{
+    \IfNoValueTF{#2}{
+      \textup{\textsf{poly}}(\lambda)
+    }{
+      \IfBooleanTF{#1}{
+        \textup{\textsf{poly}}\Paren*{#2}
+      }{
+        \textup{\textsf{poly}}\Paren{#2}
+      }
+    }
+  }
+}
+
+% Robust combiner
+\NewDocumentCommand{\Comb}{smo}{
+  \ensuremath{
+    \IfNoValueTF{#3}{
+      \Pi_{\textup{\textbf{#2}}}
+    }{
+      \IfBooleanTF{#1}{
+        \Pi_{\textup{\textbf{#2}}}\Paren*{#3}
+      }{
+        \Pi_{\textup{\textbf{#2}}}\Paren{#3}
+      }
+    }
+  }
+}
+
+% Robust black-box combiner
+\NewDocumentCommand{\BBComb}{mo}{
+  \ensuremath{
+    \IfNoValueTF{#2}{
+      {\Pi_{\prim{#1}}}
+    }{
+      {\Pi_{\prim{#1}}^{#2}}
+    }
+  }
+}
+
+% Interpretation
+\NewDocumentCommand{\inter}{sm}{
+  \IfBooleanTF{#1}{
+    \Bracket*{\!\Bracket*{#2}\!}
+  }{
+    \Bracket{\!\Bracket{#2}\!}
+  }
+}
+
+%% The xspace package is used to automatically handle spacing, regardless of whether the command is followed by punctuation or not.
+\newcommand{\onemax}{\textsc{OneMax}\xspace}
+
+%% \eps is quicker to type and the \varepsilon font is more common and nice.
+\newcommand{\eps}{\ensuremath\varepsilon}
+
+%% Also set the alternate phi as default, no real reason to use the old one, but one can.
+\let\oldphi\phi
+\renewcommand{\phi}{\ensuremath{\varphi}}
