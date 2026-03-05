@@ -5,7 +5,11 @@
 
 For a positive integer $n$ we define $[n] = \Brace{1,\ldots,n}$. 
 Unless specified otherwise we use $\lambda$ to denote the security parameter. 
-A function $\eps(n)$ is called negligible, if it vanishes faster than the inverse of any polynomial in $n$. 
+A function $\eps(n)$ is called negligible, if it vanishes faster than the inverse of any polynomial in $n$,
+formally defined in \Cref{def:negligible}. 
+We say that an event $E$ happens with overwhelming probability if $\Prob{E} \ge 1 - \eps(\lambda)$
+for a negligible function $\eps$ and we say that an $E$ occurs with significant probability if 
+$\Prob{E} \ge \frac{1}{p(\lambda)}$ for a polynomial $p$ in $\lambda$.
 We use $\poly[n]$ to denote the set of functions polynomial in $n$ and $\negl[n]$ to denote the set of functions negligible in $n$.
 For a set $S$ we write $y \sample S$ to indicate that the value of $y$ is sampled uniformly at random from $S$,
 for a random variable $X$ we write $y \sample X$ to indicate that the value of $y$ is sampled from the 
@@ -17,15 +21,15 @@ Unless specified otherwise we assume that any algorithm gets as input in the fir
 the unary encoding of the security parameter $1^\lambda$.
 Finally we use ppt. to abbreviate probabilistic polynomial time in context of turing machines and algorithms. 
 
-\begin{definition}[Polynomial Functions]
-	We say that a function $f: \N \to \N$ is polynomial in its argument $\lambda$ if 
+\begin{definition}[Polynomial Functions]\label{def:polynomial}
+	We say that a function $f: \N \to \R$ is polynomial in its argument $\lambda$ if 
 
 	\[
 		\exists c,d \in \N, \forall \lambda \in \N, f(\lambda) \le c \lambda^d
 	\]
 \end{definition}
 
-\begin{definition}[Negligible Functions]
+\begin{definition}[Negligible Functions]\label{def:negligible}
 	We say that a function $f: \N \to \R$ is negligible in its argument $\lambda$ if
 
 	\[

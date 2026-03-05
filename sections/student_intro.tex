@@ -4,10 +4,40 @@
 \section{Motivation and Previous Work}
 
 \paragraph{Verifiable Random Functions.} 
-Verifiable random functions (VRF) \cite{FOCS:MicRabVad99} are cryptographic primitive that allows the owner 
+A verifiable random function (VRF) introduced by Micali, Rabin and Vadhan in \cite{FOCS:MicRabVad99} 
+is a cryptographic primitive which allows the holder of a secret key to evaluate a pseudorandom function 
+at arbitrary points and obtain image-proof pairs. In the absense of the proof the images 
+are computationally indistinguishable from random elements in the range while the corresponding proof 
+allows the owner of the corresponding public key to verify whether the output was indeed computed correctly.
+Additionally we require that the verification accepts an image-proof pair if and only if the image is the unique 
+evaluation of the point under the given secret key. As such, a VRF can be considered the public-key equivalent 
+of the more common secret-key pseudorandom function (PRF).
+
+In practice VRFs are used to implement signatures with strong verifiability guarantees \cite{C:GolOst92},
+resettable zero-knowledge proofs \cite{C:MicRey01}, lottery and e-cash systems \cite{RSA:MicRiv02a,Liang2020,EPRINT:AuSusMu07a}
+and in Proof-of-Stake blockchains through distributed leader election protocols  \cite{ChenMicali2016, C:KRDO17, EC:DGKR18, EPRINT:BASV23b}.
+
+In addition to standard VRFs, both stronger variants such as constrainable VRFs which 
+additionally allow the constraining of secret keys to a specified subset of evaluations \cite{},
+key-homomorphic and aggregable VRFs that allow the aggregation of multiple image-proof pairs into a single
+image-proof pair \cite{} and unbiasable VRFs that guarantee unbiasability, preventing adversaries 
+to generated keys such that the corresponding evaluations can be biased \cite{}.
+
+We also consider weaker notions of VRFs, such as verifiable unpredictable functions (VUFs)
+already introduced in \cite{FOCS:MicRabVad99} together with VRFs and weakly verifiable random functions 
+(wVRFs) which only require a weaker notion of pseudorandomness, that is pseudorandomness on uniformly random 
+evaluation points. While VRFs can be constructed from VUFs using hardcore bits \cite{}, the authors of 
+\cite{} show that VRFs can not, in general, be constructed from wVRFs using a seperation relying on 
+enhanced trapdoor permutations.
+
+\begin{comment}
+A verifiable random functions (VRFs) introduced by Micaeli, Rabin and Vadhan in 
+\cite{FOCS:MicRabVad99} are a cryptographic primitive
+Verifiable random functions (VRFs) \cite{FOCS:MicRabVad99} are cryptographic primitive that allows the owner 
 of a secret key to obtain output-proof pairs by executing an evaluation algorithm on specified points 
 such that the outputs pass all computational tests for randomness with high probability in the absence of the corresponding proof, 
 and such that the correct evaluation of any image can be verified by a party with access to the corresponding public key and proof. 
+
 In practice VRFs are used in signatures with strong verifiability guarantees \cite{C:GolOst92},
 resettable zero-knowledge proofs \cite{C:MicRey01}, lottery systems \cite{RSA:MicRiv02a,Liang2020},
 transaction escrow schemes \cite{EC:JarShm04}, updatable zero-knowledge databases \cite{AC:Liskov05},
@@ -43,6 +73,7 @@ protocol is secure however since even for a secure VRF there might exist key pai
 VRF could be biased towards lower values. Unbiasability \cite{} is a security property that ensures that 
 even if the adversary may arbitrarily choose the keys, the output distribution of the evalution 
 cannot be skewed. 
+\end{comment}
 
 \paragraph{Robust (Black-Box) Combiners.} 
 Robust combiners are constructions that take many instances of the same cryptographic primitive, called candidate schemes,
