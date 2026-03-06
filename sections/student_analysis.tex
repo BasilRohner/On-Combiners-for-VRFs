@@ -2,12 +2,35 @@
 \label{ch:analysis}
 
 \section{Robust Black-Box DAG Combiner}
-Intuitively, we imagine a robust black-box combiner to operate by orchestrating a sequence of 
-queries to its candidate schemes with computations that we model with probabilistic turing machines 
-in between. To make the combiner structure more explicit we will model it with a vertex-colored 
-directed acyclic graph (DAG) where the nodes correspond to an oracle call to a candidate scheme 
-specified by the vertex-coloring with inputs computed from the outputs of the oracle calls 
-of the predecessors using a ppt algorithm. Formally we introduce the notion of a robust black-box DAG combiner:
+Intuitively, a robust black-box combiner operates on $n$ candidate schemes by 
+interleaving oracle calls to the candidates implemented functions with processing 
+to combine their outputs in a way such that security properties of the secure 
+subset of oracles are preserved if there are sufficiently many of them.
+To argue about the impossibility of such constructions it is helpful to impose 
+additional structure on the combiner, to structure it as a directed acyclic graph 
+modeling the computation of the combiner.
+In the DAG every oracle query corresponds to a vertex colored with the appropriate label
+Viewing a robust black-box combiner as a robust black-box DAG combiner is therefore 
+simply a way make the structured execution of a combiner explicit, making the 
+reasoning about oracle query dependencies and oracle-independent computation explicit.
+Additionally since robust black-box combiners need to satisfy the security properties relative 
+to a PSPACE oracle, in the later proof we rely on the ability of the PSPACE oracle to brute-force 
+many secret keys in the algorithm if there are not queries to oracles. For this line of reasoning 
+this description is also more convenient. As we will show later in \Cref{thm:generality_dag_comb},
+the notions of robust black-box combiners and robust black-box DAG combiners are equivalent.
+
+We define robust black-box DAG combiners by representing each implemented algorithm $\alg{alg}{}$
+with a directed acyclic graph $\G_{\alg{alg}{}} = (V_{alg}, E_{alg})$ with a source $s_{\alg{alg}{}} \in V_{\alg{alg}{}}$ 
+that has no in-going edges, corresponding to the input of the algorithm, and a sink $t_{alg} \in V_{alg}$ with no out-going edges,
+corresponding to a final processing step. Additionally the description of the DAG combiner contains a 
+vertex labling $l_{alg}: V_{alg} \setminus \{s_{alg}, t_{alg}\} \to [n] \times \{alg_1, \ldots, alg_k\}$ which
+maps every vertex that is not a source or a sink to the corresponding candidate oracle and the specific function 
+called on an input $\x_v$ to produce an output $\y_v$. We define the output 
+$\y_{s_{alg}}$ of the source to be the combiner algorithm input and the output of the
+sink $t_{alg}$ to be the output of the combiner. The input $\x_v$ to the query at vertex $v \in V_{alg} \setminus \{s_{alg}, t_{alg}\}$
+is computed by an efficient (ppt.) Turing machine $f_{alg}^v$ associated with vertex $v$ in $G_{alg}$ which takes as input the labeled outputs of all predecessors 
+$w \in \mathcal N_{in}(v)$ and produces an oracle query $\x_v$. We formally describe robust black-box DAG combiners 
+in the following definition.
 
 \begin{definition}[Robust $(n;k)$ Black-Box DAG $\prim{P}$-Combiner]\label{def:robust_blackbox_dag_combiner}
 	Given a cryptographic primitive $\prim{P}$ implementing a set of algorithms
@@ -54,39 +77,71 @@ of the predecessors using a ppt algorithm. Formally we introduce the notion of a
 	\end{figure}
 \end{definition}
 
+A robust black-box DAG combiner algorithm is then executed by tracing the computation through the corresponding DAG $G_{alg}$, 
+starting at the source $s_{alg}$ and ending at the sink $t_{alg}$ in a topological ordering. The interpretation of an algorithm 
+$alg$ described by the robust black-box DAG combiner by $(\G_{alg}, s_{alg}, t_{alg}, l_{alg}, \{f_{alg}^v\}_{v \in V_{alg} \setminus \{s_{alg}, t_{alg}\}})$
+is shown in \Cref{fig:dag_combiner}.
+
 \paragraph{Example.}
-We show the robust $(2;1)$ black-box DAG combiner for verifiable random functions with guaranteed unique provability in \Cref{fig:example_dag_combiner} by drawing the graphs corresponding to each algorithm 
-and labling each vertex with the corresponding oracle queried and the explicit description Turing machine modeling the preceeding 
-computation. For clarity we will use the name of the algorithms rather than an indexing and we label the vertices with the corresponding oracle calls direclty.
+We introduce the notion of robust black-box DAG combiners to make the underlying structure of 
+robust black-box combiners more explicit. To illustrate the definition we will show the structure of the 
+DAG combiner of a robust $(2;1)$ black-box combiner \Cref{def:prf-combiner} in \Cref{fig:example_dag_combiner}.
+We label every vertices $v$ in the DAGs that is not a source or sink with $l_{alg}(v)$, i.e. their vertex labling
+and for every vertex add the functional description of the Turing machines $f_{alg}^v$.
 
 \begin{figure}[H]
 	\centering
 	\begin{tikzpicture}
-		\node[] (Gen0) at (0,0) {$s_{\alg{Gen}{VRF}}$};
-		\node[] (Gen1) at (-1.25,-1) {$\O_1.{\alg{Gen}{VRF}}$};
-		\node[] (Gen2) at (1.25,-1) {$\O_2.{\alg{Gen}{VRF}}$};
-		\node[] (Gen3) at (0,-2) {$t_{\alg{Gen}{VRF}}$};
+		\node[] (Gen0) at (0,0) {$s_{gen}$};
+		\node[] (Gen1) at (-1.25,-1) {$(0, gen), \y_{s_{gen}} \mapsto $};
+		\node[] (Gen2) at (1.25,-1) {$(1, gen)$};
+		\node[] (Gen3) at (0,-2) {$t_{gen}$};
 	\end{tikzpicture}
 	\label{fig:example_dag_combiner}
 	\caption{Drawing of the graphs $\G$}
 \end{figure}
 
-We will refer to a robust black-box DAG combiner as a DAG combiner.
-According to the definition \Cref{def:robust_blackbox_dag_combiner} every DAG combiner is necessarily 
-also a robust black-box combiner. In the following we show that the converse also holds, 
-that is, that the class of DAG combiners and robust black-box combiners are computationally equivalent 
-for any underlying primitive.
+\newpage
+
+Since later on we will focus on showing the impossibility of certain combiner constructions it's 
+essential that the notion of combiner that we use is as strong as possible.
+By definition a robust black-box DAG combiner is also a robust black-box combiner. 
+We show that the notions of robust black-box DAG combiner and robust black-box combiner 
+are equally strong and capture the same set of constructions.
+We formulate this result in the following theorem.
 
 \begin{theorem}[Generality of Robust $(n;k)$ Black-Box DAG Combiners]\label{thm:generality_dag_comb}
 	For every robust $(n;k)$ black-box combiner there exists a computationally equivalent 
 	robust $(n;k)$ black-box DAG combiner.   
 \end{theorem}
 
-Informally this equality holds as every robust black-box combiner consists of algorithms 
-that performs computations interleaved with oracle queries to their candidate schemes. We can unroll 
-this computation create a node for each oracle query performed during the computation to 
-arrive at the corresponding vertex-colored DAG, the computations performed in-between 
-oracle queries can be represented with a ppt. Turing machine $f_{j,i}$.
+\paragraph{Intuition.}
+We need to show that for every robust $(n;k)$ black-box combiner $\BBComb{}[]$ we can construct a 
+robuts $(n;k)$ black-box DAG combiner $\widetilde\Pi$ that represents the same function 
+if interpreted, given that $\BBComb{}[]$ is efficient is also efficient.
+The proof works by unrolling the computation done by the combiner $\BBComb{}[]$ for every oracle 
+call made to a candidate scheme.
+Since we know that $\BBComb{}[]$ is a black-box combiner, it runs in time polynomial in $\lambda, n, m$. 
+Let $T \in \poly[\lambda, n, m]$ be an upper bound on the number of steps that the algorithm runs over all 
+inputs $\x$ into the combiner.
+We start by constructing a graph $\G_{alg}$ that consists of $T$ layers of $nm$ vertices, 
+where $n$ is the number of candidates and $m$ is the number of algorithms implemented by the primitive.
+On every layer, each vertex corresponds to an oracle call to a specific oracle algorithm of a candidate.
+We connect two vertices $v,w \in V_{alg}$ if the they are not in the same layer with an edge pointing 
+from the vertex in the layer closer to the source to the other vertex. To define the functions $f_{alg}^v$
+for $v \in V_{alg}$, a vertex in layer $k \in [T]$, we construct a Turing machine that simulates the robust black-box combiner $\BBComb{}[]$ until 
+the $k$'th oracle query. Once the $i \in [k-1]$'th oracle query is made we instead use the correct output of the correct vertex in the 
+$i$'th layer and move on. For the $k$'th query we simply query the oracle of our vertex if the oracle is correct (and also if its is not correct,
+this will then simply be ignored later one during the execution).
+
+To prove that this construction results in the same output as the robust black-box combiner does,
+we proceed by induction on the layer depth of the current query, claiming that the output of the 
+correct vertex at that layer aligns with the query output of the corresponding query in the execution 
+of the robust black-box combiner. Note that the DAG only contains $T \times n \times m$ many vertices and Turing machines $f_{alg}^v$.
+Since the computation at every vertex is bounded from above by the time it takes the robust black-box combiner 
+to run and we only make one oracle call at every vertex, the result of every vertex can be computed in time at most 
+$T$. Overall the time it takes for the robust black-box DAG combiner to run is therefore polynomial in $\lambda, n,m$.
+We provide a formal proof below.
 
 \begin{proof}[\Cref{thm:generality_dag_comb}]
 	Let $\prim{P}$ be a cryptographic primitive $\BBComb{P}$ with 
@@ -116,17 +171,154 @@ oracle queries can be represented with a ppt. Turing machine $f_{j,i}$.
 
 \section{Impossibility of Robust Black-Box VRF-Combiner}
 
-We consider the possibility of combining VRFs in a black-box fashion. As previously mentioned 
-we present an impossibility result for general robust $(n;n-1)$ black-box VRF-combiners.
-This means that given $n$ VF oracles there is no way to combine 
-them in a construction such that the construction is VRF secure if at least $n-1$ candidates are secure.
-For simplicity we assume that the secret key spaces of the candidates are of the form $\SK = \bin^{s(\lambda)}$
-for some $s \in \poly$.
+We now tackle the main challenge of combining VRFs in a black-box fashion. Specifically 
+we study the possibility of constructing a robust $(n;k)$ black-box combiner $\BBComb{VRF}$
+for the VRF primitive. During this section we will make the additional assumption that the secret key
+space of all candidate schemes is equivalent (or at least is in bijective correspondence to) $\bin^{s(\lambda)}$
+for $s$ a polynomial in $\lambda$. \todo{more introduction}
 
-\begin{theorem}\label{thm:impossibility_wvrf_comb}
+\paragraph{Warm Up.} 
+As a warm-up we will start by showing the impossibility of a robust $(2;1)$ black-box combiner for VRFs.
+That is, we show that there exists no efficient (ppt.) Turing machine $\BBComb{VRF}$ such that 
+for any two oracles $\O_1, \O_2$ implementing a VF, $\BBComb{VRF}[\O_1, \O_2]$ implements a secure VRF 
+if at least one of the candidates implements a secure VRF. We state the following lemma.
+
+\begin{lemma}[Robust $(2;1)$ Black-Box VRF Combiner]\label{lemma:warmup}
+	There exists no robust $(2;1)$ black-box combiner in the sense of 
+	\Cref{def:robust_blackbox_combiner} for the VRF primitive defined in \Cref{def:vrf}.
+\end{lemma}
+
+\paragraph{Intuition.}
+We must show that for every construction $\BBComb{VRF}$ implemented by a ppt. Turing machine there 
+exist two oracles $\O_1, \O_2$, of which at least one implements a secure VRF, such that 
+$\BBComb{VRF}$ is either not pseudorandom in the sense of \Cref{def:pseudorandomness},
+perfectly correct in the sense of \Cref{def:correctness} or not 
+uniquely provable in the sense of  \Cref{def:unique_provability}. 
+Applying the result from \Cref{thm:generality_dag_comb} we can argue about the non-existence of DAG combiners 
+instead, fix an arbitrary DAG combiner $\BBComb{VRF}$ and consider the DAG corresponding to the evaluation 
+algorithm $\G_{eval}$. Let $\O_1, \O_2$ be arbitrary, but fixed, VF oracles which are uniquely provable 
+and perfectly correct and let $\sk, x$ be arbitrary but fixed inputs to the combiners evaluation function, where $\sk$ is in the support 
+of the combiners key-generation function \todo{maybe tweak} and $x \in \bin^\lambda$. We iterate over the vertices of $\G_{eval}$ in topological ordering and distinguish two cases,
+either the oracle query produced there is irrelevant in the combiners computation of the output in the sense that for 
+any output in the support of the oracle (possible output).
+
+If that is not the case there exist possible output $\hat\y_v$ such that after substituting
+the output of the oracle with this value the combiner output changes from $\y$ to $\hat\y \neq \y$.
+We argue that in this case the exact query on $\x_v$ that is done in the evaluation algorithm 
+\textit{must} be repeated in the execution of the verification algorithm. W.l.o.g. assume that 
+the query corresponds to oracle $\O_1$. If that were not the case then we 
+can construct oracles $\hat\O_1, \O_2^*$ such that $\hat\O_1$ is equivalent to $\O_1$ except that for 
+the evaluation in $\x_v$ where it evaluates to $\hat\y_v$ instead of $\y_v$ \todo{first argue that every
+oracle query is unique, that is we dont requery the same oracle on the same input, simply build a caching algorithm
+and argue using determinism}. We construct $\O_2^*$ to be a secure VRF oracle that agrees with $\O_2$
+on all inputs queried during the execution of the combiner on $\sk, x$.
+This is possible since we only make a polynomial number of queries to $\O_2$
+and even fixing all of the corresponding secret keys (and additional secret keys to preserve unique provability and correctness)
+the oracle can still be pesudorandom since the space of possible secret keys is much larger.
+Specifically we show that if rewiring those keys leads to an exploit then we could simply guess those keys
+and mount the attack anyway. \todo{polish}
+
+Now that we have the oracles $\hat\O_1, \hat\O_2$, of which one is secure, we know that 
+$\BBComb{VRF}[\hat\O_1, \hat\O_2]$ and $\BBComb{VRF}[\O_1, \hat\O_2]$ must implement secure VRFs.
+In particular by perfect correctness and unique provability we must have the following:
+\begin{align}
+	\BBComb{VRF}[\hat\O_1, \hat\O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi) &= 1\\
+	\BBComb{VRF}[\O_1, \hat\O_2].\alg{Vfy}{VRF}(\pk, x, \hat y, \hat\pi) &= 1\\
+	\BBComb{VRF}[\hat\O_1, \hat\O_2].\alg{Vfy}{VRF}(\pk, x, \hat y, \hat \pi) &= 0\\
+	\BBComb{VRF}[\O_1, \hat\O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi) &= 0
+\end{align}
+Since however the oracles $\hat\O_1, \O_1$ only differ in a single evaluation query 
+which is not queried by the verification algorithm the evaluation of $\BBComb{VRF}[\hat\O_1, \hat\O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi)$
+must evaluate to the same as the evaluation of $\BBComb{VRF}[\hat\O_1, \hat\O_2].\alg{Vfy}{VRF}(\pk, x, \hat y, \hat\pi)$
+which is a contradiction. We conclude that the combiner is either not uniquely provable or not 
+perfectly corect if there exist irrelevant queries in the evaluation algorithm which are not requeried.
+We can additionally show that the converse holds with an analogous argument, establishing a bijection between 
+relevant queries in both the evaluation and verification algorithm. 
+
+Directing our attention to the irrelvant queries. As previously argued those queries are \textit{individually irrelevant},
+they are also \textit{jointly irrelevant}. We an now instantiate the combiner with two arbitrary \todo{study in which aspect we couldnt just start with VRFs but start wiht uniquely provable and perfectly correct oracles.}
+oracles $\O_0, \O_{VRF}$ and argue that given a tuple $(x, y, \pi)$ the evaluation of the combiner we can filter 
+the secret keys by first computing the verification transcript of the combiner on input $(x, y, \pi)$, $\mathcal T$
+which then, per our previous argument holds all queryies made to relevant vertices. We then iterate over all candidate secret keys 
+$\SK$, any query made by oracle $\O_0$ is trivially simulated, every query made by $\O_{VRF}$ in $\mathcal T$ can honestly be simulated
+and every query not in the transcript we iterate over all possible values. If the output over all iterations for a secret key is $y$
+(that means that the also in the honest evaluation of the combiner using oracle queries the secret key evaluates to this output), we keep it.
+If for some choice of iterated guess the output is not $y$ then we know that the secret key is not the real secret key and we drop it.
+We will show that after $2s(\lambda)$ we end up with a candidate set where on a new random $x^*$ the probability is 
+significant to sample a secret key which evaluates $x$ to the same output as it is under the honest secret key.
+An adversary can leverage this to break pseudorandomness.
+
+\paragraph{Proof of \Cref{lemma:warmup}.}
+
+
+TODO
+
+Moving on we extend this result to exclude general robust $(n; \lfloor n/2\rfloor)$ black-box combiners.
+The proof works very similarly
+
+TODO
+
+\begin{lemma}[Robuts $(n; \lfloor n/2\rfloor)$ Black-Box VRF Combiner]\label{lemma:nhalf}
+	There exists no robust $(n; \lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} for the VRF primitive 
+	defined in \Cref{def:vrf} for all $n \in \N^+$.
+\end{lemma}
+
+The proof of this lemma is very similar to the proof of \Cref{lemma:warmup}, we will therefore move it to the appendix. 
+Instead we work on strengthening the result to the following, more general statement.
+
+\begin{theorem}[Robust $(n;n-1)$ Black-Box VRF Combiner]\label{thm:impossibility_wvrf_comb}
 	There exists no robust $(n;n-1)$ black-box $\prim{VRF}$-combiner.
 \end{theorem}
 
+Extending the proof of \Cref{lemma:warmup} and \Cref{lemma:nhalf} to this stronger notion requires one main insights:
+First, repeating the argument before we end up with $n$ oracle queries, of which we can only make $1$ trivial (setting it to $0$ or similar).
+The issues is that across oracle calls the individually irrelevant queries may not be jointly irrelevant. That is,
+changing the outputs of two individually irrelevant oracle queries across two different candidate schemes may result in 
+a different output, making simulation non-trivial. 
+
+\paragraph{Proof of \Cref{thm:impossibility_wvrf_comb}.}
+TODO
+
+Finally we show that no combiners exist, even if we lower our requirements for the combiner.
+That is we only require statistical correctness, statistical unique provability and weak pseudorandomness.
+Even if at least $n-1$ candidates implement secure VRFs, satisfying perfect unique provability,
+perfect correcntess and strong pseudorandomness. We state the following theorem, the strongest 
+of version of the main result.
+
+\begin{theorem}[Strong Robust $(n;n-1)$ Black-Box VRF Combiner]\label{thm:main}
+	There exists no robust $(n;n-1)$ black-box combiner for the VF primitive 
+	satisfying statistical correctness, statistical unique provability and weak pseudorandomness.
+	Even if at least $n-1$ candidate oracles are guaranteed to implement secure VRFs.
+\end{theorem}
+
+\color{red}
+have only VRF here, put the other stuff into corollary
+\color{black}
+
+The proof extends the proof of \Cref{thm:impossibility_wvrf_comb}. The weak pseudorandomness we get for free in the previous proof,
+the constructed adversary can just as well play the weak prf security experiment and with with the same advantage.
+To account for the statistical notions of perfect correctness and unique provability we generalize the concept of irrelevance 
+to a probabilistic notion called \textit{overwhelming irrelevance}. We say that a node is \textit{overwhelmingly irrelevant}
+if the probability, over sampled secret keys $\sk \sample \alg{Gen}{}$ and uniformly random inputs $x \sample \bin^\lambda$
+the probability of the vertex being irrelevant is overwhelming. We claim that for overwhelmingly irrelevant vertices the probability of the 
+verification algorithm requerying is overwhelming. The proof continues with a similar argument, accounting for the fact that $(1 - \negl)^{\poly}$ is still overwhelming probability.
+We provide the entire proof in the appendix. 
+
+We briefly want to comment on the combiner notions on other relaxed version of the VRF primitive.
+That is verifiable unpredictable functions (VUF) as defined in \Cref{def:vuf}. We note that for unpredictability 
+the same combiner, as given in the proof of \Cref{thm:main} works. Therefore as a corollary to \Cref{thm:main}
+we can formulate a similar result on VUFs instead of wVRFs. Since VRF candidates are automatically VUF candidates,
+this in particular excludes the possibility of a standard VUF combiner.
+
+\begin{corollary}[Strong Robust $(n;n-1)$ Black-Box VUF Combiner]\label{cor:vuf_comb}
+	
+\end{corollary}
+
+\section{Weak Robust Black-Box VRF-Combiner}
+
+
+
+\begin{comment}
 \paragraph{Intuition.}
 We need to show that for every $(n;n-1)$ black-box $\prim{VRF}$-combiner $\BBComb{VRF}$
 there exists a tuple $\mathbf O = (\O_1, \ldots, \O_n)$ of VF oracles of which at least $n-1$
@@ -560,6 +752,17 @@ where the entries that are not contained in the transcript can simply be simulat
 of the wrong but output-preserving guess of an irrelevant oracle. I think it will be the case that 
 for any new transcript produced by guessing the output wont change, and a query done that would change 
 the output must then be repeated in verification algorithm. That means we can just guess our way through.}
+
+--- 
+
+\paragraph{Warm up.} Lets first consider the case $n = 2$. 
+We consider two cases: Case $1$ is that for all uniquely provable oracles $\O_1, \O_2$,
+all secret keys $\sk \sample \alg{Gen}{VRF}$ and all $x \sample \bin^\lambda$ we all relevant oracle queries 
+must are repeated in the transcript of the verification algorithm. 
+Assume this were not the case, that is, a relevant oracle query for say $\O_1$
+would not be re-queried in the verification, then we could obtain two verifiying distinct images $y_0 \neq y_1$
+by using correctness but breaking unique provability. Since, in particular, we can make the oracles uniquely 
+provable, \todo{unsure}, we solve this case. 
 
 \begin{comment}
 Initialize the combiner with an oracle $\mathbf O$ and proceed in topological ordering.

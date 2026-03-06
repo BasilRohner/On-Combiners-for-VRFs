@@ -121,6 +121,10 @@ unpredictability.
 	We say that a VF is pseudorandom, if it is $\errtime$-pseudorandom with $\err$ being a negligible function and $\runtime$ being a polynomial, i.e. $\err \in \negl, \runtime \in \poly$.
 \end{definition}
 
+In contrast to pseudorandomness, which requires that images of chosen evaluation points are pseudorandom,
+i.e. indistinguishable from uniformly random elements in the co-domain, weak pseudorandomness 
+requires only that the evaluation of uniformly random evaluation points.
+
 \begin{definition}[$\errtime$-weakly Pseudorandomness]\label{def:weak_pseudorandomness}
 	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is defined to be $\errtime$-weakly pseudorandom if for all security parameters $\lambda \in \N$, 
 	for all stateful adversaries $\A$, running in time at most $\runtime(\lambda)$, the advantage of $\A$ in the wprf security experiment outlined in \Cref{fig:prf_wprf_up_experiment} 
@@ -154,10 +158,10 @@ unpredictability.
 			b \sample \bin\\ 
 			(\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
 			S \gets \varnothing\\ 
-			(x^*, \sigma) \sample \mathcal A^{\O_{\text{eval}}}(1^\lambda, \pk)\\ 
+			(\gamechange{$x^*$}, \sigma) \sample \mathcal A^{\O_{\text{eval}}}(1^\lambda, \pk)\\ 
 			(y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
 			y_1 \sample \Y\\ 
-			b' \sample \A(1^\lambda, \sigma, y_b) \\ 
+			b' \sample \A(1^\lambda, x^*, \sigma, y_b) \\ 
 			\pcreturn b = b' \land x^* \notin S
 		}
 		\procedure[linenumbering]%
@@ -166,10 +170,11 @@ unpredictability.
 			b \sample \bin\\ 
 			(\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
 			S \gets \varnothing\\ 
-			x^* \sample \bin^\lambda\\ 
+			\sigma \sample \A^{\O_{\text{eval}}}(1^\lambda, \pk)\\ 
+			\gamechange{$x^* \sample \bin^\lambda$}\\ 
 			(y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
 			y_1 \sample \Y\\ 
-			b' \sample \A^{\O_{\text{eval}}}(1^\lambda, \pk, x^*, y_b) \\ 
+			b' \sample \A^{\O_{\text{eval}}}(1^\lambda, x^*, \sigma, y_b) \\ 
 			\pcreturn b = b' \land x^* \notin S
 		}
 	\end{pchstack}
@@ -192,7 +197,8 @@ unpredictability.
 		}
 	\end{pchstack}
 	\end{pcvstack}
-	\caption{Security game for pseudorandomness, weak pseudorandomness and unpredictability.}
+	\caption{Security game for pseudorandomness, weak pseudorandomness and unpredictability. The differences
+	between the prf and wprf security experiment are highlighted in gray.}
 	\label{fig:prf_wprf_up_experiment}
 \end{figure}
 
@@ -350,6 +356,7 @@ We define several properties for aggregatable verifiable functions (AggVF), foll
 
 \section{Robust Combiners}
 
+\begin{comment}
 Given a cryptographic primitive $\prim{P}$ we define a robust $(n;k)$ $\prim{P}$-combiner
 
 \begin{definition}[Robust $(n;k)$ $\prim{P}$-combiner]
@@ -365,6 +372,7 @@ Given a cryptographic primitive $\prim{P}$ we define a robust $(n;k)$ $\prim{P}$
 	such that the combiner securely implements the primitive $\prim{P}$ if at least $k$ candidates schemes securely 
 	implement the primitive $\prim{P}$.
 \end{definition}
+\end{comment}
 
 We write robust combiner for robust $(n;k)$ $\prim{P}$-combiner whenever $n,k$ and $\prim{P}$ are clear from the context. 
 A robust combiner gets the candidate schemes as a description of their turing machine and can therefore be 
@@ -382,7 +390,7 @@ for that reason we require the security to hold relative to a PSPACE oracle $\PS
 \todo{Very unhappy with this definition}
 
 \begin{definition}[$(n;k)$-Robust Black-Box $\prim{P}$-Combiner]\label{def:robust_blackbox_combiner}
-	Given a cryptographic primitive $\prim{P}$ describing $p$ algorithm $({\alg{alg}{P}}^1, \ldots, {\alg{alg}{P}}^p)$, 
+	Given a cryptographic primitive $\prim{P}$ consisting of $p$ algorithm $({\alg{alg}{P}}^1, \ldots, {\alg{alg}{P}}^p)$, 
 	a robust $(n;k)$ black-box $\prim{P}$-combiner is a $p$-tuple of oracle Turing machines with access to $n$ oracles, the candidate schemes 
 	$\O_1, \ldots, \O_n$
 
@@ -392,7 +400,7 @@ for that reason we require the security to hold relative to a PSPACE oracle $\PS
 
   	A $(n;k) $-robust combiner $\Comb P$ for primitive $P$ is defined to be black-box, denoted by $\BBComb P$, if additionally
 	it satisfies that if there exists an adversary $\A$ (possibly computationally unbounded) that breaks the security of $\BBComb{P}[\O_1, \ldots, \O_n]$,
-	then there exist at black-box reductions with oracle access to $\A$ for at least $n-k+1$ candidates. 
+	then there exist adversaries $\B_1, \ldots, \B_{n+k-1}$ with oracle access to $\A$ for at least $n-k+1$ different candidates. 
 \end{definition}
 
 We remark that compositite security definitions that rely on multiple properties are broken if there 
