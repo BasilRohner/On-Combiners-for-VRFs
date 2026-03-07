@@ -399,27 +399,63 @@ We show the oracle in \Cref{fig:oracle_mix}.
 \end{align}
 
 We first show that $\O_{mix}$ is uniquely provable and perfectly correct. 
-Let $\sk, x$ be fixed and $(y,\pi) \gets \O_{mix}.\alg{Eval}{VRF}(\sk, x)$, 
-then if $\sk \in \SK_{map}$ we have $(y,\pi) \gets \O_{up}.\alg{Eval}{VRF}(\sk, x)$
-then for every $\pk \in \PK$ that can be sampled with $\sk$ we have $\pk \in R_{\SK}(\sk)$,
-hence $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = \O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1$
-by perfect correctness of $\O_{up}$. If $\sk \notin \SK_{map}$ then $(y,\pi) \gets \O_{\VRF}.\alg{Eval}{VRF}(\sk, x)$
-and then for every $\pk$ that can be sampled $\pk \notin \PK_{map}$ since otherwise we would have
+To this end we show that if $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$
+then we have $\sk \in \SK_{map} \iff \pk \in \PK_{map}$. To show one direction 
+let $\sk \in \SK_{map}$ be arbitrary, we have by definition of we have either
 \[
-	\pk \in \bigcup_{\widetilde\pk\in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*} \lor 
-	\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}} R_\SK(\widehat\sk)
+	\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim^*_\SK}  \lor
+	\sk \in \bigcup_{\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim^*_\PK}} R_{\PK}(\widehat\pk)
 \]
-In case that $\pk \in \bigcup_{\widetilde\pk\in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*}$ we would have
-$\sk \in \bigcup_{\widehat\pk\in \bigcup_{\widetilde\pk\in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*}} R_\PK(\widehat\pk)$
-and therefore $\sk \in \SK_{map}$. If $\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}} R_\SK(\widehat\sk)$
-then $\pk \in R_{\SK}(\widehat\sk)$ for at least some $\widehat\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_\SK^*}$, i.e. for some $\widehat\sk$
-in an equivalence class of an element in $\widetilde\SK$, by definition of $\sim_\SK^*$ we would need $\sk \in \widetilde\SK$ as well and therefore also 
-$\sk \in \SK_{mix}$, a contradiction. Since $\pk \notin \PK_{map}$, by unique provability implied by VRF security we have 
-that therefore $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1$.
+In the first case there exists we have that $\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk\in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}} R_{\SK}(\widehat\sk)$
+by definition of $R_\SK(\widehat\sk)$ and therefore also $\pk \in \PK_{map}$.
+For the other side assume $\pk \in \PK_{map}$ then the symmetric argument holds.
+In the second case there exists a $\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\SK^*}$
+such that $\sk$ may be sampled with $\widehat \pk$, since for this $\widehat\pk$
+it holds that $\pk \sim_\PK^* \widehat\pk$ by definition of $\sim_\PK^*$ it must holds that also $\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*}$
+and therefore also $\pk \in \PK_{map}$.
 
-Now onto verification: Let $b \gets \O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi)$ for some $\pk \in \PK_{mix}$.
+The perfect correcntess follows directly from holds by this property and the fact that both 
+$\O_0, \O_\VRF$ are perfectly correct. For unique provability assume that there exist two distinct 
+outputs $\y_0 \neq \y_1$ such that $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, \y_0, \pi_0) = \O_{mix}.\alg{Vfy}{VRF}(\pk, x, \y_1, \pi_1) = 1$,
+now if $\pk \in \PK_{map}$ we break unique provability of $\O_0$ and if $\pk \notin \PK_{map}$ we break unique provability of $\O_{\VRF}$,
+therefore the result must be both uniquely provable and perfectly correct.
 
-\newpage
+We show that if $\O_{\VRF}$ is pseudorandom then $\O_{mix}$ is also pseudorandom. 
+Assume, towards a contradiction, that $\O_{mix}$ is not pseudorandom, i.e. 
+that there exists an efficient (ppt.) adversary $\A$ such that $\A$ wins the pseudorandomness 
+experiment against $\O_{mix}$ with non-negligible advantage.  We now show that 
+the pseudorandomness game against $\O_{mix}$ and $\O_\VRF$ are statistically close,
+i.e. we bound the probability that the hidden secret key $\sk \in \SK_{map}$ and apply the difference lemma:
+\begin{align}
+	\Adv{VRF}{prf}{\A, \O_{mix}} &= \abs*{\Prob*{H_0^{prf}} - \Prob*{H_1^{prf}}}\\ 
+	&= \abs*{\Prob*{H_0^{prf}} - \Prob*{H_2^{prf}} + \Prob*{H_2^{prf}} - \Prob*{H_1^{prf}}}\\ 
+	&\le \abs*{\Prob*{H_0^{prf}} - \Prob*{H_2^{prf}}} +\abs*{\Prob*{H_2^{prf}} - \Prob*{H_1^{prf}}}\\ 
+	&\le \err_{VRF, mix}^{prf} + \abs*{\Prob*{H_2^{prf}} - \Prob*{H_1^{prf}}}
+\end{align}
+Let $\mathcal E$ be the event that $\sk \in \SK_{map}$ then we have:
+\begin{align}
+	\Prob*{H_2^{prf} \land \lnot \mathcal E} &= \Prob*{H_2^{prf} \mid \lnot \mathcal E} \Prob*{\lnot \mathcal E}\\ 
+	&= \Prob*{H_1^{prf} \mid\lnot \mathcal E} \Prob*{\lnot\mathcal E}\\ 
+	&= \Prob*{H_1^{prf} \land\lnot \mathcal E}
+\end{align}
+By the difference lemma $|\Prob{H_1^{prf} \land \lnot \mathcal E} - \Prob{H_2^{prf} \land \lnot \mathcal E}| \le \Prob{\mathcal E}$ we get:
+\begin{align}
+	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \SK_{map}}\\
+	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}}
+	+ \Prob*{\sk \in \bigcup_{\widehat\pk \in \bigcup_{\widehat\pk \in \widetilde\PK}[\widetilde\pk]_{\sim_{\PK}^*}} R_\PK(\widehat\pk)} \\
+	&\le \err_{VRF, mix}^{prf} + \mu_1(\lambda)
+	+ \mu_2(\lambda) 
+\end{align}
+Where $\mu_1, \mu_2 \in \negl$. To show that this use that $|\widetilde\SK|, |\widetilde\PK| \in \poly$, first for
+$\mu_1$ assume that $\mu_1 \in \poly$, then an adversary could simply sample a secret key $\sk' \in \widetilde\SK$, since 
+$\sk$ is in an equivalence class of an element of $\widetilde\SK$ we hit that with proabbility at least $1/|\widetilde\SK|$ and then 
+we win the game with probability at least $1/p(\lambda)|\widetilde\SK|$, hence $\O_{\VRF}$ would not be prf secure, 
+a contradiction.
+
+For $\mu_2$ if the secret key being sampled according to $\O_\VRF.\alg{Gen}{VRF}$ is in this set with significant probability,
+then we can just simply resample to obtain another key with significant probability.
+Note that due to the polynomial bound on public key-equivalence classes we only have a polynomial number of 
+different evaluations induced by all secret keys in here. \todo{formulate out}
 
 Using \Cref{claim:non_irreelvant_queries_repeated} and \Cref{claim:vrfification} we can show that 
 for any VF oracles $\O_1, \O_2$, any secret key $\sk$ and input $x$ we have that the relevant queries in
@@ -588,6 +624,12 @@ this in particular excludes the possibility of a standard VUF combiner.
 \begin{corollary}[Strong Robust $(n;n-1)$ Black-Box VUF Combiner]\label{cor:vuf_comb}
 	
 \end{corollary}
+
+\paragraph{Remark.} We want to briefly note under which assumption this impossibility holds, 
+or doesn't hold. We show that relative to a PSPACE oracle there cannot exist robust black-box combiners 
+for the VRF primitive. As we already mentioned in the introduction, requiring that the security properties 
+holds relative to a PSPACE complete oracle are necessary for robust black-box combiner in order to prevent 
+the trivial implementation of the combiner through a secure instance that ignores its candidates.
 
 \section{Weak Robust Black-Box VRF-Combiner}
 
