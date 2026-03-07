@@ -295,8 +295,175 @@ at least $1/p(\lambda)$ be in $\widehat\SK$. Additionally with probability at le
 we have $\sk \sim^* \sk'$ which means that with probability $1/p(\lambda)|\widehat\SK| \in \poly$
 we obtain a secret key which allows us to recompute all outputs, breaking pseudorandomness.
 
+\paragraph{Proof of \Cref{lemma:warmup}.}
+Let $\BBComb{VRF}$ be an arbitrary robust $(2;1)$ black-box DAG combiner for the VRF primitive.
+We claim that there exists a related robust black-box DAG combiner for the VRF primitive 
+that only queries every implementation function of every candidate scheme on any input $\x$
+at most once.
+
+\begin{claim}
+	Let $\BBComb{VRF}$ be a robust $(2;1)$ black-box DAG combiner for the VRF primitive, there exists a 
+	robust $(2;1)$ black-box DAG combiner for the VRF primitive $\widetilde{\BBComb{VRF}}$ such that 
+	in its evaluation and verification algorithm DAG $\G_{eval}$ and $\G_{vfy}$ and each of the vertices
+	$v \in V_{eval}$ and $w \in V_{vfy}$ the call to 
+\end{claim}
+
+TODO: easy
+
 \newpage
 
+Additionally we show that given two VF oracles $\O_{\VRF}$ and $\O_{up}$
+such that $\O_{\VRF}$ implements a secure VRF and $\O_{up}$ implements a perfectly correct 
+and uniquely provable VF we can construct a new oracle $\O_{\VRF}(\O_{up}, \widetilde\SK)$ such that 
+$\O_{\VRF}(\O_{up}, \widetilde\SK, \widetilde\PK)$ implements a secure VRF and its evaluation algorithm agrees on all points $(\sk, x)$
+with the oracle $\O_{up}$ where $\sk \in \widetilde\SK$ and $\pk\in \widetilde\PK$
+if $|\widetilde\SK|, |\widetilde\PK| \in \poly$. Formally:
+
+\begin{claim}\label{claim:vrfification}
+	Let $\O_{\VRF}$ be a VF oracle that implements a secure VRF in the sense of \Cref{def:vrf}, 
+	$\O_{up}$ be a VF oracle that is uniquely provable in the sense of \Cref{def:unique_provability}
+	and perfectly correct in the sense of \Cref{def:correctness} such that 
+	$\O_{\VRF}$ and $\O_{up}$ are on the same spaces and let $\widetilde{\SK}, \widetilde{\PK}$
+	be polynomially bounded subsets of the secret and public key spaces of both oracles.
+	There exists an oracle $\O_{mix}$ such that the following properties are satisfied:
+	\begin{enumerate}
+		\item The evaluation algorithm of $\O_{mix}$ agrees with the evaluation algorithm of $\O_{up}$
+			on all secret keys $\widetilde\sk\in\widetilde\SK$, i.e. we have that
+			\[
+				\forall \widetilde\sk \in \widetilde\SK, \O_{mix}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{up}.\alg{Eval}{VRF}(\sk, \cdot)
+			\]
+		\item The verification algorithm of $\O_{mix}$ agrees with the evaluation algorithm of $\O_{up}$
+			on all public keys $\widetilde\pk\in\widetilde\PK$, i.e. we have that
+			\[
+				\forall \widetilde\pk \in \widetilde\PK, \O_{mix}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \O_{up}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot)
+			\]
+		\item The oracle $\O_{mix}$ implements a secure VRF in the sense of \Cref{def:vrf}.
+	\end{enumerate}
+\end{claim}
+
+Note first that it is not sufficient to simply change all of the mappings of the evaluation algorithm 
+of $\O_\VRF$ on the points in $\widetilde\SK$ to the output of $\O_{up}$ and the mappings of the verification 
+algorithm of $\O_\VRF$ on the points in $\widetilde\PK$ to the output of $\O_{up}$.
+Such a construction would indeed not necessarily be uniquely provable or perfectly correct since 
+for one we might have not guaranteed that the verification of a newly mapped output succeeds or 
+the verification of a previously mapped output rejects and also we need to consider that if two 
+secret keys have non-zero probability to be sampled with the same public key, then they both need to 
+induce the same mapping $\X \to \Y \times \P$, also this holds for the public key perspective if we 
+change the mappings of the verification algorithm.
+
+\paragraph{Proof of \Cref{claim:vrfification}.} 
+Let $\sim \subseteq \SK^2$ be a relation defined as follows.
+\[
+	\sk_1 \sim \sk_2 \iff \exists \pk \in \PK, \Prob*{
+		\begin{aligned}
+			(\sk_1, \pk) &\sample \alg{Gen}{VRF}(1^\lambda) \; \land\\
+			(\sk_2, \pk) &\sample \alg{Gen}{VRF}(1^\lambda)
+		\end{aligned}
+	} > 0
+\]
+And consider $\sim^* = \bigcup_{k \in \N} \sim^k$, the transitive closure of $\sim$.
+We claim that $\sim^*$ is an equivalence relation as its the transitive closure of a 
+reflexive and symmetric relation $\sim$. We use $[\sk]_{\sim^*}$ for a secret key $\sk \in \SK$
+to denote the equivalence class of $\sk$ under $\sim^*$, i.e. $\{\sk' \in \SK : \sk \sim^* \sk'\}$.
+Additionally for a public key $\pk \in \PK$ define $R_\PK(\pk)$, the subset of secret keys \textit{related} to $\pk$
+and symmetrically for a secret key $\sk \in \SK$ define $R_\SK(\sk)$, the subset of 
+public keys \textit{related} to $\sk$.
+\begin{align}
+	R_\PK(\pk) &:= \Brace*{\sk\in\SK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}\\ 
+	R_\SK(\sk) &:= \Brace*{\pk\in\PK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}
+\end{align}
+We now define the oracle $\O_{mix}$ using the following implementation functions for its corresponding
+key generation function $\O_{mix}.\alg{Gen}{VRF}(1^\lambda)$, its evaluation function $\O_{mix}.\alg{Eval}{VRF}(\sk, x)$
+and its verification function $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi)$ for that we first define the set of secret and public keys 
+$\SK_{map}$ and $\PK_{map}$ respectively on which we need to remap $\O_{\VRF}$.
+\begin{align}
+	\SK_{map} &:= \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim^*_\SK} \cup \bigcup_{\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim^*_\PK}} R_{\PK}(\widehat\pk)\\ 
+	\PK_{map} &:= \bigcup_{\widetilde\pk\in\widetilde\PK}[\widetilde\pk]_{\sim_\PK^*} \cup \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk\in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}} R_{\SK}(\widehat\sk)
+\end{align}
+Now we define $\O_{mix}$ generation to simply be the VRF oracle key generation, 
+we define the evaluation of $\O_{mix}$ to interpolate between the evaluation of 
+$\O_{\VRF}$ and $\O_{up}$ based on whether the secret key is in $\SK_{mix}$
+and finally we define the verification of $\O_{mix}$ to interpolate between the verification 
+functions of $\O_{\VRF}$ and $\O_{up}$ based on whether the public key is in $\PK_{mix}$.
+We show the oracle in \Cref{fig:oracle_mix}.
+
+\begin{align}
+	\O_{mix}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
+		\O_{up}.\alg{Eval}{VRF}(\sk, x) & \text{if } \sk \in \SK_{map}\\ 
+		\O_{\VRF}.\alg{Eval}{VRF}(\sk, x) & \text{otherwise}
+	\end{cases}\\ 
+	\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi) &= \begin{cases}
+		\O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{if } \pk \in \PK_{map}\\  
+		\O_{\VRF}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{otherwise}
+	\end{cases}
+\end{align}
+
+We first show that $\O_{mix}$ is uniquely provable and perfectly correct. 
+Let $\sk, x$ be fixed and $(y,\pi) \gets \O_{mix}.\alg{Eval}{VRF}(\sk, x)$, 
+then if $\sk \in \SK_{map}$ we have $(y,\pi) \gets \O_{up}.\alg{Eval}{VRF}(\sk, x)$
+then for every $\pk \in \PK$ that can be sampled with $\sk$ we have $\pk \in R_{\SK}(\sk)$,
+hence $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = \O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1$
+by perfect correctness of $\O_{up}$. If $\sk \notin \SK_{map}$ then $(y,\pi) \gets \O_{\VRF}.\alg{Eval}{VRF}(\sk, x)$
+and then for every $\pk$ that can be sampled $\pk \notin \PK_{map}$ since otherwise we would have
+\[
+	\pk \in \bigcup_{\widetilde\pk\in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*} \lor 
+	\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}} R_\SK(\widehat\sk)
+\]
+In case that $\pk \in \bigcup_{\widetilde\pk\in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*}$ we would have
+$\sk \in \bigcup_{\widehat\pk\in \bigcup_{\widetilde\pk\in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*}} R_\PK(\widehat\pk)$
+and therefore $\sk \in \SK_{map}$. If $\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}} R_\SK(\widehat\sk)$
+then $\pk \in R_{\SK}(\widehat\sk)$ for at least some $\widehat\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_\SK^*}$, i.e. for some $\widehat\sk$
+in an equivalence class of an element in $\widetilde\SK$, by definition of $\sim_\SK^*$ we would need $\sk \in \widetilde\SK$ as well and therefore also 
+$\sk \in \SK_{mix}$, a contradiction. Since $\pk \notin \PK_{map}$, by unique provability implied by VRF security we have 
+that therefore $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1$.
+
+Now onto verification: Let $b \gets \O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi)$ for some $\pk \in \PK_{mix}$.
+
+\newpage
+
+Using \Cref{claim:non_irreelvant_queries_repeated} and \Cref{claim:vrfification} we can show that 
+for any VF oracles $\O_1, \O_2$, any secret key $\sk$ and input $x$ we have that the relevant queries in
+the combiners evaluation algorithm are in bijective correspondence with the relevant queries in the 
+verification algorithm where a relevant query is defined as follows.
+
+\begin{definition}[Relevant Oracle Queries]
+	
+\end{definition}
+
+We formulate the above theorem in the following lemma.
+
+\begin{lemma}[Relevant Query Correspondence]
+	
+\end{lemma}
+
+Now we initialize the combiner with the oracles $\O_0, \O_\VRF$.
+In a single filtering process the adversary will iterate over all candidate secret keys,
+and simulate the execution of the combiner by answering any query to $\O_0$ with $0$,
+and for every query in $\O_\VRF$ he checks the transcript and answers with an existing query in there 
+if it exists, and otherwise iterates over all possible values (e.g. $\Y \times \P$ if the query is an evaluation)
+to continue until the output is computed. If for all evaluations the simulated combiner evaluates to $\y$
+then we retain the secret key candidate, if for some evaluation the output evaluates to some other value $\y'$
+then we discard it. 
+
+We argue that a secret key $\sk$ is accepted only if the evaluation of the real combiner (with oracle queries)
+results in the output $\y$. Assume an $\sk$ would not evaluate to $\y$ under a candidate $\sk$, 
+then during all evaluations there exists at least one evaluation (the one corresponding to the real
+secret key) which doesnt evaluate to $\y$. On the same hand for the correct secret key $\sk$ 
+the output will always be $\y$, assume that were not the case, that would mean that for some execution we would have 
+needed to guess a subset of oracle queries which did change the output (the $0$ guesses to oracle $1$ area always right 
+and the lookups in the transcript are also always right). Then however we could simply modify all those outputs under this secret key 
+in the ignored queries to fit that configuration, breaking unique provability. \todo{soundness check}
+
+Finally since we have shown that the correct secret key will not be thrown out and only secret keys which 
+evaluate to the correct $\y$ are retained we argue that after $2s(\lambda)$ for any uniformly random sample of 
+secret key of the remaining candidates, the probability of sampling a secret key $\sk'$ such that on a uniformly random 
+value $x'$ the output diverges from the true output is negligible. 
+The adversary $\mathcal D$ can therefore simply do that to break pseudorandomness with high probability.
+We show pseudocode for $\mathcal D$ in \Cref{fig:distinguisher}.
+
+\newpage
+
+\begin{comment}
 Let $\O_1, \O_2$ be arbitrary, but fixed, VF oracles which are uniquely provable 
 and perfectly correct and let $\sk, x$ be arbitrary but fixed inputs to the combiners evaluation function, where $\sk$ is in the support 
 of the combiners key-generation function \todo{maybe tweak} and $x \in \bin^\lambda$. We iterate over the vertices of $\G_{eval}$ in topological ordering and distinguish two cases,
@@ -353,19 +520,26 @@ An adversary can leverage this to break pseudorandomness.
 
 
 TODO
+\end{comment}
 
-Moving on we extend this result to exclude general robust $(n; \lfloor n/2\rfloor)$ black-box combiners.
-The proof works very similarly
-
-TODO
+While robust $(2;1)$ black-box combiners are generally sufficient to construct robust $(n;1)$ black-box combiners,
+non-existence of a robust $(2;1)$ black-box combiner 
+only allows one to deduce the impossibility of a robust $(n;\lfloor n/2\rfloor)$ black-box combiner.
+This holds since we can easily construct a robust $(2;1)$ black-box combiner from a
+robust $(n;\lfloor n/2\rfloor)$ black-box combiner by running the robust $(n;\lfloor n/2\rfloor)$ black-box 
+combiner and for every query made to the first $\lfloor n/2\rfloor$ oracle candidates we answer with the first 
+oracle candidate given to $\BBComb{VRF}^{(2;1)}$ and for the upper $n - \lfloor n/2\rfloor$
+candidate we simply query the other oracle. If at least one oracle given to $\BBComb{VRF}^{(2;1)}$
+implements a secure VRF, then at least $\lfloor n/2\rfloor$ candidates correspond to a VRF oracle.
+We can derive the following corollary.\todo{change title to lemma maybe}
 
 \begin{lemma}[Robuts $(n; \lfloor n/2\rfloor)$ Black-Box VRF Combiner]\label{lemma:nhalf}
 	There exists no robust $(n; \lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} for the VRF primitive 
 	defined in \Cref{def:vrf} for all $n \in \N^+$.
 \end{lemma}
 
-The proof of this lemma is very similar to the proof of \Cref{lemma:warmup}, we will therefore move it to the appendix. 
-Instead we work on strengthening the result to the following, more general statement.
+We now aim to extend this result to the weakest form of robust black-box combiners: robust 
+$(n,n-1)$ black-box combiners.
 
 \begin{theorem}[Robust $(n;n-1)$ Black-Box VRF Combiner]\label{thm:impossibility_wvrf_comb}
 	There exists no robust $(n;n-1)$ black-box $\prim{VRF}$-combiner.
