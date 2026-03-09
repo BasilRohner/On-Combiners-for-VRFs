@@ -2211,7 +2211,49 @@ and providing this as a proof. The existence of such combiners is formalized in 
 \end{lemma}
 
 \paragraph{Proof of \Cref{lemma:strong_robust_black_box_combiners}.}
-We show the adversary in TODO
+
+\begin{claim}
+	The combiner in \Cref{fig:prf_combiner} is perfectly correct in the sense of \Cref{def:correctness}
+	and uniquely provable in the sense of \Cref{def:unique_provability} if all candidates
+	are perfectly correct \Cref{def:correctness} and uniquely provable \Cref{def:unique_provability}.
+\end{claim}
+
+The proof of this claim follows essentially by definition of the combiner construction and 
+the assumed unique provability and pseudorandomness of all candidates. We lead the detailed argument 
+in the appendix but believe that its easy to see why the claim holds.
+We only need to show that the combiner is pseudorandom, we employ a reductionist approach 
+to show the following claim.
+
+\begin{claim}
+	The combiner in \Cref{fig:prf_combiner} is $\errtime$-pseudorandom in the sense of \Cref{def:pseudorandomness} if at least one candidates 
+	are $\errtime$-pseudorandom. In particular if at least one candidate is pseudorandom then the combiner 
+	is pseudorandom.
+\end{claim}
+
+Assume, towards a contradiction, that there exists an adversary $\A$ running in time $t$ that breaks 
+pseudorandomness of the combiner $\BBComb{VRF}[\O_1, \O_2]$ with advantage $\err$, we show that 
+we can construct an adversary $\mathcal R_i$ running in time $t_i$ that wins the prf security experiment 
+of every candidate with advantage $\err_i$. The reduction $\mathcal R_i$ simulates all the remaining candidates queries
+and uses adversary $\A$ to break that one candidate. We show the reduction $\mathcal R_i$
+in \Cref{fig:reduction}.
+
+\begin{figure}[hptb]
+	\centering 
+	\begin{pcvstack}[space=1em]
+		\procedure[linenumbering]
+		{Reduction $\mathcal R_i^{\O_{eval,i}^{prf}}(\pk_{i})$}
+		{
+			b \sample \bin\\
+			(\sk_{1-i}, \pk_{1-i}) \sample \O_{eval,1-i}^{prf}.\alg{Gen}{VRF}(1^\lambda)\\
+			\sk \gets (\sk_0, \sk_1)\\ 
+			\pk \gets (\pk_0, \pk_1)\\ 
+		}
+	\end{pcvstack}
+	\caption{Reduction.}
+	\label{fig:reduction}
+\end{figure}
+
+TODO finish the reduction
 
 However, assuming that all candidates satisfy unique provability combiner constructions become very simple.
 We present a construction very similar to the simple xor combiner for PRFs that works as follows.
@@ -2229,16 +2271,6 @@ and then verifying with the corresponding public key $\pk$ for each oracle. If o
 during the execution of the combiner. Allowing the combiner to achieve statistcal correctness.
 Note that this combiner already works if only at least one candidate is secure. We state this result 
 as a lemma below and show the construction of the combiner in \Cref{fig:prf_combiner}.
-
-\color{red}
-\textbf{DOESNT WORK DUE TO UNIQUE PROVABILITY BREAK
-when collision is found but not remarked}
-Here couldn't the evaluation simply involve a check to verify. If this check fails then a candidate fails,
-this is proven to the verification algorithm by providing an incorrect evaluation/verification in the proof.
-If the verifier can detect that fault then he accepts the skipping of the candidate,
-if he doesn't detect the fault then he cannot accept the skipping and rejects if that flag is set 
-or if the other verification doesnt accept.
-\color{black}
 
 \begin{figure}[hptb]
 	\centering 
@@ -2341,6 +2373,8 @@ An aggregable VRF is similar to a key-homomorphic VRF but
 
 \paragraph{Unbiasable VRF.}
 An unbiasable VRF requires security against biasing the output of the VRF for maliciously crafted secret keys.
+
+\todo{Only touch if sufficient time}
 
 \begin{comment}
 \paragraph{Robust Black-Box Combiner for Unbiasable VRF.} We present a robust black-box combiner for unbiasable VRF under the assumption that 
