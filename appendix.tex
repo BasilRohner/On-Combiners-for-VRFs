@@ -1,11 +1,33 @@
 \chapter{Appendix}
 \label{ch:appendix}
 
-\subsection{Proof of \Cref{lemma:3.1}}
+\subsection{The Difference Lemma}
 
-\restateLemma
+We present the proof of the difference lemma, formally:
 
-\begin{proof}
+\begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
+    Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events with
+    \[
+        \Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E} 
+    \]
+    Then we can bound the difference in probability of $\mathcal W_0$ and $\mathcal W_1$ with
+    \[
+        \abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}} \le \Prob{\mathcal E}
+    \]
+\end{lemma}
+
+\paragraph{Proof of \Cref{lemma:difference_lemma}.}
+Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events and assume $\Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E}$.
+Then we can deduce the following:
+\begin{align}
+    &\abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}}\\
+    =& 
+    \abs*{\Prob{\mathcal W_0 \land \mathcal E} + \Prob{\mathcal W_0 \land \lnot \mathcal E} - \Prob{\mathcal W_1 \land \mathcal E} - \Prob{\mathcal W_1 \land \lnot \mathcal E}}\\ 
+    =& \abs*{\Prob{\mathcal W_0 \land \mathcal E} - \Prob{\mathcal W_1 \land \mathcal E}}\\ 
+    =& \abs*{\Prob{\mathcal W_0 \mid \mathcal E} \Prob{\mathcal E} - \Prob{\mathcal W_1 \mid \mathcal E} \Prob{\mathcal E}}\\ 
+    =& \abs*{\Prob{\mathcal W_0 \mid \mathcal E} - \Prob{\mathcal W_1 \mid \mathcal E}} \Prob{\mathcal E}\\
+    \le&\Prob{\mathcal E} 
+\end{align}
 
 \todo[should this even be included?]
 
@@ -51,4 +73,3 @@ It is sufficient to find a $(1;2)$-robust black-box combiner for VRF where all c
 
 The combiner is clearly efficient since every algorithm consists of one call to the respective algorithm of each candidate scheme (whi)
 
-\end{proof}

@@ -97,9 +97,26 @@ and for every vertex add the functional description of the Turing machines $f_{a
 		\node[] (Gen2) at (1.25,-1) {$(1, gen)$};
 		\node[] (Gen3) at (0,-2) {$t_{gen}$};
 	\end{tikzpicture}
+	\begin{tikzpicture}
+		\node[] (Gen0) at (0,0) {$s_{gen}$};
+		\node[] (Gen1) at (-1.25,-1) {$(0, gen), \y_{s_{gen}} \mapsto $};
+		\node[] (Gen2) at (1.25,-1) {$(1, gen)$};
+		\node[] (Gen3) at (0,-2) {$t_{gen}$};
+	\end{tikzpicture}
+	\begin{tikzpicture}
+		\node[] (Gen0) at (0,0) {$s_{gen}$};
+		\node[] (Gen1) at (-1.25,-1) {$(0, gen), \y_{s_{gen}} \mapsto $};
+		\node[] (Gen2) at (1.25,-1) {$(1, gen)$};
+		\node[] (Gen3) at (0,-2) {$t_{gen}$};
+	\end{tikzpicture}
 	\label{fig:example_dag_combiner}
 	\caption{Drawing of the graphs $\G$}
 \end{figure}
+
+Note that while this is a DAG combiner implements the same robust $(2;1)$ black-box combiner 
+as in \Cref{def:prf-combiner}, but not the combiner that would be constructed by the constructive 
+proof below since that is much more tractable. The DAG combiner constructed in the proof is shown in 
+\Cref{fig:real_dag_comb}.
 
 \newpage
 
@@ -352,15 +369,21 @@ induce the same mapping $\X \to \Y \times \P$, also this holds for the public ke
 change the mappings of the verification algorithm.
 
 \paragraph{Proof of \Cref{claim:vrfification}.} 
-Let $\sim \subseteq \SK^2$ be a relation defined as follows.
-\[
-	\sk_1 \sim \sk_2 \iff \exists \pk \in \PK, \Prob*{
+Let $\sim_\SK \subseteq \SK^2, \sim_\PK \subseteq \PK^2$ be relations defined as follows.
+\begin{align}
+	\sk_1 \sim_\SK \sk_2 &\iff \exists \pk \in \PK, \Prob*{
 		\begin{aligned}
 			(\sk_1, \pk) &\sample \alg{Gen}{VRF}(1^\lambda) \; \land\\
 			(\sk_2, \pk) &\sample \alg{Gen}{VRF}(1^\lambda)
 		\end{aligned}
+	} > 0\\ 
+	\pk_1 \sim_\PK \pk_2 &\iff \exists \sk \in \SK, \Prob*{
+		\begin{aligned}
+			(\sk, \pk_1) &\sample \alg{Gen}{VRF}(1^\lambda) \; \land\\
+			(\sk, \pk_2) &\sample \alg{Gen}{VRF}(1^\lambda)
+		\end{aligned}
 	} > 0
-\]
+\end{align}
 And consider $\sim^* = \bigcup_{k \in \N} \sim^k$, the transitive closure of $\sim$.
 We claim that $\sim^*$ is an equivalence relation as its the transitive closure of a 
 reflexive and symmetric relation $\sim$. We use $[\sk]_{\sim^*}$ for a secret key $\sk \in \SK$
@@ -386,7 +409,6 @@ $\O_{\VRF}$ and $\O_{up}$ based on whether the secret key is in $\SK_{mix}$
 and finally we define the verification of $\O_{mix}$ to interpolate between the verification 
 functions of $\O_{\VRF}$ and $\O_{up}$ based on whether the public key is in $\PK_{mix}$.
 We show the oracle in \Cref{fig:oracle_mix}.
-
 \begin{align}
 	\O_{mix}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
 		\O_{up}.\alg{Eval}{VRF}(\sk, x) & \text{if } \sk \in \SK_{map}\\ 
@@ -397,16 +419,17 @@ We show the oracle in \Cref{fig:oracle_mix}.
 		\O_{\VRF}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{otherwise}
 	\end{cases}
 \end{align}
-
 We first show that $\O_{mix}$ is uniquely provable and perfectly correct. 
 To this end we show that if $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$
 then we have $\sk \in \SK_{map} \iff \pk \in \PK_{map}$. To show one direction 
 let $\sk \in \SK_{map}$ be arbitrary, we have by definition of we have either
+of the following two cases:
+
 \[
 	\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim^*_\SK}  \lor
 	\sk \in \bigcup_{\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim^*_\PK}} R_{\PK}(\widehat\pk)
 \]
-In the first case there exists we have that $\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk\in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}} R_{\SK}(\widehat\sk)$
+In the first case there exists we have that $\smash{\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk\in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}} R_{\SK}(\widehat\sk)}$\todo{maybe not smash this}
 by definition of $R_\SK(\widehat\sk)$ and therefore also $\pk \in \PK_{map}$.
 For the other side assume $\pk \in \PK_{map}$ then the symmetric argument holds.
 In the second case there exists a $\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\SK^*}$
@@ -425,24 +448,25 @@ Assume, towards a contradiction, that $\O_{mix}$ is not pseudorandom, i.e.
 that there exists an efficient (ppt.) adversary $\A$ such that $\A$ wins the pseudorandomness 
 experiment against $\O_{mix}$ with non-negligible advantage.  We now show that 
 the pseudorandomness game against $\O_{mix}$ and $\O_\VRF$ are statistically close,
-i.e. we bound the probability that the hidden secret key $\sk \in \SK_{map}$ and apply the difference lemma:
+i.e. we bound the probability that the hidden secret key $\sk \in \SK_{map}$ and apply the difference lemma. \todo{define games of the hybrid formally}
 \begin{align}
 	\Adv{VRF}{prf}{\A, \O_{mix}} &= \abs*{\Prob*{H_0^{prf}} - \Prob*{H_1^{prf}}}\\ 
 	&= \abs*{\Prob*{H_0^{prf}} - \Prob*{H_2^{prf}} + \Prob*{H_2^{prf}} - \Prob*{H_1^{prf}}}\\ 
 	&\le \abs*{\Prob*{H_0^{prf}} - \Prob*{H_2^{prf}}} +\abs*{\Prob*{H_2^{prf}} - \Prob*{H_1^{prf}}}\\ 
 	&\le \err_{VRF, mix}^{prf} + \abs*{\Prob*{H_2^{prf}} - \Prob*{H_1^{prf}}}
 \end{align}
-Let $\mathcal E$ be the event that $\sk \in \SK_{map}$ then we have:
+Let $\mathcal E$ be the event that $\sk \in \SK_{map}$ for $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$ then:
 \begin{align}
 	\Prob*{H_2^{prf} \land \lnot \mathcal E} &= \Prob*{H_2^{prf} \mid \lnot \mathcal E} \Prob*{\lnot \mathcal E}\\ 
 	&= \Prob*{H_1^{prf} \mid\lnot \mathcal E} \Prob*{\lnot\mathcal E}\\ 
 	&= \Prob*{H_1^{prf} \land\lnot \mathcal E}
 \end{align}
-By the difference lemma $|\Prob{H_1^{prf} \land \lnot \mathcal E} - \Prob{H_2^{prf} \land \lnot \mathcal E}| \le \Prob{\mathcal E}$ we get:
+By the difference lemma $|\Prob{H_1^{prf} \land \lnot \mathcal E} - \Prob{H_2^{prf} \land \lnot \mathcal E}| \le \Prob{\mathcal E}$,
+since the difference lemma is folklore, we present the proof in the appendix.
 \begin{align}
 	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \SK_{map}}\\
-	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}}
-	+ \Prob*{\sk \in \bigcup_{\widehat\pk \in \bigcup_{\widehat\pk \in \widetilde\PK}[\widetilde\pk]_{\sim_{\PK}^*}} R_\PK(\widehat\pk)} \\
+	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}}\\
+	&+ \Prob*{\sk \in \bigcup_{\widehat\pk \in \bigcup_{\widehat\pk \in \widetilde\PK}[\widetilde\pk]_{\sim_{\PK}^*}} R_\PK(\widehat\pk)} \\
 	&\le \err_{VRF, mix}^{prf} + \mu_1(\lambda)
 	+ \mu_2(\lambda) 
 \end{align}
@@ -450,27 +474,67 @@ Where $\mu_1, \mu_2 \in \negl$. To show that this use that $|\widetilde\SK|, |\w
 $\mu_1$ assume that $\mu_1 \in \poly$, then an adversary could simply sample a secret key $\sk' \in \widetilde\SK$, since 
 $\sk$ is in an equivalence class of an element of $\widetilde\SK$ we hit that with proabbility at least $1/|\widetilde\SK|$ and then 
 we win the game with probability at least $1/p(\lambda)|\widetilde\SK|$, hence $\O_{\VRF}$ would not be prf secure, 
-a contradiction.
-
-For $\mu_2$ if the secret key being sampled according to $\O_\VRF.\alg{Gen}{VRF}$ is in this set with significant probability,
+a contradiction. For $\mu_2$ if the secret key being sampled according to $\O_\VRF.\alg{Gen}{VRF}$ is in this set with significant probability,
 then we can just simply resample to obtain another key with significant probability.
 Note that due to the polynomial bound on public key-equivalence classes we only have a polynomial number of 
 different evaluations induced by all secret keys in here. \todo{formulate out}
 
-Using \Cref{claim:non_irreelvant_queries_repeated} and \Cref{claim:vrfification} we can show that 
-for any VF oracles $\O_1, \O_2$, any secret key $\sk$ and input $x$ we have that the relevant queries in
-the combiners evaluation algorithm are in bijective correspondence with the relevant queries in the 
-verification algorithm where a relevant query is defined as follows.
+Using this result we claim that for a fixed oracle $\O_i$ and any subset of queries 
+made during the evaluation algorithm which are not reflected in the trace of the verification execution, we call such 
+queries \textit{hidden}, the output of the evaluation algorithm doesn't change for all possible outputs of the oracles.
+That is, if we execute the evaluation algorithm and replace every oracle query 
+to an algorithm of $\O_i$ with the output in the transcript or any other random output in the support if 
+it doesnt occur in the transcript we arrive at the same value for the right secret key $\sk$. 
 
-\begin{definition}[Relevant Oracle Queries]
-	
-\end{definition}
+\begin{claim}\label{claim:hidden_irrelevant}
+	Let $\O_1, \O_2$ be uniquely provable and perfectly correct VF oracles and let $S$ be a set of hidden vertices in $G_{eval}$ with queries made to only one oracle.
+	Then they are jointly irrelevant to the output of the combiners evaluation algorithm.
+	Specifically we can simulate the output of the individual oracle queries by choosing 
+	arbitrary elements in the support of the oracles algorithm.
+\end{claim}
 
-We formulate the above theorem in the following lemma.
+\paragraph{Proof of \Cref{claim:hidden_irrelevant}}
+Assume this were not the case, we follow the topological ordering and initialize the oracle responses 
+to those queries with arbitrary outputs in the support. If at one point the output of the combiner changes 
+then simply remap the corresponding oracle and make the other oracle a VRF. Subsequently the combiner needs to be 
+uniquely provable, perfectly correct and pseudorandom. By perfect correctness we have
+\begin{align}
+	\BBComb{VRF}[\hat\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \hat y, \hat\pi) = 1\\
+	\BBComb{VRF}[\tilde\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \tilde y, \tilde\pi) = 1 \label{eq:correct}
+\end{align}
+And by unique provability and $\hat y \neq \tilde y$ we have that
+\begin{align}
+	\BBComb{VRF}[\hat\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \tilde y, \tilde\pi) = 0 \label{eq:unique_provability}\\
+	\BBComb{VRF}[\tilde\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \hat y, \hat\pi) = 0 
+\end{align}
+Now since the oracle $\tilde\O_1$ and $\hat\O_1$ only differ in the evaluations not covered by the 
+verification algorithm the execution of the algorithm will be identical, given the input is the same.
+This fundamentally contradicts \eqref{eq:correct} and \eqref{eq:uniquely_provable}, we conclude that the 
+resulting combiner is either not perfectly correct or uniquely provable.
 
-\begin{lemma}[Relevant Query Correspondence]
-	
-\end{lemma}
+We can now formulate the adversary $\mathcal D$ that distinguishes the random world from the real world in the 
+prf security experiment. First the adversary computes a tuple $(x,y,\pi,\tau)$ computed as follows
+\begin{align}
+	x &\sample \bin^\lambda\\ 
+	(y,\pi) &\gets \O_{eval}^{prf}(x)\\ 
+	\tau &\gets \text{trace}_{\BBComb{VRF}[\O_1, \O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi)}
+\end{align}
+following it uses the PSPACE oracle to preform a round of secret key filtering, iterating over all possible secret keys 
+and simulating evaluation for every secret key (without querying any candidate oracles of course). 
+In the simulation it simulates the Turing machine implementing the combiners evaluation algorithm,
+once an oracle query to a candidate would be made we can perfectly simulate it if its a query to 
+$\O_\bot$ or not hidden, i.e. found in $\tau$. If its not found in $\tau$ and to oracle $\O_1$
+then we iterate over all possible values (either in $\SK \times \PK, \Y \times \P$ or $\bin$)
+and recurse on every single output. If in the end all evaluations evaluate to $y$ then keep that secret key.
+Otherwise there exists an execution that results in a different output $y' \neq y$, those candidate secret keys 
+are dropped. Formally we define the following language $\mathcal L$ \todo{unclear how to formulate this} 
+Formally we define the simulator oracle Turing machine $\mathcal S^{\PSPACE}(\SK_{i},x,y,\pi,\tau) = \SK_{i+1}$
+with access to a PSPACE oracle.
+
+\color{red}
+I assume to be able to VRFify the uniquely provable and perfectly correct VF. However if I assume to have 
+$\O_\VRF$ then why cant the combiner simply initialize itself with $\O_\VRF$.
+\color{black}
 
 Now we initialize the combiner with the oracles $\O_0, \O_\VRF$.
 In a single filtering process the adversary will iterate over all candidate secret keys,
@@ -496,6 +560,34 @@ secret key of the remaining candidates, the probability of sampling a secret key
 value $x'$ the output diverges from the true output is negligible. 
 The adversary $\mathcal D$ can therefore simply do that to break pseudorandomness with high probability.
 We show pseudocode for $\mathcal D$ in \Cref{fig:distinguisher}.
+
+\begin{figure}[hptb]
+	\centering 
+	\begin{pchstack}[center, space=1em]
+		\procedure[linenumbering]
+		{Distinguisher $\mathcal D^{\PSPACE, \O_{eval}^{prf}}_1(\pk)$}
+		{
+			\SK_0 \gets \SK\\
+			\pcfor i \in [2s(\lambda)] \pcdo\\
+			\t \x_i \sample \bin^\lambda\\ 
+			\t (\y_i, \pi_i) \gets \O_{eval}^{prf}(\x_i)\\
+			\t \tau_i \gets \textsf{trace}_{\BBComb{VRF}[\O_0, \O_\VRF].\alg{Vfy}{VRF}}(\x_i, \y_i, \pi_i)\\ 
+			\t \pclinecomment{Use $\PSPACE$ oracle for the following}\\
+			\t v_{eval}^1, \ldots, v_{eval}^{|\V_{eval}|} \gets \textsf{topo}(\V_{eval})\\ 
+			\sigma \sample \SK_{2s(\lambda)}\\ 
+			\x \sample \bin^\lambda\\
+			\pcreturn (\sigma, \x)
+		}
+		\procedure[linenumbering]
+		{Distinguisher $\mathcal D^{\PSPACE, \O_{eval}^{prf}}_2(\pk, \sigma, \x, \y)$}
+		{
+			\y^* \gets \BBComb{VRF}[\O_0, \O_{\VRF}].\alg{Eval}{VRF}(\sigma, \x)\\ 
+			\pcreturn \y^* = \y
+		}
+	\end{pchstack}
+	\caption{Distinguisher.}
+	\label{fig:distinguisher}
+\end{figure}
 
 \newpage
 
@@ -569,13 +661,72 @@ candidate we simply query the other oracle. If at least one oracle given to $\BB
 implements a secure VRF, then at least $\lfloor n/2\rfloor$ candidates correspond to a VRF oracle.
 We can derive the following corollary.\todo{change title to lemma maybe}
 
-\begin{lemma}[Robuts $(n; \lfloor n/2\rfloor)$ Black-Box VRF Combiner]\label{lemma:nhalf}
+\begin{lemma}[Robust $(n; \lfloor n/2\rfloor)$ Black-Box VRF Combiner]\label{lemma:nhalf}
 	There exists no robust $(n; \lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} for the VRF primitive 
 	defined in \Cref{def:vrf} for all $n \in \N^+$.
 \end{lemma}
 
+Extending this result to an impossibility of robust $(n;n-1)$ seems hard, instead we will show that even if we 
+relax the requirements of the combiner to implement only weak unpredictability, statistical correctness and statistical unique provability,
+there still doesnt exist a combiner, even if we assume that all candidates to be pseudorandom and at least one 
+candidate is perfectly correct and perfectly uniquely provable. 
+
+\begin{theorem}[Weak Robust $(n;\lfloor n/2\rfloor)$ Black-Box VRF Combiners]\label{thm:main}
+	There exists no robust $(n; \lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} that implements 
+	a VF that is statistically correct in the sense of \Cref{def:correctness}, statistically uniquely provable in the sense of 
+	\Cref{def:unique_provability} and weakly unpredictable in the sense of \Cref{def:unpredictability}, even if we assume all candidate schemes 
+	to be pseudorandom in the sense of \Cref{def:pseudorandomness}
+	and at least one candidate to be perfectly uniquely provable in the sense of \Cref{def:unique_provability} and perfectly correct in the sense of \Cref{def:correctness}.
+\end{theorem}
+
+\paragraph{Intuition.}
+The proof works similar to the proof in the warm-up,
+note that the adversary there is already capable to break wVRF security.
+To preserve the argument even if all candidates are guaranteed to be pseudorandom 
+we can apply a similar approach to VRF-ififcation, PRF-ification, that simply remaps 
+a VF on all but a polynomially sized set $\widetilde\SK$ and $\widetilde\PK$.
+To even exclude statistically correct and statistically uniquely provable VRFs 
+we only need to weaken the claim that binds hidden queries to verification-irrelevant queries.
+We use that still, with overwhelming probability, the set of hidden and irrelevant queries align,
+if that were not the case then with significant probability over $(\sk, x)$ we could break unique provability 
+and correctness. This is overwhelming for the attack since the secret key $\sk$ is sampled once, 
+and that favourably for the adversary with overwhelming chance, and for the values of $x$ we can bound 
+the probability that we see $(\sk, x)$ where this alignment doesnt happen from above by a negligible function.
+
+\paragraph{Proof of \Cref{thm:main}}
+TODO
+
+Since the typical notions of VUF and wVRF are all weaker than wVUFs as a corollary we can exclude 
+robust $(n;\lfloor n/2\rfloor)$ black-box combiners for those respective primitives.
+We formulate those results as corollaries below:
+
+\begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{VUF}$-combiner]\label{cor:impossibility_vrf_comb}
+	Given $n$ secure VRF candidate schemes $\O_1, \ldots, \O_n$ there exists no robust black-box combiner that 
+	implements a secure VRF scheme if even one candidate scheme is not uniquely provable.
+\end{corollary}
+
+\begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{VUF}$-combiner]\label{cor:impossibility_vuf_comb}
+	Given $n$ secure VUF candidate schemes $\O_1, \ldots, \O_n$ there exists no robust black-box combiner that 
+	implements a secure VUF scheme if even one candidate scheme is not uniquely provable.
+\end{corollary}
+
+\begin{comment}
 We now aim to extend this result to the weakest form of robust black-box combiners: robust 
-$(n,n-1)$ black-box combiners.
+$(n,n-1)$ black-box combiners. For the impossibility of robust $(2;1)$ robust black-box VRF-combiners
+we used that after setting the second candidate to the trivial one, we could perfectly simulate the queries to $\O_2$
+and the queries existing in the verification trace. As we argued that the other queries are irrelevant, they could easily be simulated.
+Note that this argument doesnt directly work if we have $n$ candidates of which only $n-1$ are secure.
+While irrelevance of vertices extends to a joint irrelevance of vertices within vertices corresponding to oracle 
+queries of a single oracle, it doesnt extend to joint irrelevance of vertices within vertices corresponding to more than 
+one candidate. For instance, imagine that during simulation, we guess the ouptuts of candidate $\O_1$ and $\O_2$
+and then arrive at a vertex of $\O_2$ not in the trace but also relevant. 
+We can not arrive at a contradiction, since to break unique provability we would need to change two combiners
+to be possibly not uniquely provable and/or perfectly correct anymore, and then the combiner 
+also wouldn't need to guarantee security anymore.
+
+Specifically let $S$ be the set of maximal minimal jointly relevant vertices. 
+If $|S| = 1$ then we fall back to the warm up, the same argument works, simply iterate over the vertices and simulate.
+
 
 \begin{theorem}[Robust $(n;n-1)$ Black-Box VRF Combiner]\label{thm:impossibility_wvrf_comb}
 	There exists no robust $(n;n-1)$ black-box $\prim{VRF}$-combiner.
@@ -898,7 +1049,6 @@ in the exploration phase (which he needs due to the requirement for the proof to
 Hence the query depends on $\sk, x$ which again allows us to recover the secret key $\sk$ by looking at the inputs 
 to the verification oracle in the verification combiner and therefore recovering $\{(x_i, (y_i, \pi_i))\}_{i \in 2s(\lambda)}$
 and recovering $\sk$.
-\end{comment}
 
 \paragraph{Proof (\Cref{thm:impossibility_wvrf_comb})}
 Fix a robust $(n;n-1)$ black-box DAG $\prim{VRF}$-combiner $\BBComb{VRF}$ and consider the directed acyclic graph $\G_{eval}$
@@ -1081,7 +1231,6 @@ would not be re-queried in the verification, then we could obtain two verifiying
 by using correctness but breaking unique provability. Since, in particular, we can make the oracles uniquely 
 provable, \todo{unsure}, we solve this case. 
 
-\begin{comment}
 Initialize the combiner with an oracle $\mathbf O$ and proceed in topological ordering.
 Once we reach a vertex where the oracle query doesnt occur in the transcript we reach vertices 
 which are not relevant to the combiner execution. That is for the fixed execution we can replace their output 
@@ -2020,7 +2169,6 @@ either always rejects or there exists multiple evaluations that are accepted (ot
 		significant probability can be used to construct an adversary $\A$ that recovers at least one pre-image.
 	\end{claim}
 \end{proof}
-\end{comment}
 
 We want to mention that instead of achieving weak pseudorandomness we can also allow unpredictability instead.
 As a corollary we can exclude the possibility of wVRF combiners in the sense of \Cref{def:weak_pseudorandomness} and
@@ -2035,14 +2183,35 @@ VUF combiners in the sense of \Cref{def:vuf}.
 	Given $n$ secure VUF candidate schemes $\O_1, \ldots, \O_n$ there exists no robust black-box combiner that 
 	implements a secure VUF scheme if even one candidate scheme is not uniquely provable.
 \end{corollary}
+\end{comment}
+
+\newpage
+
+\section{Strong Robust Black-Box Combiners}
 
 Having ruled out the possibility of combining VRFs, VUFs, wVRFs even for statistical notions of correctness 
-and unique provability we need to make an even stronger assumption to allow for combiners to exist.
-We will assume that all candidates satisfy unique provability. While this might sound like a very 
-strong assumption, which it is, we argue that it is not too hard of a restriction on modern 
-schemes that pose potential candidate schemes for a combiner. This is because unique provability 
-is an information theoretic notion which is typically mathematically proven for good constructions 
-such as ECVRF or Lattice VRF.
+and unique provability and all oracles pseudorandomness we need to make an even stronger assumption to allow for combiners to exist.
+We will assume that all candidates satisfy unique provability. This is a strong assumption since 
+unique provability is one of the main properties of VRFs which distinguishes VRFs from PRFs
+which admit simple robust $(n;1)$ black-box combiner constructions. 
+We note that unique provability is generally required to be perfect for good constructions,
+meaning that most existing constructions come with rigorous mathematical proofs that assert their 
+unique provability. Examples of this are ECVRF and Lattice VRFs, which are the most 
+famous constructions of VRFs.\todo{change}
+
+As previously mentioned, PRFs admit a simple robust $(n;1)$ black-box combiner
+which simply xors the outputs of all PRF candidates. We show that this construction 
+can be extended to VRFs by simply computing the trace of the evaluation algorithms trace 
+and providing this as a proof. The existence of such combiners is formalized in the following lemma.
+
+\begin{lemma}[Strong Robust $(n;1)$ Black-Box VRF Combiners]\label{lemma:strong_robust_black_box_combiners}
+	There exist robust $(n;1)$ black-box combiners in the sense of \Cref{def:robust_blackbox_combiner}
+	for the VRF primitive \Cref{def:vrf} if we assume that all candidates are uniquely provable 
+	and perfectly correct.
+\end{lemma}
+
+\paragraph{Proof of \Cref{lemma:strong_robust_black_box_combiners}.}
+We show the adversary in TODO
 
 However, assuming that all candidates satisfy unique provability combiner constructions become very simple.
 We present a construction very similar to the simple xor combiner for PRFs that works as follows.
@@ -2109,13 +2278,11 @@ or if the other verification doesnt accept.
 	\label{fig:prf_combiner}
 \end{figure}
 
-\begin{lemma}\label{lemma:prf_combiner}
-	There exist a robust $(n;1)$ black-box combiner that combines $n$ uniquely provable VF candidates, of which at least 
-	one implements a secure VRF to construct a VF that is statistically correct in the sense of \Cref{def:correctness},
-	uniquely provable in the sense of \Cref{def:unique_provability} and pseudorandom in the sense of \Cref{def:pseudorandomness}.
-\end{lemma}
 
 \paragraph{Intuition.}
+For unique provability, since all candidates are uniquely provable, 
+the combiner itself must also be uniquely provable. For correctness \todo{unclear}.
+
 The proof of the security works in two stages. First we show that by doing the public correctness check 
 we can detect incorrect candidates with overwhelming probability. Then we show that given any adversary $\mathcal A$ against the pseudorandomness of the combined 
 scheme we can construct a reduction $\mathcal R$ against the pseudorandomness of any underlying candidate.
@@ -2130,20 +2297,52 @@ Having shown that general notion of combiners on VRFs even with relaxed requirem
 properties of the combiner are impossibile and the combiners on VRFs with guaranteed unique provability 
 are easy we want to strengthen the result by considering combiners for VRFs (assuming all candidates are 
 uniquely provable) with advanced additional properties, namely constrainability as in \Cref{def:constrainableVRF}, key-homomorphism as in \Cref{def:keyhom},
-aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}. 
+aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}.
+
 
 For the notions of constrainability, key-homomorphism and aggregability this question is quckly answered 
 as we we show how the above construction of extended PRF combiner 
 can be minimally adapted to combine the notions. We will quickly explain how to extend the construction 
-of the extended PRF combiner to capture those notions and then we will move on to the more interesting 
-notion of unbiasability, for which the constructions become more complex.
+of the extended PRF combiner to capture those notions and move the rigorous proofs 
+in the appendix.
 
-We now consider additional security properties for VRFs, aggregatability that allows the aggregation of many 
-secret keys or image-proof pairs to allow for efficient batch verification and unbiasability which prevents 
-adversaries from skewing the output distribution of a VRF by maliciously selecting the keys.
+\paragraph{Constrainable VRF.}
+A constrainable VRF as introduced by \cite{} is a VRF 
+with an additional algorithm $\alg{Constrain}{VRF}$ that allows the constraining of specific secret keys
+$\sk$ to a subset of evaluation points $S \subseteq \mathcal X$, $\sk_S$.
+We require the additional security property that constrainable keys $\sk_S$ cannot be used 
+to evaluate points outside of $S$ and the notion of constraint hiding.
+Constraint hiding requires that the proof of an evaluation doesn't give away the key used.
+The robust $(n;1)$ black-box combiner implements the algorithms $\alg{Gen}{VRF}, \alg{Eval}{VRF}$
+and $\alg{Vfy}{VRF}$ the same as in \Cref{fig:prf_combiner} and implements the constraining algorithm 
+by constraining every candidate secret key in the tuples seperately. The algorithm is shown in \Cref{fig:extended_prf_combiner}.
+The existence is formally stated in the following lemma with the proof, as mentioned above, deferred to the appendix.
 
+\begin{lemma}[Strong Robust $(n;n-1)$ Black-Box cVRF-Combiner]
+	
+\end{lemma}
 
+\paragraph{Key-homomorphic VRF.}
+A key-homomorphic VRF as introduced in \cite{} is a VRF 
+for which the secret key space $\SK$ and the output space $\Y \times \P$ admit group structures
+$(\SK, \otimes_{\SK})$ and $(\Y \times \P, \otimes_{\Y \times \P})$ and satisfies that 
+the evaluation function for a fixed $x \in \bin^\lambda$ is a homomorphism $\alg{Eval}{VRF}(x, \cdot): \SK \to \Y \times \P$.
+The homomorphism property can be checked by using efficient homomorphism test on groups by the BLR test,
+which states that only with a constrant number of queries we can show that a function is a homomorphism except 
+with negligible probability. Since this test is global it is executed by the verifier and the evaluator, non-homoomrphic candidates are excluded.
+The result is stated in the lemma below.
 
+\begin{lemma}[Strong Robust $(n;n-1)$ Black-Box khVRF-Combiner]
+	
+\end{lemma}
+
+\paragraph{Aggregable VRF.}
+An aggregable VRF is similar to a key-homomorphic VRF but
+
+\paragraph{Unbiasable VRF.}
+An unbiasable VRF requires security against biasing the output of the VRF for maliciously crafted secret keys.
+
+\begin{comment}
 \paragraph{Robust Black-Box Combiner for Unbiasable VRF.} We present a robust black-box combiner for unbiasable VRF under the assumption that 
 all candidate schemes are uniquely provable. We first note that there exists a compiler to reduce unbiasable VRF to VRF 
 under computational Diffie-Hellman (CDH) assumption \cite{}, a combiner that works under the CDH assumption
