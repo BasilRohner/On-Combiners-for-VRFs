@@ -105,6 +105,34 @@ and every public-key $\pk \in \PK$ only one image $y \in \Y$ is accepted by the 
 	\]
 \end{definition}
 
+\begin{definition}[$\err$-Unique Provability]\label{def:unique_provability}
+	A verifiable function $\prim{VF}$, with algorithms $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$,
+	defined to be $\err$-uniquely provable if over 
+	the randomness of the key generation algorithm and for all evaluation points $x \in \bin^\lambda$, the probability of there existing $(y_0, \pi_0), (y_1, \pi_1) \in \Y \times \P$
+	with $y_0 \neq y_1$ such that both verify is at most $\err$, i.e. if
+	\[
+		\Prob*{
+			\begin{aligned}
+				&\exists (y_0, \pi_0), (y_1, \pi_1) \in \Y \times \P, y_0 \neq y_1 \\
+				&\land \alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1\\ 
+				&\land \alg{Vfy}{VF}(\pk, x, y_1, \pi_1) = 1
+			\end{aligned}
+			:
+			\begin{aligned}
+				x  &\in \bin^\lambda\\ 
+				(\sk, \pk) &\sample \alg{Gen}{VRF}(1^\lambda)
+			\end{aligned} 
+		} \le \err
+	\]
+	key-pairs sampled according to the key generation algokorithm 
+	the  for all evaluation points $x \in \bin^\lambda$, a public-keys $\pk \in \PK$
+	(even maliciously crafted ones) and any two images-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$:
+
+	\[
+		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \implies y_0 = y_1
+	\]
+\end{definition}
+
 We define a secure VF\todo{maybe separate correct and secure here or maybe omit it fully} to be a VF that satisfies both correctness and unique provability.
 We define the computational security properties of pseudorandomness, weak pseudorandomness and 
 unpredictability.
