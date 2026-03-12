@@ -624,7 +624,17 @@ We can derive the following corollary.\todo{change title to lemma maybe}
 	defined in \Cref{def:vrf} for all $n \in \N^+$.
 \end{lemma}
 
-Extending this result to an impossibility of robust $(n;n-1)$ seems hard, instead we will show that even if we 
+Extending this result to an impossibility of robust $(n;n-1)$ seems difficult. We elaborate on the reason why the proof 
+for \Cref{lemma:warmup} cannot easily be extended to general robust $(n;n-1)$ black-box VRF-combiners.
+We still believe that robust $(n;n-1)$ black-box VRF-combiners are not possible and therefore pose the following 
+conjecture.
+
+\begin{conjecture}
+	There exists no robust $(n;n-1)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} for the VRF primitive 
+	as defined in \Cref{def:vrf} for all natural numbers $n > 1$.
+\end{conjecture}
+
+instead we will show that even if we 
 relax the requirements of the combiner to implement only weak unpredictability, statistical correctness and statistical unique provability,
 there still doesnt exist a combiner, even if we assume that all candidates to be pseudorandom and at least one 
 candidate is perfectly correct and perfectly uniquely provable. 

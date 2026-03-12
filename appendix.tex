@@ -29,9 +29,29 @@ Then we can deduce the following:
     \le&\Prob{\mathcal E} 
 \end{align}
 
-\todo[should this even be included?]
+\subsection{Conjecture}
 
-It is sufficient to find a $(1;2)$-robust black-box combiner for VRF where all candidates are uniquely provable. Given a combiner we can then construct a $(1;n)$-robust black-box combiner for VRF by nesting the combiners iteratively. A construction for the combiner is given in \cref{fig:construction1}. The key generation works by querying both candidates on the given security parameter and grouping the secret and public keys respectively. Evaluation again queries both candidate schemes on the input with their respective secret key and returns the xor of the outputs while the the individual outputs and proofs consistute the new proof. The verification algorithm checks whether the image $y$ is the result of xoring the individual outputs of the candidates and whether the individual images $y_1, y_2$ verify with respect to the verification key the proof and the pre-image. To ensure that the combiner is still efficient we sim \todo[problematic if one candidate is incorrect, then we cannot achieve perfect correctness because we can only try ourselves whether it is correct, also problematic if one candidate doesn't terminate. Although non-termination might not be a problem if we assume that oracles always immediately give output.]
+We quickly want to make a few remarks towards the idea of extending the proof of \Cref{lemma:warmup}
+to the more general case of \Cref{conjecture}. The direct proof fails because of the subtle reason that 
+the hidden oracle queries need to be candidate-wide irrelevant but not jointly irrelevant over queries to 
+many distinct candidate schemes. In the proof of \Cref{lemma:warmup} we argue that for oracle $\O_2$
+all hidden oracle queries, i.e. all oracle queries not contained in the transcript of the combiners
+verification algorithm are exactly the queries that would influence the combiner output if changes.
+On the other hand, for any arbitrary assignment of the hidden queries, the output of the combiner 
+stays constant as long as the non-hidden queries and the queries to $\O_1$ are honestly answered.
+
+This idea gives rise to the attack of iteratively filtering the secret key space on a polynomial number 
+of points by keeping in every round $(1.)$ at least the true secret key, $(2.)$ only secret keys 
+for which the output of the combiner is the same as for the true secret key. We argue that after a sufficient 
+number of filtering steps, any remaining candidate has sufficiently high chance of evaluating to the same output 
+as the combiner does with the true secret key on a uniformly random evaluation point.
+
+However, since the hidden queries must not necessarily be jointly-irrelevant this argument cannot be applied if 
+we have more candidates, of which still $n-1$ need to be secure for the combiner to be required to 
+implement unique provability and pseudorandomness.
+
+TODO\todo{example of axis-constant function}
+
 
 % \begin{figure}[H]
 % 	\centering 
@@ -71,5 +91,4 @@ It is sufficient to find a $(1;2)$-robust black-box combiner for VRF where all c
 % 	\label{fig:construction1}
 % \end{figure}
 
-The combiner is clearly efficient since every algorithm consists of one call to the respective algorithm of each candidate scheme (whi)
 

@@ -18,7 +18,7 @@ Turing machines. Finally, we use bold letters, e.g. $\x$, to indicate that $\x$ 
 	We say that a function $p: \N \to \R$ is polynomial if the folowing holds
 
 	\[
-		\exists c,d \in \N, \exists n_0 \in \N, \forall n > n_0, p(n) \le cn^d
+		\exists d \in \N, \exists n_0 \in \N, \forall n > n_0, p(n) \le n^d
 	\]
 \end{definition}
 
@@ -48,25 +48,25 @@ such as pseudorandomness and unpredictability seperately.
 
 	\begin{itemize}
 		\item $\alg{Gen}{VF}$: The key-generation algorithm takes as input the unary encoding of the security parameter
-			and produces a pair$(\sk, \pk) \in \SK \times \PK$ containing a secret and a public key.
+			and produces a pair $(\sk, \pk) \in \SK \times \PK$ containing a secret and a public key respectivley.
 		\item $\alg{Eval}{VF}$: The evaluation algorithm takes as input a tuple $(\sk, x)$ containing a secret key $\sk \in \SK$ and an evaluation point $x \in \bin^\lambda$
-			and produces an tuple $(y, \pi)$ containing an image $y \in \Y$ and a corresponding proof $\pi \in \P$. 
+			and produces an tuple $(y, \pi)$ containing an image $y \in \Y$ and a proof $\pi \in \P$. 
 		\item $\alg{Vfy}{VF}$: The verification algorithm takes as input a tuple $(\pk, x, y, \pi)$ containing a public key $\pk \in \PK$, an evaluation
 			point $x \in \bin^\lambda$, an image $y \in \Y$ and a proof $\pi \in \P$ and returns a bit $b$ denoting acceptance or rejection.
 	\end{itemize}
 \end{definition}
 
+\todo{can evaluation or verification be randomized, probably vfy can be probabilistic}
 
-A VF can assume a range of different attributes. Based on the satisfied properties we arrive at specific
-constructions such as verifiable random functions (VRFs) or verifiable unpredictable functions (VUFs). 
-We first describe the correctness property of a VF. Informally a VF is correct if for any key-pair produced 
-honestly from the key-generation algorithm and any point $x \in \bin$ the output $(y, \pi)$ of the evaluation alogrithm 
-is accepted by the verification algorithm. 
+Note that a VF is a purely syntactical concept. For a VF we define various properties to arrive to arrive 
+at specific cryptographic primitives, e.g. VRFs. First of all we define $\err$-correctness, 
+a property that guarantes that over random key-pairs and evaluation points, the 
+verification algorithm accepts a correctly computed image-proof pair with probability at least $\err$.
 
 
-\begin{definition}[$\err$-Correctness]\label{def:correctness}
+\begin{definition}[$\err$-Correctness, \cite{}]\label{def:correctness}
 	A verifiable function $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is 
-	$\err$-correct, if for all security parameters $\lambda \in \N^+$ we have that
+	$\err$-correct, if for all security parameters $\lambda \in \N$ we have that
 
 	\[
 		\Prob*{
@@ -74,27 +74,26 @@ is accepted by the verification algorithm.
 			\begin{aligned}
 				(\sk, \pk) &\sample \alg{Gen}{VF}(1^\lambda)\\ 
 				x &\sample \bin^\lambda\\
-				(y, \pi) &\sample \alg{Eval}{VF}(\sk, x)
+				(y, \pi) &\gets \alg{Eval}{VF}(\sk, x)
 			\end{aligned}
 		} \ge \err(\lambda)
 	\]
 
-	An $\err$-correct VF is defined to be perfectly correct, or just correct, if $\err = 1$, and it is defined to be 
-	statistically correct if $\err = 1-\mu$ for a negligible function $\mu$.
+	We define a VF $\prim{VF}$ to be perfectly correct, or just correct, if it is $1$-correct and statistically correct if 
+	$\err$ is an overwhelming function.
 \end{definition}
 
-While correctness requires all honestly generated images to be accepted by the verification algorithm 
-we additionally demand that the verification algorithm rejects all maliciously generated images.
-We define the property of unique provability to be the property that requires that for every evaluation point $x \in \bin^\lambda$,
-and every public-key $\pk \in \PK$ only one image $y \in \Y$ is accepted by the verification algorithm.
+Intuitively a correct VF states that honestly generated image-proof pairs are accepted by the 
+verification algorithm. Next we define unique provability. A VF is uniquely provable if 
+not more than one image can be proven, even for maliciously crafted public keys.
 
-\begin{definition}[Unique Provability]\label{def:unique_provability}
+\begin{definition}[Unique Provability, \cite{}]\label{def:unique_provability}
 	A verifiable function $\prim{VF}$, with algorithms $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$,
-	defined to be uniquely provable if for all evaluation points $x \in \bin^\lambda$, a public-keys $\pk \in \PK$
-	(even maliciously crafted ones) and any two images-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$:
+	is defined to be uniquely provable if for all evaluation points $x \in \bin^\lambda$, all public-keys $\pk \in \PK$
+	and any two images-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$ we have:
 
 	\[
-		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \implies y_0 = y_1
+		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_1, \pi_1) = 1 \implies y_0 = y_1
 	\]
 \end{definition}
 
@@ -128,12 +127,14 @@ and every public-key $\pk \in \PK$ only one image $y \in \Y$ is accepted by the 
 \end{definition}
 \end{comment}
 
+\todo{maybe comment why no statistical notion}
 
-We define a secure VF\todo{maybe separate correct and secure here or maybe omit it fully} to be a VF that satisfies both correctness and unique provability.
-We define the computational security properties of pseudorandomness, weak pseudorandomness and 
-unpredictability.
+Correctness and unique provability are information theoretic. We define pseudorandomness of a VF
+which is a computational property, stating that no efficient adversary $\A$ can distinguish images $y$ 
+corresponding to evaluation of $x$, chosen by $\A$, from a uniformly random output $y^* \sample \Y$.
+This needs to hold even if the adversary gets to see the evaluation of a polynoial number of points $x \neq x^*$.
 
-\begin{definition}[$\errtime$-Pseudorandomness]\label{def:pseudorandomness}
+\begin{definition}[$\errtime$-Pseudorandomness, \cite{}]\label{def:pseudorandomness}
 	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is defined to be $\errtime$-pseudorandom if for all security parameters $\lambda \in \N$, 
 	for all stateful adversaries $\A$, running in time at most $\runtime(\lambda)$, the advantage of $\A$ in the prf security experiment outlined in \Cref{fig:prf_wprf_up_experiment} 
 	is at most $\err(\lambda)$, i.e. if 
@@ -145,11 +146,11 @@ unpredictability.
 	We say that a VF is pseudorandom, if it is $\errtime$-pseudorandom with $\err$ being a negligible function and $\runtime$ being a polynomial, i.e. $\err \in \negl, \runtime \in \poly$.
 \end{definition}
 
-In contrast to pseudorandomness, which requires that images of chosen evaluation points are pseudorandom,
-i.e. indistinguishable from uniformly random elements in the co-domain, weak pseudorandomness 
-requires only that the evaluation of uniformly random evaluation points.
+Next we define two weaker notions of pseudorandomness. While (strong) pseudorandomness required the evaluation of adverserially chosen points 
+to be indistinguishable from uniformly random elements $y^* \in \Y$ we can relax this requirement by requiring computational indistinguishability
+for uniformly random challenges $x^* \sample \bin^\lambda$. We call this notion weak pseudorandomness.
 
-\begin{definition}[$\errtime$-weakly Pseudorandomness]\label{def:weak_pseudorandomness}
+\begin{definition}[$\errtime$-Weak Pseudorandomness, \cite{}]\label{def:weak_pseudorandomness}
 	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is defined to be $\errtime$-weakly pseudorandom if for all security parameters $\lambda \in \N$, 
 	for all stateful adversaries $\A$, running in time at most $\runtime(\lambda)$, the advantage of $\A$ in the wprf security experiment outlined in \Cref{fig:prf_wprf_up_experiment} 
 	is at most $\err(\lambda)$, i.e. if 
@@ -161,7 +162,13 @@ requires only that the evaluation of uniformly random evaluation points.
 	We say that a VF is weakly pseudorandom, if it is $\errtime$-weakly pseudorandom with $\err$ being a negligible function and $\runtime$ being a polynomial, i.e. $\err \in \negl, \runtime \in \poly$.
 \end{definition}
 
-\begin{definition}[$(\eps, t)$-Unpredictability]
+Alternatively a VF can be unpredictable. A VF is unpredictable if no adversary 
+can predict the image $y$ of the evaluation of a challenge $x$ chosen by the adversary.
+This property needs to hold even if the adversary sees the evaluation of a polynomial number of points $x \neq x^*$.
+Note that if the adversary can predict the output of evaluation on $x^*$ he can also distinguish the output from a random output $y^* \sample \bin$
+with non-negligible probability making unpredictability is a weaker property than pseudorandomness.
+
+\begin{definition}[$(\eps, t)$-Unpredictability, \cite{}]\label{def:unpredictability}
 	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is defined to be $\errtime$-unpredictable if for all security parameters $\lambda \in \N$, 
 	for all stateful adversaries $\A$, running in time at most $\runtime(\lambda)$, the advantage of $\A$ in the up security experiment outlined in \Cref{fig:prf_wprf_up_experiment} 
 	is at most $\err(\lambda)$, i.e. if 
@@ -173,7 +180,7 @@ requires only that the evaluation of uniformly random evaluation points.
 	We say that a VF is unpredictable, if it is $\errtime$-unpredictable with $\err$ being a negligible function and $\runtime$ being a polynomial, i.e. $\err \in \negl, \runtime \in \poly$.
 \end{definition}
 
-\begin{figure}[tb]
+\begin{figure}[htbp]
 	\begin{pcvstack}[center, space=1em]
 	\begin{pchstack}[space=1em]
 		\procedure[linenumbering]%
@@ -182,7 +189,7 @@ requires only that the evaluation of uniformly random evaluation points.
 			b \sample \bin\\ 
 			(\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
 			S \gets \varnothing\\ 
-			(\gamechange{$x^*$}, \sigma) \sample \mathcal A^{\O_{\text{eval}}}(1^\lambda, \pk)\\ 
+			\highlight{(x^*, \sigma) \sample \mathcal A^{\O_{\text{eval}}}(1^\lambda, \pk)}\\ 
 			(y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
 			y_1 \sample \Y\\ 
 			b' \sample \A(1^\lambda, x^*, \sigma, y_b) \\ 
@@ -195,7 +202,7 @@ requires only that the evaluation of uniformly random evaluation points.
 			(\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
 			S \gets \varnothing\\ 
 			\sigma \sample \A^{\O_{\text{eval}}}(1^\lambda, \pk)\\ 
-			\gamechange{$x^* \sample \bin^\lambda$}\\ 
+			\highlight{x^* \sample \bin^\lambda}\\ 
 			(y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
 			y_1 \sample \Y\\ 
 			b' \sample \A^{\O_{\text{eval}}}(1^\lambda, x^*, \sigma, y_b) \\ 
@@ -221,31 +228,38 @@ requires only that the evaluation of uniformly random evaluation points.
 		}
 	\end{pchstack}
 	\end{pcvstack}
-	\caption{Security game for pseudorandomness, weak pseudorandomness and unpredictability. The differences
-	between the prf and wprf security experiment are highlighted in gray.}
+	\caption{The pseudorandomness security experiment $\Exp{VF}{prf}(\lambda, \A)$ used in \Cref{def:pseudorandomness}, 
+	the weak pseudorandomness security experiment $\smash{\Exp{VF}{wprf}(\lambda, \A)}$ used in \Cref{def:weak_pseudorandomness} and
+	the unpredictability security experiment $\Exp{VF}{up}(\lambda, \A)$ used in \Cref{def:unpredictability}.
+	The main changes between the pseudorandomness security experiment and the weak pseudorandomness 
+	security experiment are highlighted in grey.}
 	\label{fig:prf_wprf_up_experiment}
 \end{figure}
 
-We define a verifiable random function (VRF) to be a secure pseudorandom VF,
-a verifiable unpredictable function (VUF) to be a secure unpredictable VF and a 
-weaker verifiable random function (wVRF) to be a secure weakly pseudorandom VF.
-We formally define the primitives VRF, VUF and wVRF in the following definitions.
+We now define the notions of a verifiable random function (VRF), verifiable unpredictable function (VUF)
+and weak verifiable random function (WVRF), which are correct, uniquely provable and 
+pseudorandom, unpredictable and weakly pseudorandom VFs respectivly.
+We formally define the primitives.
 
-\begin{definition}[Verifiable Random Functions]
-	A verifiable random function $(\alg{Gen}{VRF}, \alg{Eval}{VRF}, \alg{Vfy}{VRF})$ is a VF that satisfies 
-	perfect correctness, unique provability and pseudorandomness.
+\begin{definition}[Verifiable Random Functions]\label{def:vrf}
+	A verifiable random function $\prim{VRF} = (\alg{Gen}{VRF}, \alg{Eval}{VRF}, \alg{Vfy}{VRF})$ is a VF that satisfies 
+	perfect correctness in the sense of \Cref{def:correctness}, unique provability in the sense of \Cref{def:unique_provability} and pseudorandomness
+	in the sense of \Cref{def:pseudorandomness}.
 \end{definition}
 
-\begin{definition}[Verifiable Unpredictable Functions]
-	A verifiable random function $(\alg{Gen}{VRF}, \alg{Eval}{VRF}, \alg{Vfy}{VRF})$ is a verifiable function that satisfies 
-	perfect correctness, unique provability and unpredictability.
+\begin{definition}[Weak Verifiable Random Functions]\label{def:wvrf}
+	A weak verifiable unpredictable function $\prim{WVRF} = (\alg{Gen}{WVRF}, \alg{Eval}{WVRF}, \alg{Vfy}{WVRF})$ is a VF that satisfies 
+	perfect correctness in the sense of \Cref{def:correctness}, unique provability in the sense of \Cref{def:unique_provability} and weak pseudorandomness
+	in the sense of \Cref{def:weak_pseudorandomness}.
 \end{definition}
 
-\begin{definition}[Weak Verifiable Random Functions]
-	A verifiable random function $(\alg{Gen}{VRF}, \alg{Eval}{VRF}, \alg{Vfy}{VRF})$ is a verifiable function that satisfies 
-	perfect correctness, unique provability and weak pseudorandomness.
+\begin{definition}[Verifiable Unpredictable Functions]\label{def:vuf}
+	A verifiable unpredictable function $\prim{VUF} = (\alg{Gen}{VUF}, \alg{Eval}{VUF}, \alg{Vfy}{VUF})$ is a VF that satisfies 
+	perfect correctness in the sense of \Cref{def:correctness}, unique provability in the sense of \Cref{def:unique_provability} and unpredictability
+	in the sense of \Cref{def:unpredictability}.
 \end{definition}
 
+\begin{comment}
 Unbiasability, following the definition of \cite{EC:GiuSte24}, is a property for VRFs that 
 prevents adversaries from skewing the output distribution of the evaluation function on malleable keys. 
 To formally definine unbiasability we require the notion of monotone predicates.
@@ -374,11 +388,25 @@ We define several properties for aggregatable verifiable functions (AggVF), foll
 \end{definition}
 \end{comment}
 
-\todo{think I should abandon the subsetting of the primitive and introduce . notation. Also use subexp \textbf{P} for primitive in combiner}
-
 \newpage
 
 \section{Robust Combiners}
+For two natural numbers $n,k$ we define the robust $(n;k)$ black-box combiner, or robust black-box combiner for short.
+A robust $(n;k)$ black-box combiner for a primitive $\prim{P}$ is a construction $\BBComb{P}$, to be precise a ppt. oracle Turing machine,
+that is given query access to $n$ oracles, the candidate schemes $\O_1, \ldots, \O_n$. If at least $k$ candidate schemes implement 
+the primitive $\prim{P}$, then the combiner $\BBComb{P}[\O_1, \ldots, \O_n]$ securely implements $\prim{P}$.
+The idea behind a robust black-box combiner is that the construction extracts the security properties from the subset of 
+correct candidates, even if some candidate schemes are not secure instances. However now note the following problem in the 
+current definition:
+
+If there exists a secure instance of $\prim{P}$ there always exists robust $(n;0)$ black-box combiner that simply 
+ignores its candidates and implements $\prim{P}$. This robust black-box combiner meets all the requirements of the definition.
+Showing that there exists no specific robust black-box combiner therefore requires to show that no secure instance 
+of the primitive $\prim{P}$ exists, which is often a difficult complexity theoretic statement.
+
+To circumvent this problem we want to explicitly force the combiner to derive its security from the 
+subset of secure candidate schemes. To do this, we require the security properties of the combiner to hold 
+relative to a PSPACE complete oracle.
 
 \begin{comment}
 Given a cryptographic primitive $\prim{P}$ we define a robust $(n;k)$ $\prim{P}$-combiner
