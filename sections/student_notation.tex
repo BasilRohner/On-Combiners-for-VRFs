@@ -2,54 +2,47 @@
 \chapter{Notation and Preliminaries}\label{ch:notation}
 
 \section{Notation}
-
-For a positive integer $n$ we define $[n] = \Brace{1,\ldots,n}$. 
-Unless specified otherwise we use $\lambda$ to denote the security parameter. 
-A function $\eps(n)$ is called negligible, if it vanishes faster than the inverse of any polynomial in $n$,
-formally defined in \Cref{def:negligible}. 
-We say that an event $E$ happens with overwhelming probability if $\Prob{E} \ge 1 - \eps(\lambda)$
-for a negligible function $\eps$ and we say that an $E$ occurs with significant probability if 
-$\Prob{E} \ge \frac{1}{p(\lambda)}$ for a polynomial $p$ in $\lambda$.
-We use $\poly[n]$ to denote the set of functions polynomial in $n$ and $\negl[n]$ to denote the set of functions negligible in $n$.
-For a set $S$ we write $y \sample S$ to indicate that the value of $y$ is sampled uniformly at random from $S$,
-for a random variable $X$ we write $y \sample X$ to indicate that the value of $y$ is sampled from the 
-corresponding sample space with the underlying distribution, and for a randomized algorithm $\A$
-we write $y \sample \A(x)$ to assign to $y$ the value of the output of $\A$ on $x$.
+For a positive integeger $n$ define $[n] = \Brace{1,\ldots,n}$.
+We use $\lambda \in \N$ exclusively to denote the security parameter.
+We use $\poly$ to denote the set of functions that are polynomial in $\lambda$
+in the sense of \Cref{def:polynomial} and $\negl$ to denote the set of functions that are 
+negligible in $\lambda$ in the sense of \Cref{def:negligible}.
+We call a function $f$ \textit{overwhelming} if $1 - f(\lambda) \in \negl$.
 We use $\gets$ for simple assignment.
-We denote column vectors with lower-case bold letters (e.g. $\x$) \todo{I needed this previously bu}.
-Unless specified otherwise we assume that any algorithm gets as input in the first argument 
-the unary encoding of the security parameter $1^\lambda$.
-Finally we use ppt. to abbreviate probabilistic polynomial time in context of turing machines and algorithms. 
+For a set $S$ we write $s \sample S$ to indicate that the value $s$ is sampled uniformly at random from 
+set $S$ and for a probabilistic algorithm $\A$ we write $y \sample \A(x)$ to denote assigning to 
+$y$ the output of $\A$ on input $x$. We use ppt. to abbreviate probabilistic polynomial time in the context of 
+Turing machines. Finally, we use bold letters, e.g. $\x$, to indicate that $\x$ consists of multiple values such as tuples or vectors\todo{maybe change}.
 
 \begin{definition}[Polynomial Functions]\label{def:polynomial}
-	We say that a function $f: \N \to \R$ is polynomial in its argument $\lambda$ if 
+	We say that a function $p: \N \to \R$ is polynomial if the folowing holds
 
 	\[
-		\exists c,d \in \N, \forall \lambda \in \N, f(\lambda) \le c \lambda^d
+		\exists c,d \in \N, \exists n_0 \in \N, \forall n > n_0, p(n) \le cn^d
 	\]
 \end{definition}
 
 \begin{definition}[Negligible Functions]\label{def:negligible}
-	We say that a function $f: \N \to \R$ is negligible in its argument $\lambda$ if
+	We say that a function $\eps: \N \to \R$ is negligible if the following holds
 
 	\[
-		\forall c \in \N^+, \exists n_0 \in \N, \forall \lambda > n_0, |f(\lambda)| < \frac{1}{x^c}
+		\forall p \in \poly, \exists n_0 \in \N, \forall n > n_0, |\eps(n)| < \frac{1}{p(n)}
 	\]
 \end{definition}
 
+\newpage
+
 \section{Verifiable Functions}
+A verifiable function (VF) $\prim{VF}$ is a cryptographic primitive that implements algorithms 
+$\alg{Gen}{VF}, \alg{Eval}{VF}$ and $\alg{Vfy}{VF}$. A user can generate key-pairs $(\sk, \pk)$
+using $\alg{Gen}{VF}$ consisting of a secret key $\sk$ and a public key $\pk$, use the secret key $\sk$
+to make evaluate arbitrary points $x \in \bin^\lambda$ using $\alg{Eval}{VRF}$ and use the public key $\pk$ to 
+verify a triple $(x,y,\pi)$ using $\alg{Vfy}{VRF}$.
+We give a formal definition in \Cref{def:vf}, the definition takes inspiration of the definition of a 
+VRF in \cite{}. To reduce redundancy we define additional security properties 
+such as pseudorandomness and unpredictability seperately.
 
-A verifiable function (VF) $\prim{VF}$ is a cryptographic primitive that implements a key-generation
-algorithm $\alg{Gen}{VF}$ to sample a key-pair $(\sk, \pk)$ containing a secret and a public key, 
-a deterministic evaluation algorithm $\alg{Eval}{VF}$ that allows the holder of a secret key $\sk$ to 
-make evaluations at any points $x \in \bin^\lambda$ to obtain an image $y \in \Y$ and a corresponding proof $\pi \in \P$,
-and a verification algorithm that allows a different party with access to the corresponding public key $\pk$ to verify 
-that $y$ was correctly computed from $x$ if given access to the proof $\pi$. 
-The definition takes inspiration of the definition of a verifiable random function (VRF)
-as defined by \cite{}, to reduce redundand when considering VRFs with additional or relaxed properties
-we define the properties seperately on top of a verifiable function (VF).
-
-\begin{definition}[Verifiable Function]
+\begin{definition}[Verifiable Function]\label{def:vf}
 	A verifiable function (VF) $\prim{VF}$ is a triple of efficient (ppt.) algorithms
 	$\Paren{\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF}}$ with the syntax\todo{this is less elegant now}
 
@@ -105,6 +98,7 @@ and every public-key $\pk \in \PK$ only one image $y \in \Y$ is accepted by the 
 	\]
 \end{definition}
 
+\begin{comment}
 \begin{definition}[$\err$-Unique Provability]\label{def:unique_provability}
 	A verifiable function $\prim{VF}$, with algorithms $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$,
 	defined to be $\err$-uniquely provable if over 
@@ -132,6 +126,8 @@ and every public-key $\pk \in \PK$ only one image $y \in \Y$ is accepted by the 
 		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \implies y_0 = y_1
 	\]
 \end{definition}
+\end{comment}
+
 
 We define a secure VF\todo{maybe separate correct and secure here or maybe omit it fully} to be a VF that satisfies both correctness and unique provability.
 We define the computational security properties of pseudorandomness, weak pseudorandomness and 

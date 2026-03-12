@@ -119,11 +119,73 @@ that we model with Turing machines without oracle access to the candidates.
 We illustrate this concept in \Cref{fig:prf_dag_comb} on the example of the simple robust black-box PRF-combiner in 
 \Cref{fig:prf_comb}.
 
-\begin{figure}[hptb]
+\begin{figure}[htbp]
+    \centering
     \begin{tikzpicture}
+        \node (x) at (0,0) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Source $s$}
+                    {
+                        \x_s \gets (k, x)\\
+                        \pcreturn \x_s
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+        \node (v1) at (-3,-4) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Vertex $v_1$}
+                    {
+                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
+                        \mathbf w_{v_1} \gets f_{\text{Eval}}^{v_1}(\x_s)\\ 
+                        \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf w_{v_1})\\ 
+                        \pcreturn \x_{v_1}
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+        \node (v2) at (3,-4) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Vertex $v_2$}
+                    {
+                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
+                        \mathbf w_{v_2} \gets f_{\text{Eval}}^{v_2}(\x_s)\\ 
+                        \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf w_{v_2})\\ 
+                        \pcreturn \x_{v_2}
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+        \node (t) at (0,-8) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Sink $t$}
+                    {
+                        \pclinecomment{Here $f_{\text{Eval}}^{t}(y_1, y_2) = y_1 \xor y_2$}\\
+                        \x_t \gets f_{\text{Eval}}^{t}(\x)\\
+                        \pcreturn \x_t
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+        \draw[-latex] (x) -> (v1);
+        \draw[-latex] (v1) -> (t);
+        \draw[-latex] (x) -> (v2);
+        \draw[-latex] (v2) -> (t);
     \end{tikzpicture}
+    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner. Note that for every node we first combine the output of all predecessors using a ppt. Turing machine $f_{\text{Eval}}^{v}$. The output $\mathbf w_v$ of $f_{\text{Eval}}^{v}$ is then queried to the corresponding oracle $\O_{\ell(v)}$. The source vertex doesn't compute anything but simply outputs the inputs while the sink $t$ doesn't query any oracle and simply combines its inputs.}
     \label{fig:prf_dag_comb}
-    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner.}
 \end{figure}
 
 To connect DAG combiners and general black-box combiners we show that the notions are indeed equivalent,
@@ -140,9 +202,6 @@ robust $(2;1)$ black-box VRF-combiners. We answer the question on whether there 
 combines two candidates, of which only at least one is secure, negatively. Specifically we show impossibility of 
 robust $(2;1)$ black-box VRF-combiners in \Cref{lemma:warmup}.
 
-For a rough proof outline fix an arbitrary combiner $\BBComb{VRF}$ and two uniquely provable and perfectly correct 
-VFs $\O_1, \O_2$. \todo{proof outline}TODO
-
 Since we can naturally use a robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner to construct a $(2;1)$ combiner
 by simply initializing half the candidates with $\O_1$ and the other half with $\O_2$ we 
 get an impossibility result for robust $(n; \lfloor n/2\rfloor)$ black-box VRF-combiner by contraposition.
@@ -156,6 +215,16 @@ find constructions \Cref{thm:main}\todo{unclear}.
 
 We show that if we assume all candidates to be uniquely provable and perfectly correct, 
 the combination of the candidates works in a very similar fashion to the combiner on the PRF primitive.
+Note that since unique provability and perfect correctness are generally information theoretic properties,
+this means that for most VRF constructions, e.g. LatticeVRF \cite{} and ECVRF \cite{}, those properties 
+are typically proven mathematically. Arguable combiners are only interesting for combining computational security 
+properties that rely on hardness assumptions. 
+
+Having strengthened the assumptions on the candidates we can now consider more advanced notions of VRFs.
+We'll show that with simple extensions we can construct combiners for constrainable VRFs, key-homomorphic VRFs and 
+aggregable VRFs if all candidates are guaranteed to be uniquely provable and perfectly correct. 
+Finally we consider unbiasable VRFs for which we provide a combiner that relies on collision resistant hash functions 
+and deterministic $2$-source randomness extractors.
 
 \begin{comment}
 Following the introduction of a robust black-box DAG combiner, we use the concept to prove the impossibility of 
