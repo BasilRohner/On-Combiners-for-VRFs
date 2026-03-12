@@ -80,6 +80,7 @@
 \newcommand{\pk}{\ensuremath{\textup{\textsf{pk}}}}
 \newcommand{\pcreq}{\operatorname{\textbf{req}}}
 \newcommand{\interp}[1]{\ensuremath{[\![#1]\!]}}
+\newcommand{\xor}{\ensuremath{\oplus}}
 
 \DeclareMathOperator{\pptm}{p.p.t.m.}
 \DeclareMathOperator{\ppt}{ppt}
@@ -315,7 +316,7 @@
 	\IfBooleanTF{#1}{
     \textup{\textsf{#2}}_{#3}
     }{
-      \textup{\textsf{#2}}_{\prim{#3}}
+      \textup{\textsf{#2}}_{\prim{#3}}q
 	}
 }
 }

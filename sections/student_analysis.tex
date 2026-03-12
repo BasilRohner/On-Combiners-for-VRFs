@@ -325,7 +325,13 @@ at most once.
 	$v \in V_{eval}$ and $w \in V_{vfy}$ the call to 
 \end{claim}
 
-TODO: easy
+The idea is to slightly alter the intermediate Turing machines to check, before they make a query,
+whether the oracle has already been queried on that specific input. If that is the case then the oracle is queried on a fresh input
+but the output is ignored. Subsequent queries that would depend on that query re-simulate the execution anyway and therefore 
+know on which value said oracle was queries, they then always refer to the value returned on the topologically first query.
+Assume that this would change the combiner execution for some query, then this means that the oracle output were not deterministic 
+and based on the internal randomness the combiner output changes. By perfect correctness both resulting distinct outputs 
+must verify which would violate unique provability.
 
 \newpage
 
