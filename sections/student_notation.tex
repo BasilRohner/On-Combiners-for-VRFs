@@ -406,7 +406,11 @@ of the primitive $\prim{P}$ exists, which is often a difficult complexity theore
 
 To circumvent this problem we want to explicitly force the combiner to derive its security from the 
 subset of secure candidate schemes. To do this, we require the security properties of the combiner to hold 
-relative to a PSPACE complete oracle.
+relative to a PSPACE complete oracle. Firstly we want to note that this means that the adversary against the 
+combiner can efficiently check whether an element is a member of a PSPACE complete language, enabling the adversary 
+to generally break computational hardness assumptions but limiting the adversary still to a polynomial number of 
+oracle queries. Secondly we want to note that this notion of a combiner still doesnt solve the issue 
+if the security of the cryptographic primitive are \textit{all} information theoretic.
 
 \begin{comment}
 Given a cryptographic primitive $\prim{P}$ we define a robust $(n;k)$ $\prim{P}$-combiner
@@ -426,37 +430,35 @@ Given a cryptographic primitive $\prim{P}$ we define a robust $(n;k)$ $\prim{P}$
 \end{definition}
 \end{comment}
 
-We write robust combiner for robust $(n;k)$ $\prim{P}$-combiner whenever $n,k$ and $\prim{P}$ are clear from the context. 
-A robust combiner gets the candidate schemes as a description of their turing machine and can therefore be 
-adaptive in the code of its candidates. Note that this definition allows the robust combiner to ignores its candidate schemes 
-and implement a secure instance of the underlying primitive indepdently of its candidates. One can therefore always construct 
-a robust combiner for primitives that admit secure instances, by contraposition this also means that any result 
-that rules out the existence of a robust combiner for a specific primitive $\prim{P}$ also rules out the existence 
-of the primitive itself. Intuitively we would like for the combiner to derive its security from the security of its 
-secure candidate schemes, therefore we define robust black-box combiner. A robust black-box combiner is a robust combiner 
-that, instead of getting access to the description of the Turing machines of the candidate schemes, only gets oracle access 
-to the underlying candidate schemes. We define the notion of a robust black-box combiner closely following the definition 
-by \cite{}. Note that we explicitly require a robust black-box combiner to derive its security from its candidates,
-for that reason we require the security to hold relative to a PSPACE oracle $\PSPACE$.
+% We write robust combiner for robust $(n;k)$ $\prim{P}$-combiner whenever $n,k$ and $\prim{P}$ are clear from the context. 
+% A robust combiner gets the candidate schemes as a description of their turing machine and can therefore be 
+% adaptive in the code of its candidates. Note that this definition allows the robust combiner to ignores its candidate schemes 
+% and implement a secure instance of the underlying primitive indepdently of its candidates. One can therefore always construct 
+% a robust combiner for primitives that admit secure instances, by contraposition this also means that any result 
+% that rules out the existence of a robust combiner for a specific primitive $\prim{P}$ also rules out the existence 
+% of the primitive itself. Intuitively we would like for the combiner to derive its security from the security of its 
+% secure candidate schemes, therefore we define robust black-box combiner. A robust black-box combiner is a robust combiner 
+% that, instead of getting access to the description of the Turing machines of the candidate schemes, only gets oracle access 
+% to the underlying candidate schemes. We define the notion of a robust black-box combiner closely following the definition 
+% by \cite{}. Note that we explicitly require a robust black-box combiner to derive its security from its candidates,
+% for that reason we require the security to hold relative to a PSPACE oracle $\PSPACE$.
 
 \todo{Very unhappy with this definition}
 
-\begin{definition}[$(n;k)$-Robust Black-Box $\prim{P}$-Combiner]\label{def:robust_blackbox_combiner}
-	Given a cryptographic primitive $\prim{P}$ consisting of $p$ algorithm $({\alg{alg}{P}}^1, \ldots, {\alg{alg}{P}}^p)$, 
-	a robust $(n;k)$ black-box $\prim{P}$-combiner is a $p$-tuple of oracle Turing machines with access to $n$ oracles, the candidate schemes 
-	$\O_1, \ldots, \O_n$
+TODO state contrapositive of the definition below here.
 
-	\[
-		\BBComb{P}[\O_1, \ldots, \O_n] = \Paren*{\BBComb{P}[\O_1, \ldots, \O_n].{\alg{alg}{P}}^1, \ldots, \BBComb{P}[\O_1, \ldots, \O_n].{\alg{alg}{P}}^n}
-	\]
-
-  	A $(n;k) $-robust combiner $\Comb P$ for primitive $P$ is defined to be black-box, denoted by $\BBComb P$, if additionally
-	it satisfies that if there exists an adversary $\A$ (possibly computationally unbounded) that breaks the security of $\BBComb{P}[\O_1, \ldots, \O_n]$,
-	then there exist adversaries $\B_1, \ldots, \B_{n+k-1}$ with oracle access to $\A$ for at least $n-k+1$ different candidates. 
+\begin{definition}[Robust $(n;k)$ Black-Box $\prim{P}$-Combiner]\label{def:robust_blackbox_combiner}
+	A robust $(n;k)$ black-box combiner for primitive $\prim{P}$ with $k$ algorithms is a tuple
+	of ppt. oracle Turing machines $\BBComb{P} = (\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{k})$
+	such that if there exists an ppt. adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$ that against 
+	$\BBComb{P}[\O_1, \ldots, \O_n]$ then there exist $n-k+1$ ppt. adversaries $\smash{\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
+	and an injective function $\ell: [n-k+1] \to [n]$ such that for any $i \in [n-k+1]$ the adversary $\smash{\B_i^{\O_{\ell(i)}}}$ breaks the security of the candidate $\O_{\ell(i)}$.
 \end{definition}
 
-We remark that compositite security definitions that rely on multiple properties are broken if there 
-exists an adversary that breaks a security property with 
-significant advantage. 
-Note that if the security would not hold relative to a PSPACE oracle $\PSPACE$ then we would find that a secure implementation
-of the primitive would indeed implement a secure robust black-box combiner since there exists no adversary breaking the security properties of $\prim{P}$.
+\paragraph{Remark.}
+If $\prim{P}$ defines composite security properties, as is the case for VRFs for instance, 
+we say that an adversary breaks the security of $\prim{P}$ if it breaks one of the required security properties.
+For computational security properties such as pseudorandomness this typically means that the adversary 
+wins the corresponding security experiment with non-negligible advantage. For information theoretic 
+or statistical properties such as unique provability or correctness this means that the property doesn't hold
+(we can think of this as the adversary $\A$ being arbitrary, breaking the security).
