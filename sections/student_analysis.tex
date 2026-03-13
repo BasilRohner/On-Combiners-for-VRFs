@@ -244,10 +244,20 @@ For that consider the following PSPACE language $\mathcal L_{cand}$. In the form
 this language is actually in PSPACE, for the intuition it makes intuitive sense that it is.
 
 \[
-	\mathcal L_{cand} = \Brace*{
-		\Paren*{\rho, i, \a, \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}} :
-		\a = \SK_{cand}^{(2s(\lambda))}[\rho][i]
+	\mathcal L_{cand} := \Brace*{
+		\Paren*{\rho, i, \a, \zeta = \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}} :
+		\a = \text{rank}_\rho\left(\SK_{cand}\left(\zeta\right)\right)_i
 	}
+\]
+\[
+	\mathcal L_{size} := \Brace*{
+		\Paren*{\zeta := \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}, m} :
+		|\SK_{cand}(\zeta)| \ge m 
+	}
+\]
+\[
+	\SK_{cand}\left(\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}\right) := 
+	\Brace*{\sk \in \SK : \forall i \in [2s(\lambda)], \alg{EvalSim}{VRF}(x_i, y_i, \pi_i, \tau_i) = \top}
 \]
 \todo{polish}
 The adversary can sample randomness $\rho$ and then use $2s(\lambda)$ queries to the PSPACE oracle 
@@ -309,8 +319,15 @@ Finally we now produce two different oracles $\hat\O_1, \tilde\O_1$ such that th
 $\hat y \neq \tilde y$ but for the oracles the verification algorithm needs to be semantically equivalent.
 This results in the combiner either not being uniquely provable or perfectly correct. 
 
+Finally we only need to show that the languages $\mathcal L_{cand}$ and $\mathcal L_{size}$
+are PSPACE complete languages. The adversary can simply binary search the size of the resulting candidate space 
+in time $\O(s(\lambda))$, then sample a random number from $[|\SK_{cand}(\zeta)|]$ 
+and recover the byte a uniformly random candidate secret key $\sk$ which we can use to 
+predict $y^*$.
+
 We show the description of the full adversary $\A$ in \Cref{fig:todo}.
 
+\begin{comment}
 ---
 
 We must show that for every construction $\BBComb{VRF}$ implemented by a ppt. Turing machine there 
@@ -418,6 +435,7 @@ For a polynomial $p \in \poly$, then we could simply resample a secret key $\sk'
 at least $1/p(\lambda)$ be in $\widehat\SK$. Additionally with probability at least $1/|\widehat{\SK}| \in \poly$
 we have $\sk \sim^* \sk'$ which means that with probability $1/p(\lambda)|\widehat\SK| \in \poly$
 we obtain a secret key which allows us to recompute all outputs, breaking pseudorandomness.
+\end{comment}
 
 \paragraph{Proof of \Cref{lemma:warmup}.}
 Let $\BBComb{VRF}$ be an arbitrary robust $(2;1)$ black-box DAG combiner for the VRF primitive.
@@ -439,8 +457,6 @@ know on which value said oracle was queries, they then always refer to the value
 Assume that this would change the combiner execution for some query, then this means that the oracle output were not deterministic 
 and based on the internal randomness the combiner output changes. By perfect correctness both resulting distinct outputs 
 must verify which would violate unique provability.
-
-\newpage
 
 Additionally we show that given two VF oracles $\O_{\VRF}$ and $\O_{up}$
 such that $\O_{\VRF}$ implements a secure VRF and $\O_{up}$ implements a perfectly correct 
@@ -741,6 +757,9 @@ conjecture.
 	as defined in \Cref{def:vrf} for all natural numbers $n > 1$.
 \end{conjecture}
 
+We dedicate a brief paragraph in the appendix to show why the proof for result \Cref{thm:main}
+cannot easily be extended to cover this more general result.
+
 instead we will show that even if we 
 relax the requirements of the combiner to implement only weak unpredictability, statistical correctness and statistical unique provability,
 there still doesnt exist a combiner, even if we assume that all candidates to be pseudorandom and at least one 
@@ -899,6 +918,18 @@ are easy we want to strengthen the result by considering combiners for VRFs (ass
 uniquely provable) with advanced additional properties, namely constrainability as in \Cref{def:constrainableVRF}, key-homomorphism as in \Cref{def:keyhom},
 aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}.
 
+Finally we want to mention that more advanced notions of VRF such as constrainable VRFs \cite{}
+which additionally allow the constraining of secret key to a specific subset of evaluation points.
+Key-homomorphic VRFs \cite{} satisfy that the secret key space $\SK$ and image-proof space $\Y \times \P$
+admit algebraic group structures $(\SK, \circledast_\SK)$ and $(\Y \times \P, \circledast_{\Y \times \P})$
+and $\alg{Eval}{VRF}(\cdot, x)$ admits a group homomorphism for any $x \in \bin^\lambda$.
+Aggregable VRFs \cite{} additionally implement algorithms to aggregate many public keys and corresponding 
+image-proof pairs into a single image-proof pair, requiring that in addition to the existing properties of the VRF 
+the aggregated input is pseudorandom and statistically binding.
+Finally unbiasable VRFs \cite{} are VRFs which additionally protect from adversaries skewing the output distribution 
+of the VRF by maliciously crafting public keys.
+We show that under the assumption of uniquely provable and perfectly correct candidates all of those advanced notions admit robust $(2;1)$ black-box combiners.
+\begin{comment}
 For the notions of constrainability, key-homomorphism and aggregability this question is quckly answered 
 as we we show how the above construction of extended PRF combiner 
 can be minimally adapted to combine the notions. We will quickly explain how to extend the construction 
@@ -943,6 +974,8 @@ through in a more general notion.
 An unbiasable VRF requires security against biasing the output of the VRF for maliciously crafted secret keys.
 
 \todo{Only touch if sufficient time}
+\end{comment}
+
 
 \newpage
 
@@ -966,4 +999,4 @@ We show that there exists no robust $(n;\lfloor n/2\rfloor)$ black-box combiner 
 naturally we wonder whether an impossibility can be shown for robust $(n;n-1)$ black-box VRF-combiners
 which eliminates the possibility of combining VRFs if even one candidate is not guaranteed to be secure.
 We believe this statement to be true, at least under standard assumptions, but proving this seems to be 
-non-trivial. 
+non-trivial. Additionally, considering the relaxed 
