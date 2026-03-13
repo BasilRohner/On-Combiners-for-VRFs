@@ -1,2 +1,15 @@
 \begin{abstract}
+    Verifiable random functions (VRFs) are an extension of pseudorandom functions (PRFs),
+    one can evaluate the function using a secret key to obtain random-looking images and corresponding proofs.
+    Given the corresponding public key one can verify whether a given image was generated from an input 
+    if given a suitable proof.
+
+    In this thesis we study ways to combine multiple instances of VRFs in a black-box fashion. 
+    Specifically we study the existence of robust black-box VRF-combiners, constructions which are given oracle access 
+    to a set of candidate schemes, of which a sufficiently large (unknown) subest implements the VRF securely,
+    and implements a secure VRF.
+
+    While there exist simple constructions of such robust black-box combiners for the related PRF 
+    primitive even if only one candidate implements a secure PRF, we show that there exists no robust black-box VRF-combiners if not at least half of the 
+    candidate schemes are secure, even if we relax the required security properties from the combiner.
 \end{abstract}

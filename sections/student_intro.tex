@@ -91,8 +91,8 @@ We illustrate the construction of a robuts $(2;1)$ black-box PRF-combiner in \Cr
 \end{figure}
 
 We outline the reduction and refer to the appendix for the formal proof. The reduction against candidate scheme $\O_i$
-relies on the pseudorandomness oracle $\O_{i}^{prf}$ and simulates the other candidate $\O_{2-i}^{prf}$ himself to answer 
-queries of the combiners adversary with $\O_{i}^{prf}(x) \oplus \O_{2-i}(k,x)$. The adversary against the combined scheme then 
+relies on the pseudorandomness oracle $\O_{eval}$ and simulates the other candidate $\O_{2-i}$ himself to answer 
+queries of the combiners adversary with $\O_{eval}(x) \oplus \O_{2-i}(k,x)$. The adversary against the combined scheme then 
 guesses the hidden bit $b$, trying to distinguish the random world from the real world which the reduction then uses to 
 guess its own hidden bit $b'$. If the hidden bit $b' = 0$ then the adversary $\A$ is simulated perfectly in the sense that 
 the reduction wins the security experiment with the same advantage of $\A$ while for bit $b' = 1$ the answers to the queries 
