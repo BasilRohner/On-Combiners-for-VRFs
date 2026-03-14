@@ -721,19 +721,41 @@ the following claim.
 
 TODO Proof
 
-Now we define the following two languages $\mathcal L_{cand}, \mathcal L_{size}$ which correspond to TODO
+Now we define the following two languages $\mathcal L_{cand}, \mathcal L_{size}$ as follows.
 \begin{align}
-	\mathcal L_{cand} &:=\\ 
-	\mathcal L_{size} &:=
+	\mathcal L_{cand} &:= \Brace*{
+		\Paren*{\rho, i, b, \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}} : 
+		\rank\rho{\bigcap_{j \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}_i
+		= b} \\ 
+	\mathcal L_{size} &:= \Brace*{
+		\Paren*{m, \Brace*{\Paren*{x_i,y_i,\pi_i,\tau_i}}_{i \in [2s(\lambda)]}} : 
+		\abs*{\bigcap_{j \in [2s(\lambda)]}\SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \le m
+	}
 \end{align}
-We show that $\mathcal L_{cand}$ and $\mathcal L_{size}$ are PSPACE complete languages. 
+We show that $\mathcal L_{cand}$ and $\mathcal L_{size}$ are in PSPACE and can therefore be decided by 
+the PSPACE complete oracle. The adversary will first use binary search over $m$ to recover the size of the 
+candidate set $\SK_{cand}$ and then pass use the language $\mathcal L_{cand}$ to recover a uniformly 
+random candidate secret key $\sk_{cand}$.
 Formally stated in the following two claims.
 
 \begin{claim}\label{claim:lang_pspace}
 	$\mathcal L_{cand} \in \PSPACE$ and $\mathcal L_{size} \in \PSPACE$.
 \end{claim}
 
-Proof TODO
+To proof \Cref{claim:lang_pspace} we need to provide Turing machines $\mathcal M_{cand}, \mathcal M_{size}$
+that decide whether an arbitrary element is member of the language $\mathcal L_{cand}$ and $\mathcal L_{size}$
+respectively such that space used by $\M_{cand}$ and $\M_{size}$ is bounded from above by functions polynomial in their input size.
+$\M_{cand}$ iterates over the keys in canonical ordering, for every secret key $\sk \in \SK$ iterate over all $i \in [2s(\lambda)]$
+and for every $i$ verify whether $\alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top$.
+If that holds for every $i$ then increment a counter. If we would increment the counter but the 
+value of the counter is $\rho$ then check the $i$'th bit of the candidate is equal to $b$.
+
+The algorithm $\M_{size}$ requires works similarly. We iterate over all secret keys $\sk \in \SK$
+and keep a counter to count the number of secret keys that pass every filter.
+For every secret key candidate $\sk$ we iterate over all $i \in [2s(\lambda)]$
+and increment the counter if for all values $\alg{EvalSim}{VRF}(\sk, x_i,y_i,\pi_i,\tau_i) = \top$.
+The algorithm only needs space for the counter in $\O(s(\lambda))$ and the execution of $\alg{EvalSim}(\sk,x_i,y_i,\pi_i,\tau_i)$
+which is also polynomial. This concludes the proof of \Cref{claim:lang_pspace}.
 
 We can now describe the distinguisher $\mathcal D$ for the pseudorandomness game as follows:
 $\mathcal D$ first samples $2s(\lambda)$ evaluation points $x_i$ uniformly at random from $\bin^\lambda$,
