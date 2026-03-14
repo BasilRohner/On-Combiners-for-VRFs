@@ -406,7 +406,7 @@ we have $\sk \sim^* \sk'$ which means that with probability $1/p(\lambda)|\wideh
 we obtain a secret key which allows us to recompute all outputs, breaking pseudorandomness.
 \end{comment}
 
-\paragraph{Proof of \Cref{lemma:warmup}.}
+\paragraph{Proof of \Cref{thm:impossibility_21_comb}.}
 Let $\BBComb{VRF}$ be an arbitrary robust $(2;1)$ black-box DAG combiner for the VRF primitive.
 We claim that there exists a related robust black-box DAG combiner for the VRF primitive 
 that only queries every implementation function of every candidate scheme on any input $\x$
@@ -466,8 +466,11 @@ secret keys have non-zero probability to be sampled with the same public key, th
 induce the same mapping $\X \to \Y \times \P$, also this holds for the public key perspective if we 
 change the mappings of the verification algorithm.
 
-\paragraph{Proof of \Cref{claim:vrfification}.} 
-Let $\sim_\SK \subseteq \SK^2, \sim_\PK \subseteq \PK^2$ be relations defined as follows.
+\begin{proof}[\Cref{lemma:vrfification}]
+We begin by introducing a two relations $\sim_\SK \subseteq \SK^2$ and 
+$\sim_\PK \subseteq \PK^2$. Intuitively, these relations capture
+whether two secret or public keys have a counterpart which could have been 
+sampled with both keys. Formally we define the relations $\sim_\SK, \sim_\PK$ as follows:
 \begin{align}
 	\sk_1 \sim_\SK \sk_2 &\iff \exists \pk \in \PK, \Prob*{
 		\begin{aligned}
@@ -482,17 +485,38 @@ Let $\sim_\SK \subseteq \SK^2, \sim_\PK \subseteq \PK^2$ be relations defined as
 		\end{aligned}
 	} > 0
 \end{align}
-And consider $\sim^* = \bigcup_{k \in \N} \sim^k$, the transitive closure of $\sim$.
-We claim that $\sim^*$ is an equivalence relation as its the transitive closure of a 
-reflexive and symmetric relation $\sim$. We use $[\sk]_{\sim^*}$ for a secret key $\sk \in \SK$
-to denote the equivalence class of $\sk$ under $\sim^*$, i.e. $\{\sk' \in \SK : \sk \sim^* \sk'\}$.
-Additionally for a public key $\pk \in \PK$ define $R_\PK(\pk)$, the subset of secret keys \textit{related} to $\pk$
-and symmetrically for a secret key $\sk \in \SK$ define $R_\SK(\sk)$, the subset of 
-public keys \textit{related} to $\sk$.
+We now consider the transitive closure of those relations $\sim_\SK^*, \sim_\PK^*$,
+formally defined by $\sim^* = \bigcup_{k \in \N} \sim^k$. The resulting relations 
+$\sim_\SK^*,\sim_\PK^*$ are equivalence relations. Given an element $\sk$
+we denote its equivalence class under $\sim_\SK^*$ with $[\sk]_{\sim_\SK^*} = \Brace{\sk' \in \SK : \sk' \sim_\SK^* \sk}$,
+similarly for an element $\pk$ and the relation $\sim_\PK^*$.
+We claim that keys related with the corresponding relation $\sim^*$
+must induce the same mapping on their function. We formalize this observation in the following claim.
+
+\begin{claim}
+	Let $\sk \in \SK$ and $\pk \in \PK$ be arbitrary, then the following holds: \todo{unsure}
+	\begin{align}
+		&\forall \sk' \in [\sk]_{\sim_\SK^*}, \alg{Eval}{VRF}^y(\sk, \cdot) = \alg{Eval}{VRF}^y(\sk', \cdot)\\ 
+		&\forall \pk' \in [\pk]_{\sim_\PK^*}, \alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \alg{Vfy}{VRF}(\pk', \cdot, \cdot, \cdot)
+	\end{align}
+\end{claim}
+
+Additionally, for secret and public keys we define the function $R_\SK$ and $R_\PK$
+respectively as follows. $R$ maps a key to all counterparts with are sampled with that key 
+with non-negligible probability.
 \begin{align}
-	R_\PK(\pk) &:= \Brace*{\sk\in\SK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}\\ 
-	R_\SK(\sk) &:= \Brace*{\pk\in\PK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}
+	R_\PK(\pk) &= \Brace*{\sk\in\SK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}\\ 
+	R_\SK(\sk) &= \Brace*{\pk\in\PK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}
 \end{align}
+Finally we define the notion of the closure of a set.
+Given a subset of secret $\widetilde\SK$ or public keys $\widetilde\PK$ we define its closure 
+$\closure_\SK(\widetilde\SK)$ and $\closure_\PK(\widetilde\PK)$ which are just the union over the equivalence classes 
+of all keys in the subsets. We formally define the functions as follows:
+\begin{align}
+	\closure_\SK(\widetilde\SK) &= \bigcup_{\widetilde \sk \in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}\\ 
+	\closure_\PK(\widetilde\PK) &= \bigcup_{\widetilde \pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*} 
+\end{align}
+The closure is the set of all keys that need to be adapted \todo{CONTINUE HERE}
 We now define the oracle $\O_{mix}$ using the following implementation functions for its corresponding
 key generation function $\O_{mix}.\alg{Gen}{VRF}(1^\lambda)$, its evaluation function $\O_{mix}.\alg{Eval}{VRF}(\sk, x)$
 and its verification function $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi)$ for that we first define the set of secret and public keys 
@@ -609,6 +633,11 @@ Let $\mathcal E$ be the event that $\sk \in \SK_{map}$ for $(\sk, \pk) \sample \
 \end{align}
 By the difference lemma $|\Prob{H_1^{prf} \land \lnot \mathcal E} - \Prob{H_2^{prf} \land \lnot \mathcal E}| \le \Prob{\mathcal E}$,
 since the difference lemma is folklore, we present the proof in the appendix.
+
+\begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
+	
+\end{lemma}
+
 \begin{align}
 	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \SK_{map}}\\
 	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure(\widetilde\SK)}\\
@@ -620,7 +649,6 @@ is bounded from above by $\err_{VRF, mix}^{prf}$. Specifically we show that if e
 $\A$ against pseudorandomness of the VRF secure oracle $\O_{vrf}$ with non-negligible advantage.
 Assume that \todo{formalize bound argument} 
 
-
 Where $\mu_1, \mu_2 \in \negl$. To show that this use that $|\widetilde\SK|, |\widetilde\PK| \in \poly$, first for
 $\mu_1$ assume that $\mu_1 \in \poly$, then an adversary could simply sample a secret key $\sk' \in \widetilde\SK$, since 
 $\sk$ is in an equivalence class of an element of $\widetilde\SK$ we hit that with proabbility at least $1/|\widetilde\SK|$ and then 
@@ -629,6 +657,8 @@ a contradiction. For $\mu_2$ if the secret key being sampled according to $\O_\V
 then we can just simply resample to obtain another key with significant probability.
 Note that due to the polynomial bound on public key-equivalence classes we only have a polynomial number of 
 different evaluations induced by all secret keys in here. \todo{formulate out}
+\end{proof}
+
 
 Using this result we claim that for a fixed oracle $\O_i$ and any subset of queries 
 made during the evaluation algorithm which are not reflected in the trace of the verification execution, we call such 
@@ -937,8 +967,12 @@ we argue that over a random secret key $\sk$ and a polynomial number of uniforml
 expect the combiner to be correct with high probability. The proof works by additionally conditioning on the 
 probability that the combiner is correct on all evaluations $x$ sampled during the pseudorandomness game.
 
-\paragraph{Proof of \Cref{thm:main}}
-TODO
+\begin{proof}[\Cref{thm:main}]
+	Again we fix a robust $(2;1)$ black-box VRF-combiner $\BBComb{VRF}$ that is only $\err$-correct for some $\err \in \negl$.
+	Let $\E$ be the event that under the true secret key $\sk^*$ the combiner is not correct on at least one 
+	evaluation point $x_i$.
+\end{proof}
+
 
 Finally we want to note that the distinguisher constructed in the proof of \Cref{thm:impossibility_21_comb}
 can predict the image of any arbitrary pre-image $x \in \bin^\lambda$. This means that the adversary is strong enough
@@ -947,13 +981,13 @@ As a corollary of \Cref{thm:impossibility_21_comb} we get the impossibility of r
 black-box combiners for the VUF and WVRF primitive.
 
 \begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{VUF}$-combiner]\label{cor:impossibility_vrf_comb}
-	Given $n$ secure VRF candidate schemes $\O_1, \ldots, \O_n$ there exists no robust black-box combiner that 
-	implements a secure VRF scheme if even one candidate scheme is not uniquely provable.
+	There exists no robust $(n;\lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner}
+	for the VUF primitive as defined in \Cref{def:vuf}.
 \end{corollary}
 
 \begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{WVRF}$-combiner]\label{cor:impossibility_vuf_comb}
-	Given $n$ secure VUF candidate schemes $\O_1, \ldots, \O_n$ there exists no robust black-box combiner that 
-	implements a secure VUF scheme if even one candidate scheme is not uniquely provable.
+	There exists no robust $(n;\lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner}
+	for the WVRF primitive as defined in \Cref{def:wvrf}.
 \end{corollary}
 
 \newpage

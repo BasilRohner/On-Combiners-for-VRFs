@@ -79,7 +79,7 @@ We illustrate the construction of a robuts $(2;1)$ black-box PRF-combiner in \Cr
 \begin{figure}[hptb]
     \begin{pchstack}[center, space=1em]
         \procedure[linenumbering]
-        {$f^{\O_1, \O_2}(k, x)$}
+        {$\alg{Eval}{PRF}^{\O_1, \O_2}(k, x)$}
         {
             y_1 \gets \O_1(k,x)\\ 
             y_2 \gets \O_2(k,x)\\ 
@@ -87,7 +87,7 @@ We illustrate the construction of a robuts $(2;1)$ black-box PRF-combiner in \Cr
         }
     \end{pchstack}
     \label{fig:prf_comb}
-    \caption{Robust $(2;1)$ black-box PRF-combiner.}
+    \caption{Robust $(2;1)$ Black-Box PRF-combiner.}
 \end{figure}
 
 We outline the reduction and refer to the appendix for the formal proof. The reduction against candidate scheme $\O_i$
