@@ -70,6 +70,10 @@ in the following definition.
 			\procedure[linenumbering]
 			{Algorithm $\tau(\G, s)$}
 			{
+				L \gets []\\ 
+				Q \gets []\\ 
+				\pcwhile Q \neq [] \pcdo\\ 
+				\t v \gets Q
 				\pclinecomment{Topological ordering TODO}
 			}
 		\end{pchstack}
@@ -236,61 +240,32 @@ security experiment.
 \begin{itemize}
 	\item $\alg{EvalSim}{VRF}$ makes no oracle queries
 	\item $\alg{EvalSim}{VRF}(\sk, x_i, \tau_i) = \top$ if $\sk = \sk^*$
-	\item $\alg{EvalSim}{VRF}(\sk, x_i, \tau_i) = \bot$ for all $\sk$ such that $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk, x_i) \neq y_i$
+	\item $\alg{EvalSim}{VRF}(\sk, x_i, \tau_i) = \bot$ for all $\sk$ such that $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x_i) \neq y_i$
 \end{itemize}
 
 We will first explain how the adversary can use such an algorithm to break the pseudorandomness of $\BBComb{VRF}[\O_1, \O_2]$.
-For that consider the following PSPACE language $\mathcal L_{cand}$. In the formal proof we show that
-this language is actually in PSPACE, for the intuition it makes intuitive sense that it is.
-
-\[
-	\mathcal L_{cand} := \Brace*{
-		\Paren*{\rho, i, \a, \zeta = \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}} :
-		\a = \text{rank}_\rho\left(\SK_{cand}\left(\zeta\right)\right)_i
-	}
-\]
-\[
-	\mathcal L_{size} := \Brace*{
-		\Paren*{\zeta := \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}, m} :
-		|\SK_{cand}(\zeta)| \ge m 
-	}
-\]
-\[
-	\SK_{cand}(\zeta) := 
-	\Brace*{\sk \in \SK : \forall i \in [2s(\lambda)], \alg{EvalSim}{VRF}(\zeta) = \top}
-\]
-\todo{polish}
-The adversary can sample randomness $\rho$ and then use $2s(\lambda)$ queries to the PSPACE oracle 
-to recover the $\rho$'th candidate secret key in canonical ordering after the filtering process\todo{binary search to obtain the range for $\rho$ on a 
-second language that returns if the size of the filtered candidates is $k$}. Once recovered the the $\rho$'th 
-secret key candidate he uses this secret key to evaluate the challenge $x^*$ to obtain a guess for 
-the output $y^*$. He can then use this guess to compare it with the input, guessing the world 
-with high probability if the candidate is likely to evaluate on the same output.
-We need to now show the following two statements still: How to construct 
-$\alg{EvalSim}{VRF}$ and that the secret key candidate evaluates a uniformly random challenge $x^* \in \bin^\lambda$
-to the correct evaluation point $y^*$.
-
-First assume we have the algorithm $\alg{EvalSim}{VRF}$, we show that the filtered candidate secret key 
-allows the prediction of $y^*$ with non-negligible probability. First note that the set of candidate keys will 
-always include the true secret key by the assumption that $\alg{EvalSim}{VRF}(\sk^*, x_i, \tau_i) = y_i$,
-then informally consider the case where the size of the candidates halfs after any two subsequent filtering steps.
-In that case the size of the remininag candidate keys would be polynomial. In this case only the correct secret key 
-survives and the adversary wins the game with advantage $1$.
-Otherwise the size of the candidate space doesnt decrease by half after every two steps.
-By the assumption that $\alg{EvalSim}{VRF}(\sk, x_i, \tau_i) = \bot$ for all secret keys 
-satisfying $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk,x_i) \neq y_i$ this means that 
-on average at least half of the candidate secret keys evaluate to the same image.
-We can then simply use a union bound and apply the Chernoff inequality to bound the probability that 
-after filtering a uniformly random secret key $\sk$ in the candidate set evaluates to a different image.
-\todo{formalize}
+Recall that we give the adversary against the combiner access to a PSPACE oracle, exactly because we want the combiner 
+to derive its security from the candidates. What we have arrived at now however is that we can find an algorithm 
+$\alg{EvalSim}{VRF}$ which doesn't make any oracle queries and identifies a secret key $\sk \in \SK$
+only if the execution of the evaluation algorithm of the combiner returns the same image $y$ under the true secret key 
+and the input secret key. The adversary can now use his PSPACE complete oracle to iterate over all keys
+and sample a random candidate key after filtering it for many tuples $(x_i,y_i,\pi_i,\tau_i)$. Now if we filter 
+for sufficiently many keys and the size of the key space is reduced enough in every step on average we quickly end up 
+with a polynomially bounded set of candidates at which point we can guess the correct secret key 
+with non-negligible probability and win the security experiment. If the size of the candidate space 
+doesn't decrease "much" then this means that a large fraction of the secret keys in the candidate set 
+result in the same image as the true secret key. Again, after sufficiently many rounds this means that 
+for the next uniformly random evaluation point a large fraction of the candidates still evaluates to the 
+same image with high probability. Also in this case we can sample a random candidate key and 
+break the pseudorandomness security experiment with non-negligible probability. 
 
 Now onto the construction of the $\alg{EvalSim}{VRF}$ algorithm. The algorithm works as follows: 
 Simulate the execution of the combiners evaluation algorithm until we encounter the first oracle query.
 For the oracle query we check if it is repeated in the corresponding trace $\tau_i$,
-we will call such queries \textit{visible}. Those queries we can always answer with the correct output.
+we will call such queries \textit{exposed}. Those queries we can always answer with the correct output.
 If we find queries which are not contained in the trace\todo{difference trace and transcript}
 then we will branch, and iterate over all possible outputs of the correct format of the query 
-and for every assignment continue execution, we call such vertices \textit{hidden}.
+and for every assignment continue execution, we call such vertices \textit{obscure}.
 We will now initialize one of the candidates, say $\O_1$ with a uniquely provable and perfectly correct 
 oracle that always evaluates to $0$ and verifies images if and only if they are $0$, initialize the output of 
 the other oracle $\O_2$ with a secure VRF. We argue that the two properties are satisfied.
@@ -319,13 +294,7 @@ Finally we now produce two different oracles $\hat\O_1, \tilde\O_1$ such that th
 $\hat y \neq \tilde y$ but for the oracles the verification algorithm needs to be semantically equivalent.
 This results in the combiner either not being uniquely provable or perfectly correct. 
 
-Finally we only need to show that the languages $\mathcal L_{cand}$ and $\mathcal L_{size}$
-are PSPACE complete languages. The adversary can simply binary search the size of the resulting candidate space 
-in time $\O(s(\lambda))$, then sample a random number from $[|\SK_{cand}(\zeta)|]$ 
-and recover the byte a uniformly random candidate secret key $\sk$ which we can use to 
-predict $y^*$.
-
-We show the description of the full adversary $\A$ in \Cref{fig:todo}.
+We show the description of the full adversary $\A$ in \Cref{fig:distinguisher}.
 
 \begin{comment}
 ---
@@ -625,11 +594,11 @@ as defined in \Cref{fig:prf_wprf_up_experiment}.
 We use $H_i^{prf}(\lambda, \A) = 1$ to denote the event that adversary $\A$ wins the game $H_i$ for $i \in [3]$.
 \todo{define games of the hybrid formally}
 \begin{align}
-	\Adv{VRF}{prf}{\A, \O_{mix}} &= \abs*{\Prob*{H_0^{prf}(\lambda,\A) = 1} - \Prob*{H_1^{prf}}(\lambda, \A) = 1}\\ 
+	\Adv{VRF}{prf}{\A, \O_{mix}} &= \abs*{\Prob*{H_0^{prf}(\lambda,\A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}\\ 
 	&= \Big|\Prob*{H_0^{prf}(\lambda, \A) = 1} - \Prob*{H_2^{prf}(\lambda, \A) = 1} \\ 
 	&+ \Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}\Big|\\ 
-	&\le \abs*{\Prob*{H_0^{prf}(\lambda, \A) = 1} - \Prob*{H_2^{prf}}(\lambda, \A) = 1} \\ 
-	&+\abs*{\Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}}(\lambda, \A) = 1}\\ 
+	&\le \abs*{\Prob*{H_0^{prf}(\lambda, \A) = 1} - \Prob*{H_2^{prf}(\lambda, \A) = 1}} \\ 
+	&+\abs*{\Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}\\ 
 	&\le \err_{VRF, mix}^{prf} + \abs*{\Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}
 \end{align}
 Let $\mathcal E$ be the event that $\sk \in \SK_{map}$ for $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$ then:
@@ -642,11 +611,16 @@ By the difference lemma $|\Prob{H_1^{prf} \land \lnot \mathcal E} - \Prob{H_2^{p
 since the difference lemma is folklore, we present the proof in the appendix.
 \begin{align}
 	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \SK_{map}}\\
-	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim_{\SK}^*}}\\
-	&+ \Prob*{\sk \in \bigcup_{\widehat\pk \in \bigcup_{\widehat\pk \in \widetilde\PK}[\widetilde\pk]_{\sim_{\PK}^*}} R_\PK(\widehat\pk)} \\
-	&\le \err_{VRF, mix}^{prf} + \mu_1(\lambda)
-	+ \mu_2(\lambda) 
+	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure(\widetilde\SK)}\\
+	&+ \Prob*{\sk \in \bigcup_{\widehat\pk \in \closure(\widetilde\PK)} R_\PK(\widehat\pk)} \\
+	&\le 3\err_{VRF, mix}^{prf} 
 \end{align}
+We show that the probability of $\sk \in \closure(\widetilde\SK)$ and $\sk \in \bigcup_{\widehat\pk\in \closure(\widetilde\PK)} R_\PK(\widehat\pk)$
+is bounded from above by $\err_{VRF, mix}^{prf}$. Specifically we show that if either of those events occur, there exists an adversary 
+$\A$ against pseudorandomness of the VRF secure oracle $\O_{vrf}$ with non-negligible advantage.
+Assume that \todo{formalize bound argument} 
+
+
 Where $\mu_1, \mu_2 \in \negl$. To show that this use that $|\widetilde\SK|, |\widetilde\PK| \in \poly$, first for
 $\mu_1$ assume that $\mu_1 \in \poly$, then an adversary could simply sample a secret key $\sk' \in \widetilde\SK$, since 
 $\sk$ is in an equivalence class of an element of $\widetilde\SK$ we hit that with proabbility at least $1/|\widetilde\SK|$ and then 
@@ -699,27 +673,104 @@ for every answer $(y,\pi) \in \Y \times \P$. The pseudocode for $\alg{EvalSim}{V
 In the following we show that this algorithm satisfies a few properties.
 
 \begin{claim}
-	Let ... 
+	Let $\alg{EvalSim}{VRF}$ be the algorithm as described above and in \Cref{fig:eval_sim}
+	taking as input a tuple $(\sk, x, y, \pi, \tau)$ containing a secret key, evaluation point, 
+	image, proof and a trace of the combiners verification algorithm on 
+	$(\pk, x,y,\pi)$ where $\pk$ is the true public key. Then $\alg{EvalSim}{VRF}$ satisfies the following properties.
+	\begin{enumerate}
+		\item $\alg{EvalSim}{VRF}$ makes no oracle queries
+		\item $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \top$ if $\sk = \sk^*$
+		\item $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$ if $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk,x) \neq y$
+	\end{enumerate}
 \end{claim}
 
-TODO
+Informally this means that the evaluation simulation will return with $\top$ on a \textit{non-empty} subset of secret keys
+which agrees with the true secret key $\sk^*$ on the evaluation of $x$.
+
+The first property holds by construction of $\alg{EvalSim}{VRF}$ the third property also holds by construction and the 
+fact that if the evaluation of $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x) \neq y$ then there exists an assignment 
+of the obscure queries such that every oracle query is answered exactly the same as in the execution of the combiner, hence the 
+combiner outputs $\bot$. If $\sk = \sk^*$ we need to argue that for every format adhering assignment of the 
+oracle responses to the obscure queries, the output doesn't change. Assume towards a contradiction for two assignments of the 
+obscure queries the output of the combiner changes from $y_0$ to $y_1 \neq y_0$.
+Now we can apply \Cref{lemma:vrfification} to construct a secure VRF from $\O_1$ which agrees with 
+the old candidate on all points queried in evaluation and verification, and reassign obscure queries. 
+By perfect correctness both outputs $y_0, y_1$ must verify in their respective world, however 
+on all oracle queries done by the verification combiner in the two worlds the queries agree exactly 
+(since the queries are obscure) and we break unique provability.
 
 Using this simulator $\alg{EvalSim}{VRF}$ we can describe the set of iteratively filtered candidate secret keys as follows.
-Let $\zeta = \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$ be a set of $2s(\lambda)$ tuples containing a uniformly random 
+Let $\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$ be a set of $2s(\lambda)$ tuples containing a uniformly random 
 evaluation point $x_i \in \bin^\lambda$, the evaluation of $x_i$ resulting in the tuple $(y_i, \pi_i)$ 
 and the transcript of the combiners verification algorithm on $(x_i, y_i, \pi_i)$. The set of candidate keys is defined as:
 \[
 	\SK_{cand}(x_i,y_i,\pi_i,\tau_i) := \{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i)\}
 \]
-We claim that for any secret key $\sk_{cand} \in \SK_{cand}^\zeta$, the probability that the secret key 
+We claim that for any secret key $\sk_{cand} \in \SK_{cand}$, the probability that the secret key 
 evaluates to the same output as the evaluation algorithm of the combiner does on a 
 uniformly random value $x \in \bin^\lambda$ is overwhelming. We state this result formally in 
 the following claim.
-\begin{claim}
-	
+
+\begin{claim}\label{claim:candidate_likely_good}
+Let $\SK_{cand}$ be defined as above and let $\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$ 
+then we have that for any secret key $\sk^*$ sampled uniformly at random from the intersection of all filtered
+candidate sets, i.e. sampled from
+\[
+	\sk^* \sample \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
+\]
+The probability that for a uniformly random challenge $x^* \sample \bin^\lambda \setminus \{x_1, \ldots, x_{2s(\lambda)}\}$ 
+the black-box combiner instanciated with the correct oracles evaluates to the same image as for the true secret key
+is bounded from below by
+\[
+	\Prob*{\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk^*, x) = \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x)} \ge \frac{1}{p(\lambda)}
+\]
+For $p$ a polynomial in $\lambda$.
 \end{claim}
 
-TODO Proof
+\begin{proof}[\Cref{claim:candidate_likely_good}]
+	For a secret key $\sk \in \SK$ we define the number of secret keys $\sk \in \SK$
+	for which the evaluation algorithm under $\sk$ on $x$ agrees with the evaluation algorithm 
+	under $\sk^*$ on $x$. 
+	\[
+		\X(\sk) = \abs*{\Brace*{x \in \bin^\lambda : \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x) = \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk^*, x)}}
+	\]
+	We say that a secret key is \textit{unfavorable} if the probability of a uniformly random 
+	evaluation point differing in the output is at least $1/2$
+	and let $\SK_{unfav} \subseteq \SK$ be the set of unfavorable keys.
+	Since we sample the evaluation points $x$ uniformly at random from $\bin^\lambda$
+	the probability of the key surviving the filtering step is given by the following:
+	\[
+		\Prob*{\sk \in \SK_{cand}(x,y,\pi,\tau)} = \frac{\X(\sk)}{2^\lambda}
+	\]
+	Since the $2s(\lambda)$ evaluation points $x$ are furthermore sampled i.i.d.
+	we can bound the probability the a fixed secret key $\sk \in \SK$ is in the intersection of all 
+	$2s(\lambda)$ tuples by the following expression:
+	\[
+		\Prob*{\sk \in \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i, \tau_i)} = \Paren*{\frac{\X(\sk)}{2^\lambda}}^{2s(\lambda)}
+	\]
+	We can bound the expected number of unfavorable secret keys that survive $2s(\lambda)$
+	rounds of secret key filtering over the randomness of $x_1, \ldots, x_{2s(\lambda)}$
+	by applying the union bound:
+	\begin{align}
+		&\Exp*{\abs*{
+			\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
+		}} \\
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \Prob*{\sk_{unfav} \in \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}\\ 
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [2s(\lambda)]} \Prob*{\sk_{unfav} \in \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}\\ 
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [2s(\lambda)]} \frac{\X(\sk)}{2^\lambda}\\ 
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [2s(\lambda)]} \frac{1}{2}\\ 
+		\le &\frac{2^\lambda}{2^{2s(\lambda)}}
+	\end{align}
+	Which for general polynomials $s(\lambda) > \lambda$\todo{add assumption?} is negligibly small.
+	We can now use a simple Markov bound to show that the probability of a bad key surviving the filtering 
+	is negligibly small. Note that the expected number of surviving unfavorable secret keys is by 
+	definition non-negative and therefore we have that the probability of all keys filtered is given by the 
+	following expression:
+	\[
+		\Prob*{\abs*{\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1} \le \frac{2^\lambda}{2^{2s(\lambda)}}
+	\]
+	To bound the final probability simply condition on the event that no bad key survives.
+\end{proof}
 
 Now we define the following two languages $\mathcal L_{cand}, \mathcal L_{size}$ as follows.
 \begin{align}
