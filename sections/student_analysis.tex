@@ -770,6 +770,17 @@ For $p$ a polynomial in $\lambda$.
 		\Prob*{\abs*{\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1} \le \frac{2^\lambda}{2^{2s(\lambda)}}
 	\]
 	To bound the final probability simply condition on the event that no bad key survives.
+	Let $\E$ be the event that $|\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i, y_i,\pi_i,\tau_i)| = 0$
+	and let $\mathcal F$ be the event that $\BBComb{VRF}[\O_1,\O_2].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_1,\O_2].\alg{Eval}{VRF}^y(\sk,x^*)$. 
+	Note that if $\lnot \E$ holds we know that only \textit{favorable} keys survive and therefore the probability of 
+	the same image is at least $1/2$.
+	\begin{align}
+		\Prob*{\mathcal F} &= 1 - \Prob*{\lnot\mathcal F \mid \E} \Prob{\E} - \Prob*{\lnot\mathcal F \mid \lnot \E}\Prob*{\lnot \E}\\ 
+		&\ge 1 -  \Prob{\lnot \mathcal F \mid \E} - \Prob*{\lnot \E}\\ 
+		&\ge 1 - \tfrac{1}{2} - \tfrac{2^\lambda}{2^{2s(\lambda)}} \\ 
+		&\ge \tfrac{1}{2} - \tfrac{2^\lambda}{2^{2s(\lambda)}}
+	\end{align}
+	Which concludes this proof.
 \end{proof}
 
 Now we define the following two languages $\mathcal L_{cand}, \mathcal L_{size}$ as follows.
