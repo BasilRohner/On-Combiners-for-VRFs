@@ -709,7 +709,7 @@ Let $\zeta = \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$ be a set of $2
 evaluation point $x_i \in \bin^\lambda$, the evaluation of $x_i$ resulting in the tuple $(y_i, \pi_i)$ 
 and the transcript of the combiners verification algorithm on $(x_i, y_i, \pi_i)$. The set of candidate keys is defined as:
 \[
-	\SK_{cand}^\zeta := \{\sk \in \SK : \forall i \in [2s(\lambda)], \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top\}
+	\SK_{cand}(x_i,y_i,\pi_i,\tau_i) := \{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i)\}
 \]
 We claim that for any secret key $\sk_{cand} \in \SK_{cand}^\zeta$, the probability that the secret key 
 evaluates to the same output as the evaluation algorithm of the combiner does on a 
@@ -751,15 +751,55 @@ In the second stage then then gets $\sk_{cand}, x^*$ and $y^*$. He simply recomp
 and returns $0$ if $y^* = y'$ and $1$ otherwise. 
 We illustrate the distinguisher in \Cref{fig:distinguisher}.
 
-\begin{figure}
-	
+\begin{figure}[hptb]
+	\centering 
+	\begin{pcvstack}[center, space=1em]
+		\procedure[linenumbering]
+		{Distinguisher $\mathcal D^{\PSPACE, \O_{eval},\O_1,\O_2}_1(\pk)$}
+		{
+			\pclinecomment{Obtain $\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$:}\\ 
+			\mathcal X \gets \varnothing\\
+			\pcfor i \in [2s(\lambda)] \pcdo\\ 
+			\t x_i \sample \bin^\lambda\\ 
+			\t \mathcal X \gets \mathcal X \cup \{x_i\}\\ 
+			\t (y_i, \pi_i) \gets \O_{eval}(x_i)\\ 
+			\t \tau_i \gets \trace{\BBComb{VRF}[\O_1, \O_2].\alg{Vfy}{VRF}(\pk, x_i, y_i, \pi_i)}\\ 
+			\pclinecomment{Obtain $|\SK_{cand}|$ using binary search:}\\ 
+			\rho \sample [k]\\
+			\pclinecomment{Obtain $\sk_{cand} \in \SK_{cand}$:}\\
+			\sk_{cand} \gets \eps\\
+			\pcfor i \in [s(\lambda)] \pcdo\\ 
+			\t b \gets \PSPACE((0, \rho, i, \{x_i,y_i,\pi_i,\tau_i\}_{i \in [2s(\lambda)]}) \in \mathcal L_{cand})\\ 
+			\t \pcif b = \top \pcthen\\ 
+			\t \t \sk_{cand} \gets \sk_{cand} \| 0\\ 
+			\t \pcelse \pcif b = \bot \pcthen \\ 
+			\t \t \sk_{cand} \gets \sk_{cand} \| 1\\
+			x^* \sample \bin^\lambda \setminus \mathcal X\\ 
+			\pcreturn (\sk_{cand}, x^*)
+		}
+		\procedure[linenumbering]
+		{Distringuisher $\mathcal D^{\PSPACE, \O_{eval},\O_1,\O_2}_2(\pk, \sk_{cand}, x^*, y^*)$}
+		{
+			y' \gets \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk_{cand}, x^*)\\ 
+			\pcreturn y' = y^*
+		}
+	\end{pcvstack}
+	\caption{Distinguisher.}
+	\label{fig:distinguisher}
 \end{figure}
+
 
 Finally, using what we proved before, we show that the distinguisher $\mathcal D^{\PSPACE, \O_1, \O_2}$ has non-negligible advantage 
 in the pseudorandomness game against $\BBComb{VRF}[\O_1, \O_2]$. We state this result formally in the final claim.
 
 \begin{claim}
-	
+	The advantage of the adversary $(\mathcal D_1^{\PSPACE, \O_1, \O_2}, \mathcal D_2^{\PSPACE, \O_1, \O_2})$
+	in the pseudorandomness game against the combiner $\BBComb{VRF}[\O_1, \O_2]$ is
+	overwhelming, i.e.
+
+	\[
+		\Adv{VRF}{prf}{\mathcal A, \lambda} \ge 1 - 3\err_{VRF,mix}^{prf}
+	\]
 \end{claim}
 
 \begin{comment}
