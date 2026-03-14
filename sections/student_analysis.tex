@@ -752,7 +752,7 @@ For $p$ a polynomial in $\lambda$.
 	rounds of secret key filtering over the randomness of $x_1, \ldots, x_{2s(\lambda)}$
 	by applying the union bound:
 	\begin{align}
-		&\Exp*{\abs*{
+		&\Expect*{\abs*{
 			\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
 		}} \\
 		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \Prob*{\sk_{unfav} \in \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}\\ 
@@ -886,98 +886,6 @@ in the pseudorandomness game against $\BBComb{VRF}[\O_1, \O_2]$. We state this r
 	\]
 \end{claim}
 
-\begin{comment}
-We can now formulate the adversary $\mathcal D$ that distinguishes the random world from the real world in the 
-prf security experiment. First the adversary computes a tuple $(x,y,\pi,\tau)$ computed as follows
-\begin{align}
-	x &\sample \bin^\lambda\\ 
-	(y,\pi) &\gets \O_{eval}^{prf}(x)\\ 
-	\tau &\gets \text{trace}_{\BBComb{VRF}[\O_1, \O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi)}
-\end{align}
-following it uses the PSPACE oracle to preform a round of secret key filtering, iterating over all possible secret keys 
-and simulating evaluation for every secret key (without querying any candidate oracles of course). 
-In the simulation it simulates the Turing machine implementing the combiners evaluation algorithm,
-once an oracle query to a candidate would be made we can perfectly simulate it if its a query to 
-$\O_\bot$ or not hidden, i.e. found in $\tau$. If its not found in $\tau$ and to oracle $\O_1$
-then we iterate over all possible values (either in $\SK \times \PK, \Y \times \P$ or $\bin$)
-and recurse on every single output. If in the end all evaluations evaluate to $y$ then keep that secret key.
-Otherwise there exists an execution that results in a different output $y' \neq y$, those candidate secret keys 
-are dropped. Formally we define the following language $\mathcal L$
-\begin{align}
-	\mathcal L_{filter} := \Brace*{
-		(\alpha, (\y^*, \x^*, \{(\x_i, \y_i, \pi_i, \tau_i)\}_{i \in 2s(\lambda)}, \rho)) :
-		\begin{aligned}
-			\sk^* = \mathcal S(\SK, \{(\x_i, \y_i, \pi_i, \tau_i)\}_{i \in 2s(\lambda)}, \rho) \\ 
-			\alpha \text{ is prefix of }\sk^*
-		\end{aligned}
-	}
-\end{align}
-
-\todo{unclear how to formulate this} 
-Formally we define the simulator oracle Turing machine $\mathcal S^{\PSPACE}(\SK_{i},x,y,\pi,\tau) = \SK_{i+1}$
-with access to a PSPACE oracle.
-
-\color{red}
-I assume to be able to VRFify the uniquely provable and perfectly correct VF. However if I assume to have 
-$\O_\VRF$ then why cant the combiner simply initialize itself with $\O_\VRF$.
-\color{black}
-
-Now we initialize the combiner with the oracles $\O_0, \O_\VRF$.
-In a single filtering process the adversary will iterate over all candidate secret keys,
-and simulate the execution of the combiner by answering any query to $\O_0$ with $0$,
-and for every query in $\O_\VRF$ he checks the transcript and answers with an existing query in there 
-if it exists, and otherwise iterates over all possible values (e.g. $\Y \times \P$ if the query is an evaluation)
-to continue until the output is computed. If for all evaluations the simulated combiner evaluates to $\y$
-then we retain the secret key candidate, if for some evaluation the output evaluates to some other value $\y'$
-then we discard it. 
-
-We argue that a secret key $\sk$ is accepted only if the evaluation of the real combiner (with oracle queries)
-results in the output $\y$. Assume an $\sk$ would not evaluate to $\y$ under a candidate $\sk$, 
-then during all evaluations there exists at least one evaluation (the one corresponding to the real
-secret key) which doesnt evaluate to $\y$. On the same hand for the correct secret key $\sk$ 
-the output will always be $\y$, assume that were not the case, that would mean that for some execution we would have 
-needed to guess a subset of oracle queries which did change the output (the $0$ guesses to oracle $1$ area always right 
-and the lookups in the transcript are also always right). Then however we could simply modify all those outputs under this secret key 
-in the ignored queries to fit that configuration, breaking unique provability. \todo{soundness check}
-
-Finally since we have shown that the correct secret key will not be thrown out and only secret keys which 
-evaluate to the correct $\y$ are retained we argue that after $2s(\lambda)$ for any uniformly random sample of 
-secret key of the remaining candidates, the probability of sampling a secret key $\sk'$ such that on a uniformly random 
-value $x'$ the output diverges from the true output is negligible. 
-The adversary $\mathcal D$ can therefore simply do that to break pseudorandomness with high probability.
-We show pseudocode for $\mathcal D$ in \Cref{fig:distinguisher}.
-
-\begin{figure}[hptb]
-	\centering 
-	\begin{pchstack}[center, space=1em]
-		\procedure[linenumbering]
-		{Distinguisher $\mathcal D^{\PSPACE, \O_{eval}^{prf}}_1(\pk)$}
-		{
-			\SK_0 \gets \SK\\
-			\pcfor i \in [2s(\lambda)] \pcdo\\
-			\t \x_i \sample \bin^\lambda\\ 
-			\t (\y_i, \pi_i) \gets \O_{eval}^{prf}(\x_i)\\
-			\t \tau_i \gets \textsf{trace}_{\BBComb{VRF}[\O_0, \O_\VRF].\alg{Vfy}{VRF}}(\x_i, \y_i, \pi_i)\\ 
-			\t \pclinecomment{Use $\PSPACE$ oracle for the following}\\
-			\t v_{eval}^1, \ldots, v_{eval}^{|\V_{eval}|} \gets \textsf{topo}(\V_{eval})\\ 
-			\sigma \sample \SK_{2s(\lambda)}\\ 
-			\x \sample \bin^\lambda\\
-			\pcreturn (\sigma, \x)
-		}
-		\procedure[linenumbering]
-		{Distinguisher $\mathcal D^{\PSPACE, \O_{eval}^{prf}}_2(\pk, \sigma, \x, \y)$}
-		{
-			\y^* \gets \BBComb{VRF}[\O_0, \O_{\VRF}].\alg{Eval}{VRF}(\sigma, \x)\\ 
-			\pcreturn \y^* = \y
-		}
-	\end{pchstack}
-	\caption{Distinguisher.}
-	\label{fig:distinguisher}
-\end{figure}
-\end{comment}
-
-\newpage
-
 While robust $(2;1)$ black-box combiners are generally sufficient to construct robust $(n;1)$ black-box combiners,
 non-existence of a robust $(2;1)$ black-box combiner 
 only allows one to deduce the impossibility of a robust $(n;\lfloor n/2\rfloor)$ black-box combiner.
@@ -1026,20 +934,24 @@ The proof works similar to the proof for \Cref{thm:impossibility_21_comb},
 we note that the current adversary already has the capability to break the weak pseudorandomness 
 of the combiner. Additionally, even if the combiner is only required to satisfy statistical correctness, 
 we argue that over a random secret key $\sk$ and a polynomial number of uniformly random evaluation points $x$ we can still 
-expect the combiner to be correct with high probability. 
+expect the combiner to be correct with high probability. The proof works by additionally conditioning on the 
+probability that the combiner is correct on all evaluations $x$ sampled during the pseudorandomness game.
 
 \paragraph{Proof of \Cref{thm:main}}
 TODO
 
-Since the VUF and wVRF properties are weaker than VRFs we can derive the following two corollaries 
-about the impossibility of robust $(n;\lfloor n/2\rfloor)$ black-box VUF and wVRF-combiners.
+Finally we want to note that the distinguisher constructed in the proof of \Cref{thm:impossibility_21_comb}
+can predict the image of any arbitrary pre-image $x \in \bin^\lambda$. This means that the adversary is strong enough
+win the weak pseudorandomness and unpredictability security experiment with significant advantage.
+As a corollary of \Cref{thm:impossibility_21_comb} we get the impossibility of robust $(n;\lfloor n/2\rfloor)$
+black-box combiners for the VUF and WVRF primitive.
 
 \begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{VUF}$-combiner]\label{cor:impossibility_vrf_comb}
 	Given $n$ secure VRF candidate schemes $\O_1, \ldots, \O_n$ there exists no robust black-box combiner that 
 	implements a secure VRF scheme if even one candidate scheme is not uniquely provable.
 \end{corollary}
 
-\begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{VUF}$-combiner]\label{cor:impossibility_vuf_comb}
+\begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{WVRF}$-combiner]\label{cor:impossibility_vuf_comb}
 	Given $n$ secure VUF candidate schemes $\O_1, \ldots, \O_n$ there exists no robust black-box combiner that 
 	implements a secure VUF scheme if even one candidate scheme is not uniquely provable.
 \end{corollary}
