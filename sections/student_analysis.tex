@@ -61,10 +61,6 @@ and generically name them $(\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{p})$ if $|\pri
 	\end{figure}
 \end{definition}
 
-We illustrate the concept with an example shown in \Cref{fig:prf_dag_comb} and \Cref{fig:prf_dag_combiner_true} where the 
-latter, both corresponding to the robust $(2;1)$ black-box combiner for the PRF primitive.
-\todo{mention what is different}
-
 By definition, a robust black-box DAG combiner corresponds to a robust black-box combiner.
 We also show that for every robust black-box combiner there exists a canonical robust black-box DAG combiner
 which is \textit{computationally equivalent} in the sense that the algorithms implemented 
@@ -92,58 +88,132 @@ otherwise if $c(v) \neq (i,j)$ then we simply return an arbitrary query that mee
 $\O_{c(v)}$. An important nuance is that we need to fix the random tape of the Turing machines $\rho$
 since otherwise between simulating the oracle queries at a later point the executions may diverge.\todo{maybe cover more explicitly}
 
-
-\paragraph{Intuition.}
-We need to show that for every robust $(n;k)$ black-box combiner $\BBComb{}[]$ we can construct a 
-robuts $(n;k)$ black-box DAG combiner $\widetilde\Pi$ that represents the same function 
-if interpreted, given that $\BBComb{}[]$ is efficient is also efficient.
-The proof works by unrolling the computation done by the combiner $\BBComb{}[]$ for every oracle 
-call made to a candidate scheme.
-Since we know that $\BBComb{}[]$ is a black-box combiner, it runs in time polynomial in $\lambda, n, m$. 
-Let $T \in \poly[\lambda, n, m]$ be an upper bound on the number of steps that the algorithm runs over all 
-inputs $\x$ into the combiner.
-We start by constructing a graph $\G_{alg}$ that consists of $T$ layers of $nm$ vertices, 
-where $n$ is the number of candidates and $m$ is the number of algorithms implemented by the primitive.
-On every layer, each vertex corresponds to an oracle call to a specific oracle algorithm of a candidate.
-We connect two vertices $v,w \in V_{alg}$ if the they are not in the same layer with an edge pointing 
-from the vertex in the layer closer to the source to the other vertex. To define the functions $f_{alg}^v$
-for $v \in V_{alg}$, a vertex in layer $k \in [T]$, we construct a Turing machine that simulates the robust black-box combiner $\BBComb{}[]$ until 
-the $k$'th oracle query. Once the $i \in [k-1]$'th oracle query is made we instead use the correct output of the correct vertex in the 
-$i$'th layer and move on. For the $k$'th query we simply query the oracle of our vertex if the oracle is correct (and also if its is not correct,
-this will then simply be ignored later one during the execution).
-
-To prove that this construction results in the same output as the robust black-box combiner does,
-we proceed by induction on the layer depth of the current query, claiming that the output of the 
-correct vertex at that layer aligns with the query output of the corresponding query in the execution 
-of the robust black-box combiner. Note that the DAG only contains $T \times n \times m$ many vertices and Turing machines $f_{alg}^v$.
-Since the computation at every vertex is bounded from above by the time it takes the robust black-box combiner 
-to run and we only make one oracle call at every vertex, the result of every vertex can be computed in time at most 
-$T$. Overall the time it takes for the robust black-box DAG combiner to run is therefore polynomial in $\lambda, n,m$.
-We provide a formal proof below.
-
 \begin{proof}[\Cref{thm:generality_dag_comb}]
-	Let $\prim{P}$ be a cryptographic primitive $\BBComb{P}$ with 
-	defining algorithms $(p_1, \ldots, p_{|\prim{P}|})$, et $\BBComb{P}$ be a robust $(n;k)$ black-box $\prim{P}$-combiner 
-	according to \Cref{def:robust_blackbox_combiner}, and let $j \in [|\prim{P}|]$ be arbitrary.
-	By \Cref{def:robust_blackbox_combiner} there exists a polynomial $T \in \poly[n,\lambda,|x|]$ where $x$ is the input to $p_j$.
-	We construct a directed acyclic graph $\G_j$ 
-	
-	\[
-		\G_j = \Paren*{[n] \times [|\prim{P}|] \times [T] \cup \{s,t\}, \SetBuilder{\Paren*{(a_1,b_1,t_1), (a_2,b_2,t_2)}}{t_1 < t_2}}
-	\]
-	
-	\todo{and connect to s,t}. We define the coloring by $c(a,b,t) = (a,b)$. We define the Turing machines $\{f_{j,v}\}_{v \in V(\G_j)}$ iteratively starting
-	from the beginning of the computation $s$, we define $f_{j,v_{j,a,b,1}}$ to be the ppt Turing machine that simulates the $\BBComb P.p_j$ until the first call 
-	to its oracle. If that oracle happens to be $(a,b)$ then we end, otherwise write $0$ onto the tape. In every subsequent level $f_{j,a,b,t+1}$ simulates the combiner 
-	on and answers the queries to the respective oracle with the output of that query ($y_{j,a,b,k}$ for $k \in [t]$) by progressively simulating all previous Turing machines 
-	$f_{j,a,b,k}$ for $k \in [t]$. By checking whether after the computation we find a $0$ on the tape we can trace the path of queried oracles. We can now continue the simulation of 
-	the combiner since we know exactly the state of the tape. \todo{maybe inductive correctness proof but this seems to be very straight forward}.
-	The combiner is necessarily efficient since for every the number of vertices in the graph is bounded from above by $nT(n,\lambda,|x|)|\prim{P}|$ where 
-	$T \in \poly[m,\lambda,|x|]$, we only make exactly one query to any oracle per vertex (which also puts a polynomial bound on the number of oracle calls), 
-	the topological ordering can be computed in polynomial time. We are only left to show that the Turing machines $\{f_{j,v}\}_{v \in V(\G_j)}$ are indeed ppt.
-	To this end note that $f_{j,v}$ simulates the black-box combiner Turing machine, which is assumed to be ppt, at most once 
-	where it can answer any oracle query by looking up the corresponding output of the layer in time polynomial in $n,|\prim{P}|$ and $\lambda$.
+	Let $\BBComb{P}$ be a fixed robust $(n;k)$ black-box combiner for primitive $\prim{P}$
+	and let $\alg{Alg}{P}$ be an arbitrary algorithm implemented by $\prim{P}$.
+	We label the candidate schemes with $\O_1, \ldots, \O_n$.
+	We construct a robust $(n;k)$ black-box DAG combiner $\DAGComb{P}$ that is computationally equivalent to 
+	$\BBComb{P}$ to prove the theorem.
+
+	Since $\BBComb{P}$ is a robust $(n;k)$ black-box combiner it is a ppt. Turing machine and the number of oracle queries 
+	made by $\BBComb{P}$ can therefore be bounded from above by $Q(\lambda, n)$, a polynomial in $\lambda$ and $n$.
+	We construct the DAG $\G_{\alg{Alg}{P}} = (V_{\alg{Alg}{P}}, E_{\alg{Alg}{P}})$ as follows: 
+	\begin{align}
+		V_{\alg{Alg}{P}} &= \Brace*{s_{\alg{Alg}{P}}, t_{\alg{Alg}{P}}} \cup [Q(\lambda, n)] \times [n] \times [|\prim{P}|]\\ 
+		E_{\alg{Alg}{P}} &= \Brace*{
+			\Paren*{(d_1, i_1, j_1), (d_2, i_2, j_2)} : d_1 < d_2
+		}
+	\end{align}
+	\todo{how to best define}
+	We define a vertex labling $\ell_{\alg{Alg}{P}}(d,i,j) = (i,j)$ and the ppt. Turing machines $\{f_{\alg{Alg}{P}}^v\}_{v \in V_{\alg{Alg}{P}}}$
+	as follows: On input $\{(w,\x_w)\}_{w \in \mathcal N^-_{\G}}$
+	simulate the Turing machine $\BBComb{P}.\alg{Alg}{P}$ on input $\x$. For every $q$'th query made to the oracle $(i,j)$
+	it looks up the value of $\x_{(q,i,j)}$ and continues its execution with that oracle response.
+	For the $k$'th query if the query is to oracle $c(v)$ then simply return the result, otherwise 
+	if the query is to an oracle $(i,j) \neq c(v)$ then return an element in the domain of the oracle $(i,j)$
+	(that oracle query will not further be considered in the execution). For $f^t_{\alg{Alg}{P}}$ simulate the entire 
+	execution of $\BBComb{P}.\alg{Alg}{P}$ and proceed analogously but since no more query will be made we just return the result.
+	To show that $\DAGComb{P}$ is a robust $(n;k)$ black-box DAG combiner we need to show that the algorithm $\alg{Alg}{P}$
+	specified by $(\G_{\alg{Alg}{P}}, s_{\alg{Alg}{P}}, t_{\alg{Alg}{P}}, \ell_{\alg{Alg}{P}}, \{f_{\alg{Alg}{P}}^v\}_{v \in V(\G_{\alg{Alg}{P}})})$ 
+	is computationally equivalent to $\BBComb{P}.\alg{Alg}{P}$ and runs in time polynomial in $\lambda, n$.
+	We first show that the algorithm is computationally equivalent.
+
+	\begin{claim}
+		
+	\end{claim}
+
+	\begin{proof}[]
+		
+	\end{proof}
+
+	Now we show that the algorithm terminates in polynomial time (in the security parameter and the number of candidates).
+
+	\begin{claim}
+		
+	\end{claim}
+
+	\begin{proof}[]
+		
+	\end{proof}
 \end{proof}
+
+We illustrate the concept of a robust black-box DAG combiner with two examples in \Cref{fig:prf_dag_comb}
+and \Cref{fig:prf_dag_comb_true}. While both illustrations show robuts black-box DAG combiners
+for the same underlying robust $(2;1)$ black-box PRF-combiner 
+according to \Cref{def:robust_blackbox_dag_combiner}, the latter specifically shows 
+the robust black-box DAG combiner that is constructed by following the procedure used in the proof of 
+\Cref{thm:generality_dag_comb}.
+
+\begin{figure}[htbp]
+    \centering
+    \begin{tikzpicture}
+        \node (x) at (0,0) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Source $s$}
+                    {
+                        \x_s \gets (k, x)\\
+                        \pcreturn \x_s
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+        \node (v1) at (0,-4) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Vertex $v_1$}
+                    {
+                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
+                        \mathbf w_{v_1} \gets f_{\text{Eval}}^{v_1}(\x_s)\\ 
+                        \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf w_{v_1})\\ 
+                        \pcreturn \x_{v_1}
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+        \node (v2) at (0,-8) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Vertex $v_2$}
+                    {
+                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
+                        \mathbf w_{v_2} \gets f_{\text{Eval}}^{v_2}(\x_s)\\ 
+                        \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf w_{v_2})\\ 
+                        \pcreturn \x_{v_2}
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+        \node (t) at (0,-12) {
+            \begin{minipage}{0.35\textwidth}
+                \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Sink $t$}
+                    {
+                        \pclinecomment{Here $f_{\text{Eval}}^{t}(y_1, y_2) = y_1 \xor y_2$}\\
+                        \x_t \gets f_{\text{Eval}}^{t}(\x)\\
+                        \pcreturn \x_t
+                    }
+                \end{pcvstack}
+            \end{minipage}
+        };
+		\draw[-latex] (x) to[bend left=20]  (v1);
+		\draw[-latex] (v1) to[bend left=20] (t);
+		\draw[-latex] (x) to[bend right=20] (v2);
+		\draw[-latex] (v2) to[bend right=20] (t);
+    \end{tikzpicture}
+    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner constructed following the procedure outlined in the proof of \Cref{thm:generality_dag_comb}. 
+	At every node we simulate the robust $(2;1)$ black-box PRF-combiner from the beginning, substituting the oracle queries with the outputs of the corresponding previous vertex.
+	Note that there would be one vertex for every possible oracle query at every intermediate layer, to simplify the schematic we only draw the vertices which correspond to queries that are possibly executed.}
+    \label{fig:prf_dag_comb_true}
+\end{figure}
 
 \newpage
 

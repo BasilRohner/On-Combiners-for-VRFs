@@ -440,6 +440,16 @@
   }
 }
 
+\NewDocumentCommand{\DAGComb}{mo}{
+  \ensuremath{
+    \IfNoValueTF{#2}{
+      {\widetilde\Pi_{\prim{#1}}}
+    }{
+      {\widetilde\Pi_{\prim{#1}}^{#2}}
+    }
+  }
+}
+
 % Interpretation
 \NewDocumentCommand{\inter}{sm}{
   \IfBooleanTF{#1}{

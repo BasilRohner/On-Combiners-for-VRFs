@@ -135,46 +135,57 @@ We illustrate this concept in \Cref{fig:prf_dag_comb} on the example of the simp
                 \end{pcvstack}
             \end{minipage}
         };
-        \node (v1) at (-3,-4) {
+        \node (v1) at (-3,-5) {
             \begin{minipage}{0.35\textwidth}
                 \centering
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
                     {Vertex $v_1$}
                     {
-                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
-                        \mathbf w_{v_1} \gets f_{\text{Eval}}^{v_1}(\x_s)\\ 
-                        \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf w_{v_1})\\ 
+                        \mathbf q_{v_1} \gets 
+                        \begin{subprocedure}
+                        \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
+                            \pcreturn \x_s
+                        }}
+                        \end{subprocedure}\\ 
+                        \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf q_{v_1})\\ 
                         \pcreturn \x_{v_1}
                     }
                 \end{pcvstack}
             \end{minipage}
         };
-        \node (v2) at (3,-4) {
+        \node (v2) at (3,-5) {
             \begin{minipage}{0.35\textwidth}
                 \centering
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
                     {Vertex $v_2$}
                     {
-                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
-                        \mathbf w_{v_2} \gets f_{\text{Eval}}^{v_2}(\x_s)\\ 
-                        \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf w_{v_2})\\ 
+                        \mathbf q_{v_2} \gets 
+                        \begin{subprocedure}
+                        \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
+                            \pcreturn \x_s
+                        }}
+                        \end{subprocedure}\\ 
+                        \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf q_{v_2})\\ 
                         \pcreturn \x_{v_2}
                     }
                 \end{pcvstack}
             \end{minipage}
         };
-        \node (t) at (0,-8) {
+        \node (t) at (0,-10) {
             \begin{minipage}{0.35\textwidth}
                 \centering
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
                     {Sink $t$}
                     {
-                        \pclinecomment{Here $f_{\text{Eval}}^{t}(y_1, y_2) = y_1 \xor y_2$}\\
-                        \x_t \gets f_{\text{Eval}}^{t}(\x)\\
-                        \pcreturn \x_t
+                        \y \gets 
+                        \begin{subprocedure}
+                        \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
+                            \pcreturn \x_{v_1} \xor \x_{v_2}
+                        }}\\ 
+                        \pcreturn \y
                     }
                 \end{pcvstack}
             \end{minipage}
@@ -184,7 +195,9 @@ We illustrate this concept in \Cref{fig:prf_dag_comb} on the example of the simp
         \draw[-latex] (x) -> (v2);
         \draw[-latex] (v2) -> (t);
     \end{tikzpicture}
-    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner. Note that for every node we first combine the output of all predecessors using a ppt. Turing machine $f_{\text{Eval}}^{v}$. The output $\mathbf w_v$ of $f_{\text{Eval}}^{v}$ is then queried to the corresponding oracle $\O_{\ell(v)}$. The source vertex doesn't compute anything but simply outputs the inputs while the sink $t$ doesn't query any oracle and simply combines its inputs.}
+    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner. Note that for every node we first combine the output of all predecessors using a ppt. Turing machine $f_{\text{Eval}}^{v}$. The output $\mathbf w_v$ of $f_{\text{Eval}}^{v}$ is then queried to the corresponding oracle $\O_{\ell(v)}$. The source vertex doesn't compute anything but simply outputs the inputs while the sink $t$ doesn't query any oracle and simply combines its inputs.
+    In the formal definition the intermediate Turing machines $f_{\text{Eval}}^v$ would take as input sets of tuples with a labling of the vertex and the corresponding output, e.g. $(v, \x_v)$, 
+    for the sake of simplicity we simply list the outputs in the arguments.}
     \label{fig:prf_dag_comb}
 \end{figure}
 
