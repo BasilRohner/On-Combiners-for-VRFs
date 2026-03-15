@@ -101,8 +101,10 @@ since otherwise between simulating the oracle queries at a later point the execu
 	\begin{align}
 		V_{\alg{Alg}{P}} &= \Brace*{s_{\alg{Alg}{P}}, t_{\alg{Alg}{P}}} \cup [Q(\lambda, n)] \times [n] \times [|\prim{P}|]\\ 
 		E_{\alg{Alg}{P}} &= \Brace*{
-			\Paren*{(d_1, i_1, j_1), (d_2, i_2, j_2)} : d_1 < d_2
-		}
+			\Paren*{(d_1, i_1, j_1), (d_2, i_2, j_2)} \in [Q(\lambda, n)] \times [n] \times [|\prim{P}|] : d_1 < d_2
+		}\\ 
+		&\quad \cup \{s_{\alg{Alg}{P}}\} \times [Q(\lambda, n)] \times [n] \times [|\prim{P}|] \\ 
+		&\quad \cup [Q(\lambda, n)] \times [n] \times [|\prim{P}|] \times \{t_{\alg{Alg}{P}}\}
 	\end{align}
 	\todo{how to best define}
 	We define a vertex labling $\ell_{\alg{Alg}{P}}(d,i,j) = (i,j)$ and the ppt. Turing machines $\{f_{\alg{Alg}{P}}^v\}_{v \in V_{\alg{Alg}{P}}}$
@@ -116,104 +118,79 @@ since otherwise between simulating the oracle queries at a later point the execu
 	To show that $\DAGComb{P}$ is a robust $(n;k)$ black-box DAG combiner we need to show that the algorithm $\alg{Alg}{P}$
 	specified by $(\G_{\alg{Alg}{P}}, s_{\alg{Alg}{P}}, t_{\alg{Alg}{P}}, \ell_{\alg{Alg}{P}}, \{f_{\alg{Alg}{P}}^v\}_{v \in V(\G_{\alg{Alg}{P}})})$ 
 	is computationally equivalent to $\BBComb{P}.\alg{Alg}{P}$ and runs in time polynomial in $\lambda, n$.
-	We first show that the algorithm is computationally equivalent.
+	We first show that the algorithm is computationally equivalent, for that consider the following claim.
 
-	\begin{claim}
-		
+\newpage
+
+	\begin{claim}\label{claim:correctness_dag_comb}
+		Let $\BBComb{P}$ be a robust $(n;k)$ black-box combiner for primitive in the sense of \Cref{def:robust_blackbox_combiner}
+		and let $\DAGComb{P}$ be the algorithm obtained by applying the procedure above, then we have for
+		for all candidates $\O_1, \ldots, \O_n$ and every algorithm $\alg{Alg}{P}^i$ implemented by $\prim{P}$
+		the following holds.
+		\[
+			\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}^i = \DAGComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}^i
+		\]
 	\end{claim}
 
-	\begin{proof}[]
-		
+	\begin{proof}[\Cref{claim:correctness_dag_comb}]
+		Fix a robust $(n;k)$ black-box $\prim{P}$-combiner $\BBComb{P}$, candidate schemes $\O_1, \ldots, \O_n$, 
+		an algorithm implemented by $\BBComb{P}$, let $\DAGComb{P}$ be the robust $(n;k)$ black-box DAG $\prim{P}$-combiner
+		constructed as specified above and let $\x$ be an arbitrary input to the algorithm $\alg{Alg}{P}$.
+		We show that
+		\[
+			\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}^i(\x) = \DAGComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}^i(\x)
+		\]
+		By induction over the number of queries made by the $\BBComb{P}$ combiner.
+		We say that an vertex $v$ on layer $d \in [Q(\lambda, n)]$ is \textit{correct}
+		if in the execution of $\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}^i(\x)$ the $d$'th oracle query is 
+		made to the oracle $c(v)$ and we say that its \textit{incorrect} otherwise.
+		Formally we show that for every $d \in [Q(\lambda, n)]$ the output of the $d$'th query of the robust black-box combiner 
+		$\BBComb{P}[\O_1, \ldots, \O_n]$ and the output of the $d$'th query of the robust black-box DAG combiner $\DAGComb{P}[\O_1, \ldots, \O_n]$ agree.
+
+		\textit{Base case}: If $d = 1$ then the output of the robust black-box DAG combiner $\DAGComb{P}[\O_1, \ldots, \O_n]$
+		is computed by simulating the evaluation of $\BBComb{P}[\O_1, \ldots, \O_n]$ until the first oracle query and then making the correct 
+		oracle query itself at the correct vertex. Therefore the base case holds.
+
+		\textit{Inductive step}: We assume that for every $d' < d$ the output of the query at the correct vertex $v$
+		at layer $d'$ is equivalent to the output of the $d'$'th oracle query output are the same. 
+		Since therefore the execution of the algorithm of $\DAGComb{P}[\O_1, \ldots, \O_n]$ is perfectly simulated 
+		it computes the exact same input and queries by correctness of the vertex the correct oracle on the same input,
+		resulting in the same output.\todo{what about randomized oracles}
 	\end{proof}
 
-	Now we show that the algorithm terminates in polynomial time (in the security parameter and the number of candidates).
-
-	\begin{claim}
-		
+	\begin{claim}\label{claim:time_dag_comb}
+		Let $\BBComb{P}$ be a robust $(n;k)$ black-box combiner for primitive in the sense of \Cref{def:robust_blackbox_combiner}
+		and let $\DAGComb{P}$ be the algorithm obtained by applying the procedure above, then we have for
+		for all candidates $\O_1, \ldots, \O_n$ and every algorithm $\alg{Alg}{P}^i$ runs in polynomial time.
 	\end{claim}
 
-	\begin{proof}[]
-		
+	\begin{proof}[\Cref{claim:time_dag_comb}]
+		By construction the DAG $\G_{\alg{Alg}{P}^i}$ has $2 + n|\prim{P}|Q(\lambda, n)$ vertices.
+		At each vertex $v \in V(\G_{\alg{Alg}{P}}^i)$ the Turing machine $f^v_{\alg{Alg}{P}^i}$ 
+		simulates $\BBComb{P}.\alg{Alg}{P}$ where every oracle query is answered with a constant-time lookup 
+		along predecessor outputs, i.e. runs in time a polynomial $T(n,\lambda)$.
+		Hence the overall running time is bounded by
+		\[
+			|V(\G_{\alg{Alg}{P}})| T(\lambda, n) \in \poly[\lambda, n]
+		\]
+		Concluding the proof.
 	\end{proof}
+
+	It remains to show that $\DAGComb{P}$ is indeed a robust $(n;k)$ black-box combiner.
+	By \Cref{claim:correctness_dag_comb} the algorithms implemented by $\BBComb{\prim{P}}[\O_1, \ldots, \O_n]$
+	and $\BBComb{P}[\O_1, \ldots, \O_n]$ are equivalent. In particular, any adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$
+	against $\DAGComb{P}[\O_1, \ldots, \O_n]$ is also an adversary against $\BBComb{P}[\O_1, \ldots, \O_n]$
+	with the same advantage. By \Cref{def:robust_blackbox_combiner} this means that there exist
+	$n-k+1$ ppt. adversaries $\smash{\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
+	and an injective function $\ell: [n-k+1] \to [n]$ such that for any $i \in [n-k+1]$ the adversary $\smash{\B_i^{\O_{\ell(i)}}}$ breaks the security of the candidate $\O_{\ell(i)}$.
+	Hence $\DAGComb{P}$ is a robust $(n;k)$ black-box combiner.
 \end{proof}
 
-We illustrate the concept of a robust black-box DAG combiner with two examples in \Cref{fig:prf_dag_comb}
-and \Cref{fig:prf_dag_comb_true}. While both illustrations show robuts black-box DAG combiners
-for the same underlying robust $(2;1)$ black-box PRF-combiner 
-according to \Cref{def:robust_blackbox_dag_combiner}, the latter specifically shows 
-the robust black-box DAG combiner that is constructed by following the procedure used in the proof of 
-\Cref{thm:generality_dag_comb}.
-
-\begin{figure}[htbp]
-    \centering
-    \begin{tikzpicture}
-        \node (x) at (0,0) {
-            \begin{minipage}{0.35\textwidth}
-                \centering
-                \begin{pcvstack}[center, boxed, space=1em]
-                    \procedure[linenumbering]
-                    {Source $s$}
-                    {
-                        \x_s \gets (k, x)\\
-                        \pcreturn \x_s
-                    }
-                \end{pcvstack}
-            \end{minipage}
-        };
-        \node (v1) at (0,-4) {
-            \begin{minipage}{0.35\textwidth}
-                \centering
-                \begin{pcvstack}[center, boxed, space=1em]
-                    \procedure[linenumbering]
-                    {Vertex $v_1$}
-                    {
-                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
-                        \mathbf w_{v_1} \gets f_{\text{Eval}}^{v_1}(\x_s)\\ 
-                        \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf w_{v_1})\\ 
-                        \pcreturn \x_{v_1}
-                    }
-                \end{pcvstack}
-            \end{minipage}
-        };
-        \node (v2) at (0,-8) {
-            \begin{minipage}{0.35\textwidth}
-                \centering
-                \begin{pcvstack}[center, boxed, space=1em]
-                    \procedure[linenumbering]
-                    {Vertex $v_2$}
-                    {
-                        \pclinecomment{Here $f_{\text{Eval}}^{v_1}(\x) = \x$}\\ 
-                        \mathbf w_{v_2} \gets f_{\text{Eval}}^{v_2}(\x_s)\\ 
-                        \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf w_{v_2})\\ 
-                        \pcreturn \x_{v_2}
-                    }
-                \end{pcvstack}
-            \end{minipage}
-        };
-        \node (t) at (0,-12) {
-            \begin{minipage}{0.35\textwidth}
-                \centering
-                \begin{pcvstack}[center, boxed, space=1em]
-                    \procedure[linenumbering]
-                    {Sink $t$}
-                    {
-                        \pclinecomment{Here $f_{\text{Eval}}^{t}(y_1, y_2) = y_1 \xor y_2$}\\
-                        \x_t \gets f_{\text{Eval}}^{t}(\x)\\
-                        \pcreturn \x_t
-                    }
-                \end{pcvstack}
-            \end{minipage}
-        };
-		\draw[-latex] (x) to[bend left=20]  (v1);
-		\draw[-latex] (v1) to[bend left=20] (t);
-		\draw[-latex] (x) to[bend right=20] (v2);
-		\draw[-latex] (v2) to[bend right=20] (t);
-    \end{tikzpicture}
-    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner constructed following the procedure outlined in the proof of \Cref{thm:generality_dag_comb}. 
-	At every node we simulate the robust $(2;1)$ black-box PRF-combiner from the beginning, substituting the oracle queries with the outputs of the corresponding previous vertex.
-	Note that there would be one vertex for every possible oracle query at every intermediate layer, to simplify the schematic we only draw the vertices which correspond to queries that are possibly executed.}
-    \label{fig:prf_dag_comb_true}
-\end{figure}
+\paragraph{Example.}
+For an example consider of a robust $(2;1)$ black-box DAG combiner for the PRF primitive 
+see \Cref{fig:prf_dag_comb}. Note that the construction shown in \Cref{fig:prf_dag_comb}
+doesn't correspond to the robust $(2;1)$ black-box DAG PRF-combiner one would obtain by 
+following the procedure used in the proof of \Cref{thm:generality_dag_comb}.
 
 \newpage
 
