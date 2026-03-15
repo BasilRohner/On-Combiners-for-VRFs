@@ -91,4 +91,71 @@ TODO\todo{example of axis-constant function}
 % 	\label{fig:construction1}
 % \end{figure}
 
+\section{Strong Combiner for Advanced Notions of VRF}
 
+We first extend VRFs to constrainable VRFs. Constrainable VRFs as introduced in \cite{}
+extend the concept of constrainable PRFs \cite{} which allow constraining of the keys 
+to a subset of evaluation points. A constrained key $\sk_S$, constrained to a subset of 
+$S \subseteq \bin^\lambda$ of evaluation keys, can then only be used to evaluate 
+points in $S$. We take inspiration from \cite{} to define constrainable verifiable function (CVF) as follows.
+
+\begin{definition}[Constrainable Verifiable Function]\label{def:cvf}
+    
+\end{definition}
+
+Similarly to VF we define additional security properties on a CVF to obtain a constrainable 
+verifiable random function (CVRF). The notions of correctness, unique provability and pseudorandomness 
+extend intuitively from the corresponding notions on VFs, we additionally introduce a 
+property ... that guarantees that no adversary given a constrained key can obtain images for evaluation 
+points outside the set $S$.
+
+\begin{definition}
+    
+\end{definition}
+
+\begin{definition}
+    
+\end{definition}
+
+\begin{definition}
+    
+\end{definition}
+
+To extend the robust $(2;1)$ black-box combiner for VRFs with uniquely provable and perfectly 
+correct candidates we only need to combine the constrain algorithm. Since the secret keys 
+for each candidate are grouped into a tuple we can simply constrain the keys component-wise.
+We state the result in the following lemma.
+
+\begin{lemma}[Weak Robust $(2;1)$ Black-Box CVRF-Combiner]\label{lemma:cvrf_comb}
+    
+\end{lemma}
+
+\begin{proof}[\Cref{lemma:cvrf_comb}]
+    
+\end{proof}
+
+Next we consider the notion of a key-homomorphic VRF (khVRF) \cite{}.
+In khVRF the secret key space $\SK$, and the product of the image co-domain and proof space $\Y\times \P$
+endowed with a group structure $(\SK, \circledast_\SK)$ and $(\Y \times \P, \circledast_{\Y \times \P})$
+respectively. A VF is then defined to be key-homomorphic if $\alg{Eval}{VRF}(\cdot, x): \SK \to \Y \times \P$
+is a group homomorphism for every $x \in \bin^\lambda$. 
+
+\begin{definition}[Key-Homomorphism]\label{def:key_homomorphism}
+    
+\end{definition}
+
+
+
+\subsection{Combiner Construction}
+
+Finally we want to mention that more advanced notions of VRF such as constrainable VRFs \cite{}
+which additionally allow the constraining of secret key to a specific subset of evaluation points.
+Key-homomorphic VRFs \cite{} satisfy that the secret key space $\SK$ and image-proof space $\Y \times \P$
+admit algebraic group structures $(\SK, \circledast_\SK)$ and $(\Y \times \P, \circledast_{\Y \times \P})$
+and $\alg{Eval}{VRF}(\cdot, x)$ admits a group homomorphism for any $x \in \bin^\lambda$.
+Aggregable VRFs \cite{} additionally implement algorithms to aggregate many public keys and corresponding 
+image-proof pairs into a single image-proof pair, requiring that in addition to the existing properties of the VRF 
+the aggregated input is pseudorandom and statistically binding.
+Finally unbiasable VRFs \cite{} are VRFs which additionally protect from adversaries skewing the output distribution 
+of the VRF by maliciously crafting public keys.
+We show that under the assumption of uniquely provable and perfectly correct candidates all of those advanced notions admit robust $(2;1)$ black-box combiners.

@@ -2,140 +2,96 @@
 \label{ch:analysis}
 
 \section{Robust Black-Box DAG Combiner}
-\todo{this still needs refactoring}
 Intuitively, a robust black-box combiner operates on $n$ candidate schemes by 
-interleaving oracle calls to the candidates implemented functions with processing 
-to combine their outputs in a way such that security properties of the secure 
+adaptively interleaving calls to the candidates oracles with ppt. processing
+to combine the candidates outputs in a way such that security properties of the secure 
 subset of oracles are preserved if there are sufficiently many of them.
-To argue about the impossibility of such constructions it is helpful to impose 
-additional structure on the combiner, to structure it as a directed acyclic graph 
-modeling the computation of the combiner.
-In the DAG every oracle query corresponds to a vertex colored with the appropriate label
-Viewing a robust black-box combiner as a robust black-box DAG combiner is therefore 
-simply a way make the structured execution of a combiner explicit, making the 
-reasoning about oracle query dependencies and oracle-independent computation explicit.
-Additionally since robust black-box combiners need to satisfy the security properties relative 
-to a PSPACE oracle, in the later proof we rely on the ability of the PSPACE oracle to brute-force 
-many secret keys in the algorithm if there are not queries to oracles. For this line of reasoning 
-this description is also more convenient. As we will show later in \Cref{thm:generality_dag_comb},
-the notions of robust black-box combiners and robust black-box DAG combiners are equivalent.
+For certain arguments it can be helpful to model the combiners structure more explicitly,
+we do so by modeling every algorithm implemented by the combiner with a directed acyclic graph (DAG) reflecting the computation.
 
-We define robust black-box DAG combiners by representing each implemented algorithm $\alg{alg}{}$
-with a directed acyclic graph $\G_{\alg{alg}{}} = (V_{alg}, E_{alg})$ with a source $s_{\alg{alg}{}} \in V_{\alg{alg}{}}$ 
-that has no in-going edges, corresponding to the input of the algorithm, and a sink $t_{alg} \in V_{alg}$ with no out-going edges,
-corresponding to a final processing step. Additionally the description of the DAG combiner contains a 
-vertex labling $l_{alg}: V_{alg} \setminus \{s_{alg}, t_{alg}\} \to [n] \times \{alg_1, \ldots, alg_k\}$ which
-maps every vertex that is not a source or a sink to the corresponding candidate oracle and the specific function 
-called on an input $\x_v$ to produce an output $\y_v$. We define the output 
-$\y_{s_{alg}}$ of the source to be the combiner algorithm input and the output of the
-sink $t_{alg}$ to be the output of the combiner. The input $\x_v$ to the query at vertex $v \in V_{alg} \setminus \{s_{alg}, t_{alg}\}$
-is computed by an efficient (ppt.) Turing machine $f_{alg}^v$ associated with vertex $v$ in $G_{alg}$ which takes as input the labeled outputs of all predecessors 
-$w \in \mathcal N_{in}(v)$ and produces an oracle query $\x_v$. We formally describe robust black-box DAG combiners 
-in the following definition.
+In addition to the DAG we specify dedicate source and sink vertices $s$ and $t$,
+a vertex labling $\ell : V(\G) \setminus \{s,t\} \to [n] \times [|\prim{P}|]$ mapping every non-source and non-sink vertex to a tuple $(i,j)$
+indicating which candidate is queried on which oracle and ppt. Turing machines $f^v$ for every vertex $v \in V(\G)$
+that compute the query input to the candidate and oracle $\ell(v)$ given the oracle response of the predecessors $\mathcal N^-_\G(v)$.
+The source vertex $s$ simply corresponds to the input $\x$ to the algorithm while the target
+is associated with a single ppt. Turing machine $f^t$ that computes the final output of the combiner $\y$.
+
+A robust black-box DAG combiner algorithm, is then executed by tracing the computation through the corresponding DAG $\G$. 
+The input to every oracle query is computed from the response of the oracles at the preceding vertices
+using the Turing machine $f^v$ associated with the respective vertex $v \in V(\G)$.
+The output of the algorithm is given by the output of $f^t$ on the respective inputs.
+We assume that the random tape of the intermediate Turing machines are initialized identically to the random tape 
+of the combiner Turing machine \todo{argue}.
+A robust black-box DAG combiner has to satisfy that the algorithm induced by the DAG description 
+needs to be a robust black-box combiner. We formally define robust black-box DAG combiners as follows,
+we use $|\prim{P}|$ for primitive $\prim{P}$ to denote the number of implemented algorithms 
+and generically name them $(\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{p})$ if $|\prim{P}| = p$.
 
 \begin{definition}[Robust $(n;k)$ Black-Box DAG $\prim{P}$-Combiner]\label{def:robust_blackbox_dag_combiner}
-	Given a cryptographic primitive $\prim{P}$ implementing a set of algorithms
-	indexed by $j \in [|\prim{P}|]$. A robust $(n;k)$ black-box DAG $\prim{P}$-combiner 
-	is a $|\prim{P}|$-tuple 
-
+	A roubst $(n;k)$ black-box DAG combiner for primitive $\prim{P}$ is a robust $(n;k)$ black-box algorithm $\BBComb{P}$ in the sense of \Cref{def:robust_blackbox_combiner}, i.e. a tuple algorithms $\Paren{\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^p}$
+	where every algorithm $\alg{Alg}{P}^i$ is specified by a tuple of the following shape
 	\[
-		\Paren*{\mathfrak G_j = \Paren*{\G_j, c_j, s_j, t_j, \{f_{j,v}\}_{v \in V(\G_j)}}}_{j \in [|\prim{P}|]}
+		\Paren*{\G_p, s_p, t_p, \ell_p, \Brace{f_p^{v}}_{v \in V(\G_p) \setminus \{s_p\}}}
 	\]
-
-	where $\G_j$ is a directed acyclic graph with vertex set $V(\G_j)$, 
-	$c_j: V(\G_j) \setminus \{s_j, t_s\} \to [n] \times [|\prim{P}|]$ is a vertex-coloring with colors
-	$(a,b)$ indicating that the corresponding query is made to algorithm $a$ of candidate oracle $b$, source and sink $s_j, t_s \in V(\G_j)$ satisfying $\mathcal N^-(s_j) = \mathcal N^+(t_j) = \varnothing$ and for simplicity
-	the only vertices satisfying those properties \todo, and finally $\{f_{j,v}\}_{v \in V(\G_j)}$ are ppt. Turing machines.
-	satisfying that the following tuple of oracle Turing machines is a robust $(n;k)$ black-box combiner.
-
-	\[
-		\widetilde{\BBComb{\prim{P}}[\O_1, \ldots, \O_n]} = \Paren*{\widetilde{\BBComb{\prim{P}}[\O_1, \ldots, \O_n]}.\interp{\mathfrak G_1}, \ldots, \widetilde{\BBComb{\prim{P}}[\O_1, \ldots, \O_n]}.\interp{\mathfrak G_{|\prim{P}|}}}
-	\]
-	
-	Where $\interp{\mathfrak{G_j}}$ is the interpretation according to \Cref{fig:dag_combiner}.
+	Such that for all $p \in \prim{P}$, $\G_p$ is a DAG, $s_p$ and $t_p$ are vertices in $V(\G_p)$
+	such that $s_p$ has no ingoing edges and $t_p$ has no outgoing edges,
+	$\ell_p : V(\G_p) \to [n] \times \prim{P}$ is a vertex labling and $\Brace{f_p^v}_{v \in V(\G_p) \setminus \{s_p\}}$
+	are pt. Turing machines. Where, given the tuple,
+	the algorithm $\alg{Alg}{P}^p$ is defined as shown in \Cref{fig:dag_combiner}.
 
 
-	\begin{figure}
+	\begin{figure}[htbp]
 		\centering 
 		\begin{pchstack}[center, space=1em]
 			\procedure[linenumbering]
-			{Algorithm $\interp{\G, c, s, t, \{f_v\}_{v \in V(\G)}; \rho}(\x)$}
+			{Algorithm $\alg{Alg}{P}^{\O_1, \ldots, \O_n}(\x)$}
 			{
-				\y_s \gets \x\\ 
-				\pcfor v \in \tau(\G, s) \setminus \{s,t\} \pcdo\\ 
-				\t \x_v \gets f_v(\x, \{(\y_w, w)\}_{w \in \mathcal N^-(v)}; \rho)\\ 
-				\t \y_v \gets \mathcal O_{c(v)}(\x_v)\\ 
-				\pcreturn f_t(\x, \{\y_w\}_{w \in \mathcal N^-(t)})
-			}
-			\procedure[linenumbering]
-			{Algorithm $\tau(\G, s)$}
-			{
-				L \gets []\\ 
-				Q \gets []\\ 
-				\pcwhile Q \neq [] \pcdo\\ 
-				\t v \gets Q
-				\pclinecomment{Topological ordering TODO}
+				\x_s \gets \x\\
+				\pcfor v \in \textsf{topo}(V(\G_p) \setminus \{s_p,t_p\}) \pcdo\\ 
+				\t \pclinecomment{Compute the query $\mathbf q_v$ to the oracle}\\
+				\t \mathbf q_v \gets f^v_{p}(\{(w, \x_w)\}_{w \in \mathcal N^-_{\G_p}(v)})\\ 
+				\t \pclinecomment{Evaluate the oracle on $\mathbf q_v$}\\
+				\t \x_v \gets \O_{\ell(v)}(\mathbf q_v)\\ 
+				\pcreturn f^t_p(\{w,\x_w\}_{w \in \mathcal N^-_{\G_p}(t)})
 			}
 		\end{pchstack}
-		\caption{Interpretation of $\Paren*{\G, c, s, t, \{f_v\}_{v \in V(\G)}}$ into an algorithm. $\tau$ returns the vertices in $\G$ in topological order starting from the source $s$.}
+		\caption{Definition of the robust black-box DAG combiner algorithm $\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}$ initialized with candidates $\O_1, \ldots, \O_n$.
+		We use $\textsf{topo}$ to denote an algorithm returning the vertices in $V(\G_p)$ in a fixed topological ordering. We use the notation $\O_{c(v)}$ for $c(v) = (i,j)$ to denote the oracle $j$ or the $i$'th candidate $\O_i$, i.e. $\O_i.\alg{Alg}{P,j}$.}
 		\label{fig:dag_combiner}
 	\end{figure}
 \end{definition}
 
-A robust black-box DAG combiner algorithm is then executed by tracing the computation through the corresponding DAG $G_{alg}$, 
-starting at the source $s_{alg}$ and ending at the sink $t_{alg}$ in a topological ordering. The interpretation of an algorithm 
-$alg$ described by the robust black-box DAG combiner by $(\G_{alg}, s_{alg}, t_{alg}, l_{alg}, \{f_{alg}^v\}_{v \in V_{alg} \setminus \{s_{alg}, t_{alg}\}})$
-is shown in \Cref{fig:dag_combiner}.
+We illustrate the concept with an example shown in \Cref{fig:prf_dag_comb} and \Cref{fig:prf_dag_combiner_true} where the 
+latter, both corresponding to the robust $(2;1)$ black-box combiner for the PRF primitive.
+\todo{mention what is different}
 
-\paragraph{Example.}
-We introduce the notion of robust black-box DAG combiners to make the underlying structure of 
-robust black-box combiners more explicit. To illustrate the definition we will show the structure of the 
-DAG combiner of a robust $(2;1)$ black-box combiner \Cref{def:prf-combiner} in \Cref{fig:example_dag_combiner}.
-We label every vertices $v$ in the DAGs that is not a source or sink with $l_{alg}(v)$, i.e. their vertex labling
-and for every vertex add the functional description of the Turing machines $f_{alg}^v$.
+By definition, a robust black-box DAG combiner corresponds to a robust black-box combiner.
+We also show that for every robust black-box combiner there exists a canonical robust black-box DAG combiner
+which is \textit{computationally equivalent} in the sense that the algorithms implemented 
+realize equivalent functions. We state this result in the following theorem, 
+which we will be using to lead our impossibility proofs over robust black-box DAG combiners instead of robust black-box combiners.\todo{computational equivalence more def?}
 
-\begin{figure}[H]
-	\centering
-	\begin{tikzpicture}
-		\node[] (Gen0) at (0,0) {$s_{gen}$};
-		\node[] (Gen1) at (-1.25,-1) {$(0, gen), \y_{s_{gen}} \mapsto $};
-		\node[] (Gen2) at (1.25,-1) {$(1, gen)$};
-		\node[] (Gen3) at (0,-2) {$t_{gen}$};
-	\end{tikzpicture}
-	\begin{tikzpicture}
-		\node[] (Gen0) at (0,0) {$s_{gen}$};
-		\node[] (Gen1) at (-1.25,-1) {$(0, gen), \y_{s_{gen}} \mapsto $};
-		\node[] (Gen2) at (1.25,-1) {$(1, gen)$};
-		\node[] (Gen3) at (0,-2) {$t_{gen}$};
-	\end{tikzpicture}
-	\begin{tikzpicture}
-		\node[] (Gen0) at (0,0) {$s_{gen}$};
-		\node[] (Gen1) at (-1.25,-1) {$(0, gen), \y_{s_{gen}} \mapsto $};
-		\node[] (Gen2) at (1.25,-1) {$(1, gen)$};
-		\node[] (Gen3) at (0,-2) {$t_{gen}$};
-	\end{tikzpicture}
-	\label{fig:example_dag_combiner}
-	\caption{Drawing of the graphs $\G$}
-\end{figure}
-
-Note that while this is a DAG combiner implements the same robust $(2;1)$ black-box combiner 
-as in \Cref{def:prf-combiner}, but not the combiner that would be constructed by the constructive 
-proof below since that is much more tractable. The DAG combiner constructed in the proof is shown in 
-\Cref{fig:real_dag_comb}.
-
-\newpage
-
-Since later on we will focus on showing the impossibility of certain combiner constructions it's 
-essential that the notion of combiner that we use is as strong as possible.
-By definition a robust black-box DAG combiner is also a robust black-box combiner. 
-We show that the notions of robust black-box DAG combiner and robust black-box combiner 
-are equally strong and capture the same set of constructions.
-We formulate this result in the following theorem.
-
-\begin{restatable}[Generality of Robust $(n;k)$ Black-Box DAG Combiners]{theorem}{dagEquiv}\label{thm:generality_dag_comb}
-	For every robust $(n;k)$ black-box combiner there exists a computationally equivalent 
-	robust $(n;k)$ black-box DAG combiner.   
+\begin{restatable}[Robust $(n;k)$ Black-Box DAG Combiners]{theorem}{dagEquiv}\label{thm:generality_dag_comb}
+	For every robust $(n;k)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} there exists a computationally equivalent 
+	robust $(n;k)$ black-box DAG combiner in the sense of \Cref{def:robust_blackbox_dag_combiner}.
 \end{restatable}
+
+\paragraph{Intuition.}
+The idea behind the proof is to take an arbitrary robust $(n;k)$ black-box combiner $\BBComb{P}$
+and unroll its computation in a graph consisting of $T(n,\lambda)$ layers
+where each vertex on a layer $k$ is connected to all vertices of the preceding layers $i < k$. Each layer $k$ consisting of 
+$n|\prim{P}|$ vertices corresponding to the different oracles which can be queried as the $k$'th query.
+At every layer $k$ for every vertex the combiner then simulates the Turing machine of $\BBComb{P}$ until 
+the $k+1$'the oracle query. Since the Turing machine $f^v$ can however not make any oracle query itself 
+it relies on the previous connected vertices to obtain the answer to those oracle queries. 
+For the $i$'th query the Turing machine simply uses the output of the correct vertex on layer $i$
+to simulate the oracle query. Once we reach the $k$'th query and the query would be to oracle $\O_{(i,j)}$
+then we distinguish the case when we are at the correct vertex or not. If the current vertex satisfies 
+$c(v) = (i,j)$ then we simply return the query $\mathbf q_v$ resulting in the correct query being made,
+otherwise if $c(v) \neq (i,j)$ then we simply return an arbitrary query that meets the expected input format of 
+$\O_{c(v)}$. An important nuance is that we need to fix the random tape of the Turing machines $\rho$
+since otherwise between simulating the oracle queries at a later point the executions may diverge.\todo{maybe cover more explicitly}
+
 
 \paragraph{Intuition.}
 We need to show that for every robust $(n;k)$ black-box combiner $\BBComb{}[]$ we can construct a 
@@ -901,7 +857,7 @@ We illustrate the distinguisher in \Cref{fig:distinguisher}.
 Finally, using what we proved before, we show that the distinguisher $\mathcal D^{\PSPACE, \O_1, \O_2}$ has non-negligible advantage 
 in the pseudorandomness game against $\BBComb{VRF}[\O_1, \O_2]$. We state this result formally in the final claim.
 
-\begin{claim}
+\begin{claim}\label{claim:advantage_distinguisher}
 	The advantage of the adversary $(\mathcal D_1^{\PSPACE, \O_1, \O_2}, \mathcal D_2^{\PSPACE, \O_1, \O_2})$
 	in the pseudorandomness game against the combiner $\BBComb{VRF}[\O_1, \O_2]$ is
 	overwhelming, i.e.
@@ -910,6 +866,10 @@ in the pseudorandomness game against $\BBComb{VRF}[\O_1, \O_2]$. We state this r
 		\Adv{VRF}{prf}{\mathcal A, \lambda} \ge 1 - 3\err_{VRF,mix}^{prf}
 	\]
 \end{claim}
+
+\begin{proof}[\Cref{claim:advantage_distinguisher}]
+	The claim is established by applying the claims proven before.\todo{lots of arguing to do}
+\end{proof}
 
 While robust $(2;1)$ black-box combiners are generally sufficient to construct robust $(n;1)$ black-box combiners,
 non-existence of a robust $(2;1)$ black-box combiner 
@@ -1111,18 +1071,8 @@ properties of the combiner are impossibile and the combiners on VRFs with guaran
 are easy we want to strengthen the result by considering combiners for VRFs (assuming all candidates are 
 uniquely provable) with advanced additional properties, namely constrainability as in \Cref{def:constrainableVRF}, key-homomorphism as in \Cref{def:keyhom},
 aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}.
-
-Finally we want to mention that more advanced notions of VRF such as constrainable VRFs \cite{}
-which additionally allow the constraining of secret key to a specific subset of evaluation points.
-Key-homomorphic VRFs \cite{} satisfy that the secret key space $\SK$ and image-proof space $\Y \times \P$
-admit algebraic group structures $(\SK, \circledast_\SK)$ and $(\Y \times \P, \circledast_{\Y \times \P})$
-and $\alg{Eval}{VRF}(\cdot, x)$ admits a group homomorphism for any $x \in \bin^\lambda$.
-Aggregable VRFs \cite{} additionally implement algorithms to aggregate many public keys and corresponding 
-image-proof pairs into a single image-proof pair, requiring that in addition to the existing properties of the VRF 
-the aggregated input is pseudorandom and statistically binding.
-Finally unbiasable VRFs \cite{} are VRFs which additionally protect from adversaries skewing the output distribution 
-of the VRF by maliciously crafting public keys.
-We show that under the assumption of uniquely provable and perfectly correct candidates all of those advanced notions admit robust $(2;1)$ black-box combiners.
+In the section \todo{} in the appendix we extend the combiner in \Cref{fig:vrf_comb}
+to those notions except for unbiasability.
 \begin{comment}
 For the notions of constrainability, key-homomorphism and aggregability this question is quckly answered 
 as we we show how the above construction of extended PRF combiner 
