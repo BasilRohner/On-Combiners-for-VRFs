@@ -477,13 +477,13 @@ sampled with both keys. Formally we define the relations $\sim_\SK, \sim_\PK$ as
 			(\sk_1, \pk) &\sample \alg{Gen}{VRF}(1^\lambda) \; \land\\
 			(\sk_2, \pk) &\sample \alg{Gen}{VRF}(1^\lambda)
 		\end{aligned}
-	} > 0\\ 
+	} > 0 \label{eq:sim_sk}\\ 
 	\pk_1 \sim_\PK \pk_2 &\iff \exists \sk \in \SK, \Prob*{
 		\begin{aligned}
 			(\sk, \pk_1) &\sample \alg{Gen}{VRF}(1^\lambda) \; \land\\
 			(\sk, \pk_2) &\sample \alg{Gen}{VRF}(1^\lambda)
 		\end{aligned}
-	} > 0
+	} > 0 \label{eq:sim_pk}
 \end{align}
 We now consider the transitive closure of those relations $\sim_\SK^*, \sim_\PK^*$,
 formally defined by $\sim^* = \bigcup_{k \in \N} \sim^k$. The resulting relations 
@@ -494,12 +494,12 @@ We claim that keys related with the corresponding relation $\sim^*$
 must induce the same mapping on their function. We formalize this observation in the following claim.
 
 \begin{claim}
-	Let $\sk \in \SK$ and $\pk \in \PK$ be arbitrary, then the following holds: \todo{unsure}
-	\begin{align}
-		&\forall \sk' \in [\sk]_{\sim_\SK^*}, \alg{Eval}{VRF}^y(\sk, \cdot) = \alg{Eval}{VRF}^y(\sk', \cdot)\\ 
-		&\forall \pk' \in [\pk]_{\sim_\PK^*}, \alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \alg{Vfy}{VRF}(\pk', \cdot, \cdot, \cdot)
-	\end{align}
+	The relations $\sim_\SK^*$ and $\sim_\PK^*$ defined in $\eqref{eq:sim_sk}$ and $\eqref{eq:sim_pk}$
+	respectively are equivalence relations, i.e. reflexive, symmetric and transitive.
 \end{claim}
+
+The relation $\sim_\SK, \sim_\PK$ are both reflexive and symmetric which is easy to see from their definition.
+Further the transitive closure of a reflexive and symmetric relation is always an equivalence relation.
 
 Additionally, for secret and public keys we define the function $R_\SK$ and $R_\PK$
 respectively as follows. $R$ maps a key to all counterparts with are sampled with that key 
@@ -508,7 +508,7 @@ with non-negligible probability.
 	R_\PK(\pk) &= \Brace*{\sk\in\SK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}\\ 
 	R_\SK(\sk) &= \Brace*{\pk\in\PK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}
 \end{align}
-Finally we define the notion of the closure of a set.
+Next we define the notion of the closure of a set.
 Given a subset of secret $\widetilde\SK$ or public keys $\widetilde\PK$ we define its closure 
 $\closure_\SK(\widetilde\SK)$ and $\closure_\PK(\widetilde\PK)$ which are just the union over the equivalence classes 
 of all keys in the subsets. We formally define the functions as follows:
@@ -516,48 +516,35 @@ of all keys in the subsets. We formally define the functions as follows:
 	\closure_\SK(\widetilde\SK) &= \bigcup_{\widetilde \sk \in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}\\ 
 	\closure_\PK(\widetilde\PK) &= \bigcup_{\widetilde \pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*} 
 \end{align}
-The closure is the set of all keys that need to be adapted \todo{CONTINUE HERE}
-We now define the oracle $\O_{mix}$ using the following implementation functions for its corresponding
-key generation function $\O_{mix}.\alg{Gen}{VRF}(1^\lambda)$, its evaluation function $\O_{mix}.\alg{Eval}{VRF}(\sk, x)$
-and its verification function $\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi)$ for that we first define the set of secret and public keys 
-$\SK_{map}$ and $\PK_{map}$ respectively on which we need to remap $\O_{\VRF}$.
+Observe that the secret key closure $\closure_\SK(\widetilde\SK)$ for a subset $\widetilde\SK \subseteq \SK$
+is the set of secret keys that need to be remapped if we want to remap all of the evaluations on the 
+secret keys $\widetilde\SK$ to preserve unique provability and correctness. The same holds for the public key closure.
+Now we define the closure for subsets $\widetilde\SK \subseteq \SK$ and $\widetilde\PK \subseteq \PK$
+at the same time.
 \begin{align}
-	\SK_{map} &:= \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim^*_\SK} \cup \bigcup_{\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim^*_\PK}} R_{\PK}(\widehat\pk)\\ 
-	\PK_{map} &:= \bigcup_{\widetilde\pk\in\widetilde\PK}[\widetilde\pk]_{\sim_\PK^*} \cup \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk\in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}} R_{\SK}(\widehat\sk)
+	\closure_\SK(\widetilde\SK,\widetilde\PK) &= \closure_\SK(\widetilde\SK) \cup \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)\\ 
+	\closure_\PK(\widetilde\SK, \widetilde\PK) &= \closure_\PK(\widetilde\PK) \cup \bigcup_{\widetilde\sk \in \closure_\SK(\widetilde\SK)} R_\SK(\widetilde\sk) 
 \end{align}
-Now we define $\O_{mix}$ generation to simply be the VRF oracle key generation, 
-we define the evaluation of $\O_{mix}$ to interpolate between the evaluation of 
-$\O_{\VRF}$ and $\O_{up}$ based on whether the secret key is in $\SK_{mix}$
-and finally we define the verification of $\O_{mix}$ to interpolate between the verification 
-functions of $\O_{\VRF}$ and $\O_{up}$ based on whether the public key is in $\PK_{mix}$.
-We show the oracle in \Cref{fig:oracle_mix}.
+We now constuct an oracle $\widetilde\O_{up}$ that interpolates between $\O_{up}$ and $\O_\VRF$.
+To be precise we define all of the algorithms of $\widetilde\O_{up}$:
+The key generation algorithm is defined to be the function for key generation of 
+$\O_\VRF$ while the function for evaluation and verification are defined as follows.
 \begin{align}
-	\O_{mix}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
-		\O_{up}.\alg{Eval}{VRF}(\sk, x) & \text{if } \sk \in \SK_{map}\\ 
+	\widetilde\O_{up}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
+		\O_{up}.\alg{Eval}{VRF}(\sk, x) & \text{if } \sk \in \closure_\SK(\widetilde\SK,\widetilde\PK)\\ 
 		\O_{\VRF}.\alg{Eval}{VRF}(\sk, x) & \text{otherwise}
 	\end{cases}\\ 
-	\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y, \pi) &= \begin{cases}
-		\O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{if } \pk \in \PK_{map}\\  
+	\widetilde\O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) &= \begin{cases}
+		\O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{if } \pk \in \closure_\PK(\widetilde\SK,\widetilde\PK)\\  
 		\O_{\VRF}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{otherwise}
 	\end{cases}
 \end{align}
-We first show that $\O_{mix}$ is uniquely provable and perfectly correct. 
-To this end we show that if $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$
-then we have $\sk \in \SK_{map} \iff \pk \in \PK_{map}$. To show one direction 
-let $\sk \in \SK_{map}$ be arbitrary, we have by definition of we have either
-of the following two cases:
-
-\[
-	\sk \in \bigcup_{\widetilde\sk \in \widetilde\SK}[\widetilde\sk]_{\sim^*_\SK}  \lor
-	\sk \in \bigcup_{\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim^*_\PK}} R_{\PK}(\widehat\pk)
-\]
-In the first case there exists we have that $\smash{\pk \in \bigcup_{\widehat\sk \in \bigcup_{\widetilde\sk\in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}} R_{\SK}(\widehat\sk)}$\todo{maybe not smash this}
-by definition of $R_\SK(\widehat\sk)$ and therefore also $\pk \in \PK_{map}$.
-For the other side assume $\pk \in \PK_{map}$ then the symmetric argument holds.
-In the second case there exists a $\widehat\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\SK^*}$
-such that $\sk$ may be sampled with $\widehat \pk$, since for this $\widehat\pk$
-it holds that $\pk \sim_\PK^* \widehat\pk$ by definition of $\sim_\PK^*$ it must holds that also $\pk \in \bigcup_{\widetilde\pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*}$
-and therefore also $\pk \in \PK_{map}$.
+Note that the properties $1.$ and $2.$ of \Cref{lemma:vrfification} hold by definition of the oracle
+since by reflexivity of $\sim_\SK^*$ and $\sim_\PK^*$ we have 
+$\widetilde\SK \subseteq \closure_\SK(\widetilde\SK,\widetilde\PK)$ 
+and $\widetilde\PK \subseteq \closure_\PK(\widetilde\SK,\widetilde\PK)$.
+We show that $3.$ holds by showing the $\widetilde\O_{up}$ is uniquely provable and perfectly correct 
+and pseudorandom seperately.
 
 \begin{claim}\label{claim:vrfification_pc_up}
 	Let $\O_{up}, \O_{vrf}$ be oracles implementing a uniquely provable VF in the sense of \Cref{def:unique_provability}
@@ -625,40 +612,48 @@ We use $H_i^{prf}(\lambda, \A) = 1$ to denote the event that adversary $\A$ wins
 	&+\abs*{\Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}\\ 
 	&\le \err_{VRF, mix}^{prf} + \abs*{\Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}
 \end{align}
-Let $\mathcal E$ be the event that $\sk \in \SK_{map}$ for $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$ then:
-\begin{align}
-	\Prob*{H_2^{prf} \land \lnot \mathcal E} &= \Prob*{H_2^{prf} \mid \lnot \mathcal E} \Prob*{\lnot \mathcal E}\\ 
-	&= \Prob*{H_1^{prf} \mid\lnot \mathcal E} \Prob*{\lnot\mathcal E}\\ 
-	&= \Prob*{H_1^{prf} \land\lnot \mathcal E}
-\end{align}
-By the difference lemma $|\Prob{H_1^{prf} \land \lnot \mathcal E} - \Prob{H_2^{prf} \land \lnot \mathcal E}| \le \Prob{\mathcal E}$,
-since the difference lemma is folklore, we present the proof in the appendix.
-
+Let $\E$ be the event that $\sk \in \SK_{map}$ for $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$.
+Observe that the games $H_2, H_1$ are identical if the event $\E$ doesn't occur.
+The difference lemma is a classical result in cryptography and states that the difference in probability of 
+an event happening can be bounded from above by the probability of a "bad" event happening conditioned on which 
+the previous two events have the same probability of happening.
+For completeness we state the result but defer the proof to the appendix.
 \begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
-	
+	let $W_0,W_1$ and $B$ be events satisfying:
+	\[
+		\Prob*{W_0 \mid \lnot B} = \Prob*{W_1 \mid \lnot B} 
+	\]
+	Then we can impose the following bound:
+	\[
+		\abs*{\Prob*{W_0} - \Prob*{W_1}} \le \Prob*{B}
+	\]	
 \end{lemma}
-
+By the above observation we can therefore bound the difference in probability over the two games 
+by the probability of event $\E$ occuring. Applying a union bound and the definition of the joint closure
+we then arrive at the following bound of the adversary $\A$'s advantage.
 \begin{align}
-	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \SK_{map}}\\
-	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure(\widetilde\SK)}\\
-	&+ \Prob*{\sk \in \bigcup_{\widehat\pk \in \closure(\widetilde\PK)} R_\PK(\widehat\pk)} \\
-	&\le 3\err_{VRF, mix}^{prf} 
+	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure_\SK(\widetilde\SK,\widetilde\PK)}\\
+	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure_\SK(\widetilde\SK)}\\
+	&\quad + \Prob*{\sk \in \bigcup_{\widehat\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widehat\pk)} \\
+	&\le \err_{\VRF}^{prf} + |\widetilde\SK|\err_\VRF^{prf} + |\widetilde\PK| \err_\VRF^{prf}
 \end{align}
-We show that the probability of $\sk \in \closure(\widetilde\SK)$ and $\sk \in \bigcup_{\widehat\pk\in \closure(\widetilde\PK)} R_\PK(\widehat\pk)$
-is bounded from above by $\err_{VRF, mix}^{prf}$. Specifically we show that if either of those events occur, there exists an adversary 
-$\A$ against pseudorandomness of the VRF secure oracle $\O_{vrf}$ with non-negligible advantage.
-Assume that \todo{formalize bound argument} 
+We bound the probabilities and arrive at the final bound we show that if the probability were non-negligible 
+an adversary would win the pseudorandomness security experiment against $\O_\VRF$ with non-negligible advantage,
+which is a contradiction since we assume $\O_\VRF$ to be pseudorandom.
+For the subsequent proofs keep in mind that the probabilities are over the randomly sampled 
+secret key. We consider both probabilities seperately, 
 
-Where $\mu_1, \mu_2 \in \negl$. To show that this use that $|\widetilde\SK|, |\widetilde\PK| \in \poly$, first for
-$\mu_1$ assume that $\mu_1 \in \poly$, then an adversary could simply sample a secret key $\sk' \in \widetilde\SK$, since 
-$\sk$ is in an equivalence class of an element of $\widetilde\SK$ we hit that with proabbility at least $1/|\widetilde\SK|$ and then 
-we win the game with probability at least $1/p(\lambda)|\widetilde\SK|$, hence $\O_{\VRF}$ would not be prf secure, 
-a contradiction. For $\mu_2$ if the secret key being sampled according to $\O_\VRF.\alg{Gen}{VRF}$ is in this set with significant probability,
-then we can just simply resample to obtain another key with significant probability.
-Note that due to the polynomial bound on public key-equivalence classes we only have a polynomial number of 
-different evaluations induced by all secret keys in here. \todo{formulate out}
+For the bound on $\Prob{\sk \in \closure_\SK(\widetilde\SK)}$ note that for any value of $x$ 
+the set of possible images is given by $\{y \sample \O_{up}.\alg{Eval}{VRF}(\widetilde\sk,x) : \widetilde\sk \in \widetilde\SK\}$
+which is bounded in cardinality from above by $\widetilde\SK$. Recall that $|\widetilde\SK| \in \poly$. Conditioned on the event
+that $\sk \in \closure_\SK(\widetilde\SK)$ there exists an adversary $\A$ with advantage at least $1/|\widetilde\SK|$.
+Hence we can bound $\Prob{\sk \in \closure_\SK(\widetilde\SK)}$ from above by $\err_{VRF,mix}^{prf}|\widetilde\SK|$.
+
+For the bound on $\Prob{\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)}$ by a similar argument 
+the mappings also correspond to elements of $\widetilde\PK$. Again, following this line of argument we condition on the event that 
+$\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)$ and find an adversary with advantage bounded from below by 
+$1/|\widetilde\PK|$. We obtain the bound on the probability of $\err_{\VRF}^{prf}|\widetilde\PK|$.
 \end{proof}
-
 
 Using this result we claim that for a fixed oracle $\O_i$ and any subset of queries 
 made during the evaluation algorithm which are not reflected in the trace of the verification execution, we call such 
