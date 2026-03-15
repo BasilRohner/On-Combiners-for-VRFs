@@ -438,15 +438,14 @@ $\sim_\SK^*,\sim_\PK^*$ are equivalence relations. Given an element $\sk$
 we denote its equivalence class under $\sim_\SK^*$ with $[\sk]_{\sim_\SK^*} = \Brace{\sk' \in \SK : \sk' \sim_\SK^* \sk}$,
 similarly for an element $\pk$ and the relation $\sim_\PK^*$.
 We claim that keys related with the corresponding relation $\sim^*$
-must induce the same mapping on their function. We formalize this observation in the following claim.
+must induce the same mapping on their function. We formalize this observation in the following claim,
+since its easy to see that it holds we defer the proof to the appendix.
 
 \begin{claim}
 	The relations $\sim_\SK^*$ and $\sim_\PK^*$ defined in $\eqref{eq:sim_sk}$ and $\eqref{eq:sim_pk}$
 	respectively are equivalence relations, i.e. reflexive, symmetric and transitive.
 \end{claim}
-
-The relation $\sim_\SK, \sim_\PK$ are both reflexive and symmetric which is easy to see from their definition.
-Further the transitive closure of a reflexive and symmetric relation is always an equivalence relation.
+\todo{no guarantee on reflexivity, even needed?}
 
 Additionally, for secret and public keys we define the function $R_\SK$ and $R_\PK$
 respectively as follows. $R$ maps a key to all counterparts with are sampled with that key 
@@ -916,7 +915,9 @@ probability that the combiner is correct on all evaluations $x$ sampled during t
 \begin{proof}[\Cref{thm:main}]
 	Again we fix a robust $(2;1)$ black-box VRF-combiner $\BBComb{VRF}$ that is only $\err$-correct for some $\err \in \negl$.
 	Let $\E$ be the event that under the true secret key $\sk^*$ the combiner is not correct on at least one 
-	evaluation point $x_i$.
+	evaluation point $x_i$. We now redo the analysis of the adversary in the proof of
+	\Cref{thm:impossibility_21_comb}, specifically \Cref{claim:advantage_distinguisher}. Additionally we now 
+	condition on the event $\E$, to obtain the following bound. \todo{todo}
 \end{proof}
 
 
@@ -1039,7 +1040,7 @@ of every candidate with advantage $\err_i$. The reduction $\mathcal R_i$ simulat
 and uses adversary $\A$ to break that one candidate. We show the reduction $\mathcal R_i$
 in \Cref{fig:reduction}.
 
-\begin{figure}[hptb]
+\begin{figure}[htbp]
 	\centering 
 	\begin{pcvstack}[space=1em]
 		\procedure[linenumbering]
@@ -1048,22 +1049,21 @@ in \Cref{fig:reduction}.
 			b \sample \bin\\
 			(\sk_{1-i}, \pk_{1-i}) \sample \O_{eval,1-i}^{prf}.\alg{Gen}{VRF}(1^\lambda)\\
 			\sk \gets (\sk_0, \sk_1)\\ 
-			\pk \gets (\pk_0, \pk_1)\\ 
+			\pk \gets (\pk_0, \pk_1)
 		}
 	\end{pcvstack}
 	\caption{Reduction.}
 	\label{fig:reduction}
 \end{figure}
 
+The reduction works as follows: We \todo{describe reduction here}
+
+The runtime of the reduction is given by \todo{todo}
+
+The advantage of the reduction is given by \todo{todo}
+
 \todo{finish the reduction}
 
-Having shown that general notion of combiners on VRFs even with relaxed requirements on the security 
-properties of the combiner are impossibile and the combiners on VRFs with guaranteed unique provability 
-are easy we want to strengthen the result by considering combiners for VRFs (assuming all candidates are 
-uniquely provable) with advanced additional properties, namely constrainability as in \Cref{def:constrainableVRF}, key-homomorphism as in \Cref{def:keyhom},
-aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}.
-In the section \todo{} in the appendix we extend the combiner in \Cref{fig:vrf_comb}
-to those notions except for unbiasability.
 \begin{comment}
 For the notions of constrainability, key-homomorphism and aggregability this question is quckly answered 
 as we we show how the above construction of extended PRF combiner 
@@ -1136,3 +1136,11 @@ naturally we wonder whether an impossibility can be shown for robust $(n;n-1)$ b
 which eliminates the possibility of combining VRFs if even one candidate is not guaranteed to be secure.
 We believe this statement to be true. Additionally it would be interesting to study how to strongly combine 
 the notion of unbiasable VRFs, another advanced notion of VRFs introduced in \cite{}.
+
+Having shown that general notion of combiners on VRFs even with relaxed requirements on the security 
+properties of the combiner are impossibile and the combiners on VRFs with guaranteed unique provability 
+are easy we want to strengthen the result by considering combiners for VRFs (assuming all candidates are 
+uniquely provable) with advanced additional properties, namely constrainability as in \Cref{def:constrainableVRF}, key-homomorphism as in \Cref{def:keyhom},
+aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}.
+In the section \todo{} in the appendix we extend the combiner in \Cref{fig:vrf_comb}
+to those notions except for unbiasability.
