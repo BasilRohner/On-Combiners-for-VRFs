@@ -280,6 +280,44 @@ agreeing with the evaluation under $\sk^*$. In this case the adversary proceeds 
 from $\SK_{cand}$ uniformly at random and checks whether the challenge image $y^*$ agrees with the evaluation of the challenge pre-image $x^*$
 under $\sk_{cand}$.
 
+% polish from here on
+
+We now describe the construction of $\alg{EvalSim}{VRF}$ algorithm. The algorithm simulates the 
+execution of $\BBComb{VRF}[\O_1, \O_2]$ by traversing the vertices in a fixed topological ordering
+and evaluting the Turing machines $f_{\alg{Eval}{VRF}}^v$. 
+We will later w.l.o.g. initialize the candidate $\O_1$ with the trivial, uniquely provable and perfectly correct 
+oracle that returns a fixed secret-public key pair for every query to its key generation algorithm,
+answeres with $y^* \in \Y$ for any evaluation query and verifies an image-proof pair if and only if $y = y^*$.
+Therefore $\alg{EvalSim}{VRF}$ can easily answer all of the queries made to $\O_1$.
+For queries made to $\O_2$ we distinguish two cases, either the exact query is repeated in the trace $\tau_i$,
+we call it \textit{exposed}, or not, then we call it \textit{obscure}.
+
+The only queries that $\alg{EvalSim}{VRF}$ cannot answer perfectly are the obscure queries to $\O_2$.
+As we will however show, the output of those queries can not change the combiner output if the secret key
+queried is the games secret key $\sk^*$. Assuming this fact for now we define $\alg{EvalSim}{VRF}$
+to branch for every possible output of the oracle on obscure vertices of $\O_2$ and simulating all other oracle 
+queries perfectly using either the transcript $\tau_i$ or fixed values for $\O_1$. In the end $\alg{EvalSim}{VRF}$
+returns $\top$ if and only if all resulting images are $y_i$.
+
+That $\alg{EvalSim}{VRF}$ satisfies the listed properties is evident. By definition it makes no oracle queries,
+as argued the different assignments for obscure queries to $\O_2$ don't change the image for the games secret key $\sk^*$
+and if for some $\sk$ the image would not be $y_i$ then for at least some assignment of the obscure vertices we 
+match the oracle queries in the evaluation algorithm exactly and also produce an image differing form $y_i$.
+We show pseudocode for $\alg{EvalSim}{VRF}$ in \Cref{fig:eval_sim}.
+
+Finally we need to establish the claim of the irrelevance of the oracles used to construction $\alg{EvalSim}{VRF}$.
+Assume towards a contradiction that for some assignment of the obscure oracle query responses the combiner output 
+changes from $y$ to $\hat y$. As we will show in the formal proof (but not here as to keep the argument simple),
+we can remap the candidate $\O_1$ to obtain an oracle $\widehat\O_1$ such that $\widehat\O_1$
+evaluates to the same outputs for all points relevant for this execution. By changing $\O_1$ to $\widehat\O_1$
+the combiner execution is unaffected, but since $\O_1$ is now a secure VRF we can modify $\O_2$
+on exactly those obscure queries to the assignment resulting in a different output.
+While this breaks $\O_2$'s unique provability and perfect correctness, we also break the combiners unique provability 
+since the changed queries are obscured and therefore not checked by the combiners verification algorithm.
+We show the description of the full adversary $\A$ in \Cref{fig:distinguisher}.
+
+% this was not replaced below
+
 Now onto the construction of the $\alg{EvalSim}{VRF}$ algorithm. The algorithm works as follows: 
 Simulate the execution of the combiners evaluation algorithm until we encounter the first oracle query.
 For the oracle query we check if it is repeated in the corresponding trace $\tau_i$,
@@ -293,7 +331,7 @@ the other oracle $\O_2$ with a secure VRF. We argue that the two properties are 
 
 The specific construction of $\alg{EvalSim}{VRF}$ is illustrated in \Cref{fig:todo}.
 Its easy to see that the first and the third property holds.
-By construction we don't make any queries to oracles and 
+By construction, we don't make any queries to oracles and 
 by iterating over all possible (correctly formed outputs) of the oracles
 for all hidden vertices and answering honestly for all visible vertices one 
 of the executions that we enumerate corresponds exactly to the execution of 
@@ -314,9 +352,6 @@ of every specific oracle is only queried on an input once, we elaborate on that 
 Finally we now produce two different oracles $\hat\O_1, \tilde\O_1$ such that they produce different outputs 
 $\hat y \neq \tilde y$ but for the oracles the verification algorithm needs to be semantically equivalent.
 This results in the combiner either not being uniquely provable or perfectly correct. 
-
-We show the description of the full adversary $\A$ in \Cref{fig:distinguisher}.
-
 
 \paragraph{Proof of \Cref{thm:impossibility_21_comb}.}
 Let $\BBComb{VRF}$ be an arbitrary robust $(2;1)$ black-box DAG combiner for the VRF primitive.
