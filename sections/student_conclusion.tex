@@ -2,31 +2,25 @@
 \chapter{Conclusion}
 \label{ch:conclusion}
 
-There are different ways to combine VRFs, for both unique provability and key-homomorphism 
-they cannot be combined in a black-box fashion if we want to preserve properties such as 
-unpredictability and therefore also randomness. On the other hand we manage to construct a 
-robust black-box combiner that combines unbiasabile VRFs under guaranteed unique provability 
-for all candidates. We find that the black-box combination of information theoretic properties 
-generally seems hard if other properties such as unpredictability need to be preserved. 
-While the class of all robust black-box combiners initially seems to be very broad we show that 
-we can capture all polynomially bounded combiners using the notion of a robust black-box DAG combiner,
-which allows a more systematic analysis of possible constructions by abstracting a graph structure 
-in the computation executed by the implemented algorithms. We have not considered 
-possible combiner constructions for stronger relaxations, such as computational unique provability 
-or correctness with error, this is mainly because the resulting construction only offer weak 
-guarantees that are insufficient for practical applications.
+We introduced robust black-box DAG combiners that make the structure of robust black-box combiners 
+more explicit while capturing the same set of constructions. Subsequently we answered the question 
+whether there exist robust $(2;1)$ black-box VRF-combiner negatively.
+The result implies an impossibility result on the family of robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiners 
+placing a lower bound on the number of secure instances needed to combine VRFs in a robust way.
+
+On the other hand we show that if we strengthen the assumptions on the candidate schemes, specifically
+by requiring all of them to be uniquely provable and perfectly correct, then VRF admit simple combiner
+similar to the known PRF combiners.
 
 \paragraph{Extensions.}
-We show that there exists no robust $(n;\lfloor n/2\rfloor)$ black-box combiner for the VRF primitive,
-naturally we wonder whether an impossibility can be shown for robust $(n;n-1)$ black-box VRF-combiners
-which eliminates the possibility of combining VRFs if even one candidate is not guaranteed to be secure.
-We believe this statement to be true. Additionally it would be interesting to study how to strongly combine 
-the notion of unbiasable VRFs, another advanced notion of VRFs introduced in \cite{}.
+While we strongly believe robust $(n;n-1)$ black-box VRF-combiner to be impossible, extending the proof 
+for the impossibility of robust $(2;1)$ black-box VRF-combiners to the more general case seems difficult.
+We pose this question as a conjecture.
 
-Having shown that general notion of combiners on VRFs even with relaxed requirements on the security 
-properties of the combiner are impossibile and the combiners on VRFs with guaranteed unique provability 
-are easy we want to strengthen the result by considering combiners for VRFs (assuming all candidates are 
-uniquely provable) with advanced additional properties, namely constrainability as in \Cref{def:constrainableVRF}, key-homomorphism as in \Cref{def:keyhom},
-aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}.
-In the section \todo{} in the appendix we extend the combiner in \Cref{fig:vrf_comb}
-to those notions except for unbiasability.
+Additionally, it is natural to think about weaker relaxations of robust black-box VRF-combiners that circumvent the impossibility 
+result than the one we presented. For instance, it is interesting to study the possibility of combining VRFs if the combiner only needs to satisfy statistical correctness.
+
+Finally, even for the strong relaxation of VRF-combiners that admit simple XOR combiner it is intersting to study 
+relaxed robust black-box combiners for more advanced notions of VRFs such as 
+constrainable VRFs \cite{}, key-homomorphic VRFs \cite{},
+aggregable VRFs \cite{} and unbiasable VRFs \cite{}.

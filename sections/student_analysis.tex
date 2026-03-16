@@ -1145,39 +1145,66 @@ We believe that its easy to see that the claim holds and therefore defer the pro
 \todo{from here}
 
 \begin{claim}
-	The combiner in \Cref{fig:vrf_comb} is $\errtime$-pseudorandom in the sense of \Cref{def:pseudorandomness} if at least one candidates 
-	are $\errtime$-pseudorandom. In particular if at least one candidate is pseudorandom then the combiner 
+	The combiner in \Cref{fig:vrf_comb} is $\errtime[prf][comb]$-pseudorandom in the sense of \Cref{def:pseudorandomness} if at least one candidate 
+	are $\errtime[prf][i]$-pseudorandom. In particular if at least one candidate is pseudorandom then the combiner 
 	is pseudorandom.
 \end{claim}
+
 
 Assume, towards a contradiction, that there exists an adversary $\A$ running in time $t$ that breaks 
 pseudorandomness of the combiner $\BBComb{VRF}[\O_1, \O_2]$ with advantage $\err$, we show that 
 we can construct an adversary $\mathcal R_i$ running in time $t_i$ that wins the prf security experiment 
-of every candidate with advantage $\err_i$. The reduction $\mathcal R_i$ simulates all the remaining candidates queries
+of the $i$'th candidate $\O_i$ with advantage $\err_i$ for $i \in [2]$. The reduction $\mathcal R_i$ samples it own 
+secret key for candidate $\O_{2-i}$ and uses $\O_{eval}$ for candidate $\O_{i}$ simulate the combiner 
+in the prf security experiment for the adversary $\A$. $\A$ then makes a prediction for the hidden bit. 
+If the hidden bit of the challenger is $0$ then $\A$ is simulated perfectly in the sense that the queries are answered exactly 
+as they would have been answered in the combiners prf security experiment. In that case $\R_i$ wins the experiment if and only if 
+$\A$ wins. If $b = 1$ the output of $\O_{eval}$ is a uniformly random element in the image co-domain and therefore the queries made by $\A$
+are also answered with a uniformly random element in the co-domain.
+Also in this case $\A$ is simulated perfectly. 
 and uses adversary $\A$ to break that one candidate. We show the reduction $\mathcal R_i$
 in \Cref{fig:reduction}.
 
 \begin{figure}[htbp]
 	\centering 
-	\begin{pcvstack}[space=1em]
+	\begin{pchstack}[space=1em]
 		\procedure[linenumbering]
-		{Reduction $\mathcal R_i^{\O_{eval,i}^{prf}}(\pk_{i})$}
+		{Reduction $\mathcal R_i^{{\O_{i_{eval}}}}(\pk_{i})$}
 		{
 			b \sample \bin\\
-			(\sk_{1-i}, \pk_{1-i}) \sample \O_{eval,1-i}^{prf}.\alg{Gen}{VRF}(1^\lambda)\\
-			\sk \gets (\sk_0, \sk_1)\\ 
-			\pk \gets (\pk_0, \pk_1)
+			(\sk_{2-i}, \pk_{2-i}) \sample \O_{eval,2-i}.\alg{Gen}{VRF}(1^\lambda)\\
+			\sk \gets (\sk_1, \sk_2)\\ 
+			\pk \gets (\pk_1, \pk_2)\\ 
+			S \gets \varnothing\\ 
+			(\sigma, x^*) \sample \A^{\O_{comb_{eval}}}(\pk_1, \pk_2)\\ 
+			y_1 \sample \Y\\
+			b' \sample \A(1^\lambda, x^*, \sigma, y_b)\\
+			\pcreturn b = b' \land x^* \notin S
 		}
-	\end{pcvstack}
+		\procedure[linenumbering]
+		{Oracle ${\O_{comb_{eval}}}(x)$}
+		{
+			S \gets S \cup \{x\}\\ 
+			(y_i, \pi_i) \gets \O_{i_{eval}}(x)\\ 
+			(y_{2-i}, \pi_{2-i}) \gets \O_{{2-i}}.\alg{Eval}{VRF}(\sk_{2-i}, x)\\ 
+			y \gets y_1 \xor y_2\\ 
+			\pi \gets (y_1, \pi_1, y_2, \pi_2)\\ 
+			\pcreturn (y,\pi)
+		}
+	\end{pchstack}
 	\caption{Reduction.}
 	\label{fig:reduction}
 \end{figure}
 
-The reduction works as follows: We \todo{describe reduction here}
+The reduction $\mathcal R_i$ makes as many queries to its evaluation oracle $\O_{i_{eval}}$ as $\A$ does to its evaluation oracle $\O_{comb_{eval}}$
+and makes additionally as many queries to the oracle $\O_{2-i}$. Besides the oracle queries every computation performed by $\mathcal R_i$
+is efficiently computable. Since we assume $\A$ to be efficient (ppt.) the reduction $\mathcal R_i$ msut also be efficient (ppt.).
 
-The runtime of the reduction is given by \todo{todo}
-
-The advantage of the reduction is given by \todo{todo}
+The advantage of the reduction $\mathcal R_i$ in the prf security experiment against candidate $\O_i$ can be bounded from below as follows.
+\begin{align}
+	\Adv{i}{prf}{\lambda, \mathcal R_i} 
+	&=
+\end{align}
 
 \todo{finish the reduction}
 
