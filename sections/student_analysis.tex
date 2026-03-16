@@ -758,18 +758,18 @@ and the trace of the combiners verification algorithm on $(x_i, y_i, \pi_i)$. Th
 \[
 	\SK_{cand}(x_i,y_i,\pi_i,\tau_i) := \{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i)\}
 \]
-We claim that after filtering for $s(\lambda) + 2\lambda$ rounds, 
+We claim that after filtering for $s(\lambda) + \lambda$ rounds, 
 the probability that a remaining candidate key $\sk_{cand}$ sampled u.a.r. from the set 
 of remaining candidate keys evaluates a uniformly random evaluation point $x^* \in \bin^*$
 to the same image $y^*$ as the games secret key $\sk^*$ does is non-negligible.
 
 \begin{claim}\label{claim:candidate_likely_good}
-Let $\SK_{cand}$ be defined as above and let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + 2\lambda]}}$ 
+Let $\SK_{cand}$ be defined as above and let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + \lambda]}}$ 
 then we have for any $\sk^*$ sampled u.a.r. from the set of filtered candidate keys, i.e.
 \[
-	\sk^* \sample \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
+	\sk^* \sample \bigcap_{i \in [s(\lambda) + \lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
 \]
-that the probability of a uniformly random challenge pre-image $x^* \in \bin^\lambda \setminus \{x_1, \ldots, x_{s(\lambda) + 2\lambda}\}$
+that the probability of a uniformly random challenge pre-image $x^* \in \bin^\lambda \setminus \{x_1, \ldots, x_{s(\lambda) + \lambda}\}$
 the black-box combiner instanciated with the oracles $\O_{vrf}, \O_{uppc}$ evaluates to the same image $y^*$
 as for the secret key $\sk^*$ is non-negligible, i.e.
 \[
@@ -792,81 +792,125 @@ For $p$ a polynomial in $\lambda$.
 	\[
 		\Prob*{\sk \in \SK_{cand}(x,y,\pi,\tau)} = \frac{\X(\sk)}{2^\lambda}
 	\]
-	We can bound the expected number of unfavorable secret keys that survive $s(\lambda) + 2\lambda$
-	rounds of secret key filtering over the randomness of $x_1, \ldots, x_{s(\lambda) + 2\lambda}$.
+	We can bound the expected number of unfavorable secret keys that survive $s(\lambda) + \lambda$
+	rounds of secret key filtering over the randomness of $x_1, \ldots, x_{s(\lambda) + \lambda}$.
 	We use $\mathbf 1_\E$ to denote the random indicator variable for the event $\E$.
 	\begin{align}
 		&\Expect*{\abs*{
-			\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
+			\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + \lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
 		}} \\
 		=& \Expect*{
-			\sum_{\sk_{unfav} \in \SK_{unfav}} \mathbf 1_{\sk_{unfav} \in \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}
+			\sum_{\sk_{unfav} \in \SK_{unfav}} \mathbf 1_{\sk_{unfav} \in \bigcap_{i \in [s(\lambda) + \lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}
 		}\\ 
-		=&\sum_{\sk_{unvaf} \in \SK_{unfav}} \Prob*{\sk_{unfav} \in \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \label{eq:int_1}\\[.5em] % this was just bothering me 
-		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + 2\lambda]} \Prob*{\sk_{unfav} \in \SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \label{eq:int_2}\\
-		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + 2\lambda]} \frac{\X(\sk_{unfav})}{2^\lambda} \label{eq:int_3}\\ 
-		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + 2\lambda]} \frac{1}{2}\\ 
-		\le &\frac{1}{2^{s(\lambda) + \lambda}}
+		=&\sum_{\sk_{unvaf} \in \SK_{unfav}} \Prob*{\sk_{unfav} \in \bigcap_{i \in [s(\lambda) + \lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \label{eq:int_1}\\[.5em] % this was just bothering me 
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + \lambda]} \Prob*{\sk_{unfav} \in \SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \label{eq:int_2}\\
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + \lambda]} \frac{\X(\sk_{unfav})}{2^\lambda} \label{eq:int_3}\\ 
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + \lambda]} \frac{1}{2}\\ 
+		\le &\frac{1}{2^{\lambda}}
 	\end{align}
 	Where in \eqref{eq:int_1} we use linearity of expectation and the fact that $\mathbf 1_\E$ are Barnoulli random variables and in
-	\eqref{eq:int_2} we use that the evaluation points $x_1, \ldots, x_{s(\lambda) + 2\lambda}$ are sampled i.i.d. 
+	\eqref{eq:int_2} we use that the evaluation points $x_1, \ldots, x_{s(\lambda) + \lambda}$ are sampled i.i.d. 
 	from $\bin^\lambda$.
 	We can now use a simple Markov bound to show that the probability of a unfavorable key surviving the filtering 
 	is negligibly small. Note that the expected number of surviving unfavorable secret keys is by 
 	definition non-negative and therefore we have that the probability of all keys filtered is given by the 
 	following expression:
 	\[
-		\Prob*{\abs*{\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1} \le \frac{1}{2^{s(\lambda) + \lambda}}
+		\Prob*{\abs*{\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + \lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1} \le \frac{1}{2^{\lambda}}
 	\]
+
+	\todo{this section is gruesome}
+	Define the following events:
+	\begin{align}
+		\mathcal F := \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*)\\ 
+		\E := \abs*{\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1
+	\end{align}
 	To bound the final probability simply condition on the event that no bad key survives.
 	Let $\E$ be the event that $|\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i, y_i,\pi_i,\tau_i)| = 0$
 	and let $\mathcal F$ be the event that $\BBComb{VRF}[\O_1,\O_2].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_1,\O_2].\alg{Eval}{VRF}^y(\sk,x^*)$. 
 	Note that if $\lnot \E$ holds we know that only \textit{favorable} keys survive and therefore the probability of 
 	the same image is at least $1/2$.
-	\begin{align}
-		\Prob*{\mathcal F} &= 1 - \Prob*{\lnot\mathcal F \mid \E} \Prob{\E} - \Prob*{\lnot\mathcal F \mid \lnot \E}\Prob*{\lnot \E}\\ 
-		&\ge 1 -  \Prob{\lnot \mathcal F \mid \E} - \Prob*{\lnot \E}\\ 
-		&\ge 1 - \tfrac{1}{2} - \tfrac{2^\lambda}{2^{2s(\lambda)}} \\ 
-		&\ge \tfrac{1}{2} - \tfrac{2^\lambda}{2^{2s(\lambda)}}
-	\end{align}
+	\begin{align*}
+		&\Prob*{\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*)}\\ 
+		= &\Prob*{\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*) \mid \lnot\E} \Prob*{\lnot\E}\\ 
+		&+ \Prob*{\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*) \mid \E} \Prob*{\E} \\ 
+		\ge &\Prob*{\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*) \mid \lnot\E} \Prob*{\lnot\E} \\
+		\ge &\frac{1}{2}  - \frac{1}{2^{\lambda}+1}
+	\end{align*}
 	Which concludes this proof.
 \end{proof}
 
-Now we define the following two languages $\mathcal L_{cand}, \mathcal L_{size}$ as follows.
+Now, we define two languages $\mathcal L_{cand}, \mathcal L_{size}$ as follows.
+The language $\mathcal L_{cand}$ consists of tuples $(\rho, i, b, \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + \lambda]})$
+containing the the bit $i$, the value of the bit $b$ of the $\rho$'th candidate key in the set after filtering the set of secret keys 
+with the tuples $(x_i, y_i, \pi_i, \tau_i)$ for all $i \in [s(\lambda) + \lambda]$. We introduce the notation $\rank{\rho}{S}$
+for $S\subseteq \bin^{s(\lambda)} = \SK$ and $\rho \in [|S|]$ to denote the $\rho$'th element in $S$ in canonical ordering.
+The language $\mathcal L_{size}$ contains tuples $(m, \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + \lambda]})$ if 
+$m$ is the size of the set of candidate keys after filtering with the tuples $(x_i, y_i, \pi_i, \tau_i)$ for all $i \in [s(\lambda) + \lambda]$.
 \begin{align}
-	\mathcal L_{cand} &:= \Brace*{
-		\Paren*{\rho, i, b, \{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}} : 
-		\rank\rho{\bigcap_{j \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}_i
-		= b} \\ 
-	\mathcal L_{size} &:= \Brace*{
-		\Paren*{m, \Brace*{\Paren*{x_i,y_i,\pi_i,\tau_i}}_{i \in [2s(\lambda)]}} : 
-		\abs*{\bigcap_{j \in [2s(\lambda)]}\SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \le m
-	}
+	\mathcal L_{cand} &:= \biggl\{
+		\Paren*{\rho, i, b, \Brace*{\Paren*{x_i, y_i, \pi_i, \tau_i}}_{i \in [s(\lambda) + \lambda]}} : \notag\\
+		&\qquad\qquad \rank{\rho}{\textstyle{\bigcap_{j \in [s(\lambda) + \lambda]}} \SK_{cand}(x_j, y_j, \pi_j, \tau_j)}_i = b
+	\biggr\}\\[6pt]
+		\mathcal L_{size} &:= \biggl\{
+			\Paren*{m, \Brace*{\Paren*{x_i, y_i, \pi_i, \tau_i}}_{i \in [s(\lambda) + \lambda]}} : \notag\\
+			&\qquad\qquad \abs*{\textstyle \bigcap_{j \in [s(\lambda) + \lambda]} \SK_{cand}(x_j, y_j, \pi_j, \tau_j)} \le m
+		\biggr\}
 \end{align}
-We show that $\mathcal L_{cand}$ and $\mathcal L_{size}$ are in PSPACE and can therefore be decided by 
-the PSPACE complete oracle. The adversary will first use binary search over $m$ to recover the size of the 
-candidate set $\SK_{cand}$ and then pass use the language $\mathcal L_{cand}$ to recover a uniformly 
-random candidate secret key $\sk_{cand}$.
-Formally stated in the following two claims.
+We show that $\mathcal L_{cand}$ and $\mathcal L_{size}$ are in PSPACE and therefore membership can be decided by 
+the PSPACE complete oracle. This will allow the adversary to decide membership 
+using its PSPACE complete oracle.
 
 \begin{claim}\label{claim:lang_pspace}
 	$\mathcal L_{cand} \in \PSPACE$ and $\mathcal L_{size} \in \PSPACE$.
 \end{claim}
 
-To proof \Cref{claim:lang_pspace} we need to provide Turing machines $\mathcal M_{cand}, \mathcal M_{size}$
-that decide whether an arbitrary element is member of the language $\mathcal L_{cand}$ and $\mathcal L_{size}$
-respectively such that space used by $\M_{cand}$ and $\M_{size}$ is bounded from above by functions polynomial in their input size.
-$\M_{cand}$ iterates over the keys in canonical ordering, for every secret key $\sk \in \SK$ iterate over all $i \in [2s(\lambda)]$
-and for every $i$ verify whether $\alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top$.
-If that holds for every $i$ then increment a counter. If we would increment the counter but the 
-value of the counter is $\rho$ then check the $i$'th bit of the candidate is equal to $b$.
+\begin{proof}[\Cref{claim:lang_pspace}]
+	We show membership in $\PSPACE$ by providing deterministic Turing machines $M_{cond}$ 
+	and $M_{size}$ that decide $\mathcal L_{cond}$ and $\mathcal L_{size}$ respectivley
+	such that they require space polynomial in their input. Before we provide the Turing machines 
+	$M_{cond}$ and $M_{size}$ we first show that $\alg{EvalSim}{VRF}$ can be executed in space polynomial  
+	in the size of the input.
 
-The algorithm $\M_{size}$ requires works similarly. We iterate over all secret keys $\sk \in \SK$
-and keep a counter to count the number of secret keys that pass every filter.
-For every secret key candidate $\sk$ we iterate over all $i \in [2s(\lambda)]$
-and increment the counter if for all values $\alg{EvalSim}{VRF}(\sk, x_i,y_i,\pi_i,\tau_i) = \top$.
-The algorithm only needs space for the counter in $\O(s(\lambda))$ and the execution of $\alg{EvalSim}(\sk,x_i,y_i,\pi_i,\tau_i)$
-which is also polynomial. This concludes the proof of \Cref{claim:lang_pspace}.
+	To run $\alg{EvalSim}{VRF}$ in space polynomial in the input $(\sk, x, y, \pi, \tau)$
+	we simulate the evaluation algorithm implemented by the combiner DAG. First compute the topological ordering 
+	in polynomial space, then initialize a counter $c$ and simulate the combiner answering the obscure queries 
+	with the tuple of assignments corresponding to the $c$'th element in the canonical on the tuple of well-formed assignments of the 
+	obscure queries. That way we only need to store the values of all intermediate results and queries of a single combiner evaluation execution,
+	since this execution runs in polynomial time, every iteration only requires polynial space. 
+
+	To show $\mathcal L_{cond} \in \PSPACE$ consider the following Turing machine $M_{cond}$.
+	On input $(\rho, i, b, \{x_j, y_j, \pi_j, \tau_j\}_{j \in [s(\lambda) + \lambda]})$
+	$M_{cond}$ starts by enumerating all secret keys $\sk \in \SK$ in lexicographic order. 
+	For every $\sk$ iterate over every tuple $(x_j,y_j,\pi_j,\tau_j)$ over $j \in [s(\lambda) + \lambda]$ 
+	and run $\alg{EvalSim}{VRF}(\sk, x_j, y_j,\pi_j,\tau_j)$.
+	If the invocation returns $\bot$ discard the secret key and move onto the next onw. Otherwise after 
+	we iterated over all $s(\lambda) + \lambda$ tuples increase a counter $c$ by one
+	until $c = \rho$. If $c = \rho$ and $\alg{EvalSim}{VRF}(\sk, x_j, y_j,\pi_j,\tau_j) = \top$ then 
+	look at the $i$'th bit $b'$ and accept if and only if $b' = b$. 
+
+	To show $\mathcal L_{size} \in \PSPACE$ consider the following Turing machine $M_{size}$.
+	On input $(m, \{x_j, y_j, \pi_j, \tau_j\}_{j \in [s(\lambda) + \lambda]})$ $M_{cond}$
+	proceeds in a similar fashion to $M_{cond}$.
+	$M_{soze}$ starts by enumerating all secret keys $\sk \in \SK$ in lexicographic order,
+	for every $\sk$ we iterate over the tuples $(x_j,y_j,\pi_j,\tau_j)$ for $j \in [s(\lambda) + \lambda]$
+	and run and run $\alg{EvalSim}{VRF}(\sk, x_j, y_j,\pi_j,\tau_j)$.
+	If the invocation returns $\bot$ discard the secret key and move onto the next one.
+	Otherwise after 
+	we iterated over all $s(\lambda) + \lambda$ tuples increase a counter $c$ by one.
+	After all secret keys return $c$.
+\end{proof}
+
+We now describe the adversary $\A$ that wins the pseudorandomness security experiment 
+against the combiner initialized with oracles $\O_{vrf}$ and $\O_{uppc}$ with non-negligible advantage.
+First, $\A$ first samples $s(\lambda) + \lambda$ evaluation points uniformly at random $x_1, \ldots, x_{s(\lambda) + \lambda}$.
+Subsequently, $\A$ uses the evaluation oracle in the prf game to evaluate the points to obtain 
+$(y_1, \pi_1), \ldots, (y_{s(\lambda) + \lambda}, \pi_{s(\lambda) + \lambda})$. Using the public key $\pk^*$
+the adversary will then compute the combiners verifier traces for all tuples consisting of evaluation point and image-proof pair
+$(x_1, y_1, \pi_1), \ldots, (x_{s(\lambda) + \lambda}, y_{s(\lambda) + \lambda}, \pi_{s(\lambda) + \lambda})$ to obtain 
+$\tau_1, \ldots, \tau_{s(\lambda) + \lambda}$. Next, by means of binary search $\A$ will find the size of candidate key set
+relying on the oracle $\PSPACE$.
+
 
 We can now describe the distinguisher $\mathcal D$ for the pseudorandomness game as follows:
 $\mathcal D$ first samples $2s(\lambda)$ evaluation points $x_i$ uniformly at random from $\bin^\lambda$,
