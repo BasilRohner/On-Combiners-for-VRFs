@@ -322,67 +322,98 @@ they are indistinguishable for the combiners verification algorithm. This forces
 
 We show the description of the full adversary $\A$ in \Cref{fig:distinguisher}.
 
-% this was not replaced below
-
+\begin{proof}[\Cref{thm:impossibility_21_comb}] 
+	\todo{replace}
+\end{proof}
 \paragraph{Proof of \Cref{thm:impossibility_21_comb}.}
 Let $\BBComb{VRF}$ be an arbitrary robust $(2;1)$ black-box DAG combiner for the VRF primitive.
-We claim that there exists a related robust black-box DAG combiner for the VRF primitive 
-that only queries every implementation function of every candidate scheme on any input $\x$
-at most once.
+Let $\O_{vrf}$ be a VF oracle implementing a secure VRF and let $\O_{uppc}$ be an oracle implementing 
+a trivial, uniquely provable and perfectly correct VF such that the key generation algorithm always returns 
+$(\sk_{def}, \pk_{def})$, the evaluation algorithm returns $(y_{def}, \pi_{def})$ for every input and 
+the verification algorithm accepts a tuple $(\pk, x, y, \pi)$ if and only if $y = y_{def}$.
+First, we show two important results that central to the proof stated in \Cref{claim:unique_queries} and 
+\Cref{lemma:vrfification}.
+
+We claim that we can assume without loss of generality, that the robust black-box DAG combiner 
+for the VRF primitive, during the execution of its evaluation algorithm on arbitrary inputs,
+queries every oracle algorithm on any given input at most once.
 
 \begin{claim}\label{claim:unique_queries}
-	Let $\BBComb{VRF}$ be a robust $(2;1)$ black-box DAG combiner for the VRF primitive, there exists a 
-	robust $(2;1)$ black-box DAG combiner for the VRF primitive $\widetilde{\BBComb{VRF}}$ such that 
-	in its evaluation and verification algorithm DAG $\G_{eval}$ and $\G_{vfy}$ and each of the vertices
-	$v \in V_{eval}$ and $w \in V_{vfy}$ the call to 
+	Let $\BBComb{VRF}$ be a robust $(n;k)$ black-box DAG VRF-combiner in the sense of \Cref{def:robust_blackbox_dag_combiner}. 
+	There exists a robust $(n;k)$ black-box DAG VRF-combiner $\DAGComb{VRF}$ such that in the execution of the evaluation algorithm 
+	it queries any oracle algorithm on any given input at most once.
 \end{claim}
 
-The idea is to slightly alter the intermediate Turing machines to check, before they make a query,
-whether the oracle has already been queried on that specific input. If that is the case then the oracle is queried on a fresh input
-but the output is ignored. Subsequent queries that would depend on that query re-simulate the execution anyway and therefore 
-know on which value said oracle was queries, they then always refer to the value returned on the topologically first query.
-Assume that this would change the combiner execution for some query, then this means that the oracle output were not deterministic 
-and based on the internal randomness the combiner output changes. By perfect correctness both resulting distinct outputs 
-must verify which would violate unique provability.
+\begin{proof}[\Cref{claim:unique_queries}]
+	Let $\BBComb{VRF}$ be a robust $(n;k)$ black-box DAG VRF-combiner. We obtain $\DAGComb{VRF}$ by modifying $\BBComb{VRF}$
+	in the following way: At every vertex $v \in V(\G_{eval})$ the Turing machine $\tilde f_{eval}^v$ that maintains a table $T_v$
+	of mappings from previous oracle queries $\mathbf q_w$ for $w \in \mathcal N^-_{\G_{eval}}(v)$ to oracle responses $\mathbf x_w$ of the same oracle algorithm $\ell_{eval}(v)$. $\widetilde f_{eval}^v$ 
+	then simulates the Turing machine $f_{eval}^v$ until it returns the query $\mathbf q_v$. Then $\widetilde f_{eval}^v$ checks whether 
+	$\mathbf q_w$ is contained in the table $T_v$. If that is not the case we issue the query $\mathbf q_w$ 
+	to $\O_{\ell_{eval}}(\mathbf q_w)$, otherwise we issue a fresh query $\widetilde \q_w$ not in the table.
+	If the oracle is queried on $\widetilde\q_w$ subsequent Turing machines $f_{eval}^u$ with $(v,u) \in E(\G_{eval})$,
+	will then simply find the first query to the oracle $c(v)$ with the same input if they are also incident to $u$.
+	To ensure this we will again simply draw an edge from the source to every other vertex, from every vertex $(d,i,j)$
+	to any vertex $(d',i',j')$ if $d < d'$ and from every vertex to the sink.
 
-Additionally we show that given two VF oracles $\O_{\VRF}$ and $\O_{up}$
-such that $\O_{\VRF}$ implements a secure VRF and $\O_{up}$ implements a perfectly correct 
-and uniquely provable VF we can construct a new oracle $\O_{\VRF}(\O_{up}, \widetilde\SK)$ such that 
-$\O_{\VRF}(\O_{up}, \widetilde\SK, \widetilde\PK)$ implements a secure VRF and its evaluation algorithm agrees on all points $(\sk, x)$
-with the oracle $\O_{up}$ where $\sk \in \widetilde\SK$ and $\pk\in \widetilde\PK$
-if $|\widetilde\SK|, |\widetilde\PK| \in \poly$. Formally:
+	To show that $\DAGComb{VRF}$ is indeed a valid robust $(n;k)$ black-box DAG VRF-combiner it is sufficient to show that
+	for any tuple of $n$ candidate schemes $\O_1, \ldots, \O_n$ of which at least $k$ implement a secure VRF. 
+	The algorithms implemented by $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n]$
+	are equivalent. Since we dont modify the algorithms $\alg{Gen}{VRF}$ and $\alg{Vfy}{VRF}$ we only need to show that 
+	equivalence holds for $\alg{Eval}{VRF}$.
+
+	Assume towards a contradiction that this is not the case, i.e. that there exists an input $(\sk, x) \in \SK \times \bin^\lambda$
+	such that $\BBComb{VRF}[\O_1, \ldots, \O_n].\alg{Eval}{VRF}(\sk, x) = y_1$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n].\alg{Eval}{VRF}(\sk, x) = y_2$
+	with $y_1 \neq y_2$. Since the Turing machine around the oracle calls are simulated the same way in both this either means that $f^t_{eval}$
+	is probabilistic which or that an oracle query is answered differently and thus not deterministic. In both cases we have that 
+	both $y_1, y_2$ could also have been produced by $\BBComb{VRF}[\O_1, \ldots, \O_n]$. By perfect correctness both $y_1,y_2$
+	must be verifiable but by unique provability only at most one of $y_1,y_2$ can be verifiable. A contradiction.
+	We conclude that therefore the algorithm $\alg{Eval}{VRF}$ of $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_2]$
+	are functionally equivalent.
+
+	To show a polynomial runtime bound on $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ we\todo{...}
+\end{proof}
+
+From now on we will assume that for every input to the combiners evaluation algorithm, 
+and oracle is queried on any given input at most once. That is, if we remap the output of an oracle on a single point, 
+then at most one oracle query differs in the execution of the evaluation algorithm for every input.
+
+Next, let $\widetilde\SK \subseteq \SK$ and $\widetilde\PK \subseteq \PK$ be sets
+with size bounded by a polynomial, i.e. $\abs{\widetilde\SK}, \abs{\widetilde\PK} \in \poly$.
+We can construct an oracle $\widetilde\O_{uppc}$ from $\O_{vrf}$ and $\O_{uppc}$ such that 
+$\widetilde\O_{uppc}$ implements a secure VRF and $\widetilde\O_{uppc}$ agrees with $\O_{uppc}$
+on the outputs of the evaluation algorithm on all points $\widetilde\sk \in \widetilde\SK$
+and on the verification algorithm on all points $\widetilde\pk \in \widetilde\PK$.
+Formally stated in the following lemma.
 
 \begin{lemma}\label{lemma:vrfification}
-	Let $\O_{\VRF}$ be a VF oracle that implements a secure VRF in the sense of \Cref{def:vrf}, 
-	$\O_{up}$ be a VF oracle that is uniquely provable in the sense of \Cref{def:unique_provability}
-	and perfectly correct in the sense of \Cref{def:correctness} such that 
-	$\O_{\VRF}$ and $\O_{up}$ are on the same spaces and let $\widetilde{\SK}, \widetilde{\PK}$
-	be polynomially bounded subsets of the secret and public key spaces of both oracles.
-	There exists an oracle $\O_{mix}$ such that the following properties are satisfied:
+	Let $\O_{vrf}$ be a VRF oracle in the sense of \Cref{def:vrf} and $\O_{uppc}$ a VF oracle that is 
+	perfectly correct in the sense of \Cref{def:correctness} and uniquely provable in the sense of \Cref{def:unique_provability}.
+	Let $\widetilde\SK \subseteq \SK$ and $\widetilde\PK \subseteq \PK$ be polynomially bounded sets, i.e. 
+	$|\widetilde\SK|, |\widetilde\PK| \in \poly$. There exists an oracle $\widetilde\O_{uppc}$
+	satisfying the following properties.
 	\begin{enumerate}
-		\item The evaluation algorithm of $\O_{mix}$ agrees with the evaluation algorithm of $\O_{up}$
+		\item The evaluation algorithm of $\widetilde\O_{uppc}$ agrees with the evaluation algorithm of $\O_{uppc}$
 			on all secret keys $\widetilde\sk\in\widetilde\SK$, i.e. we have that
 			\[
-				\forall \widetilde\sk \in \widetilde\SK, \O_{mix}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{up}.\alg{Eval}{VRF}(\sk, \cdot)
+				\forall \widetilde\sk \in \widetilde\SK, \widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot)
 			\]
-		\item The verification algorithm of $\O_{mix}$ agrees with the evaluation algorithm of $\O_{up}$
+		\item The verification algorithm of $\widetilde\O_{uppc}$ agrees with the evaluation algorithm of $\widetilde\O_{uppc}$
 			on all public keys $\widetilde\pk\in\widetilde\PK$, i.e. we have that
 			\[
-				\forall \widetilde\pk \in \widetilde\PK, \O_{mix}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \O_{up}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot)
+				\forall \widetilde\pk \in \widetilde\PK, \widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot)
 			\]
-		\item The oracle $\O_{mix}$ implements a secure VRF in the sense of \Cref{def:vrf}.
+		\item The oracle $\widetilde\O_{uppc}$ implements a secure VRF in the sense of \Cref{def:vrf}.
 	\end{enumerate}
 \end{lemma}
 
-Note first that it is not sufficient to simply change all of the mappings of the evaluation algorithm 
-of $\O_\VRF$ on the points in $\widetilde\SK$ to the output of $\O_{up}$ and the mappings of the verification 
-algorithm of $\O_\VRF$ on the points in $\widetilde\PK$ to the output of $\O_{up}$.
-Such a construction would indeed not necessarily be uniquely provable or perfectly correct since 
-for one we might have not guaranteed that the verification of a newly mapped output succeeds or 
-the verification of a previously mapped output rejects and also we need to consider that if two 
-secret keys have non-zero probability to be sampled with the same public key, then they both need to 
-induce the same mapping $\X \to \Y \times \P$, also this holds for the public key perspective if we 
-change the mappings of the verification algorithm.
+A too simple idea would be to replace the mapping of $\O_{vrf}.\alg{Eval}{VRF}$ on all inputs $(\sk, x)$
+with $\sk \in \widetilde\SK$ and similarly modify the mapping of $\O_{vrf}.\alg{Vfy}{VRF}$ on all inputs $(\pk, x, y, \pi)$
+with $\pk \in \widetilde\PK$. However, the resulting oracle doesn't necessarily need to be uniquely provable or perfectly correct anymore.
+For instance, imagine the scenario where a secret key $\widetilde\sk \in \widetilde\SK$ is remapped but the corresponding 
+public key $\pk$ does not itself belong to $\widetilde\PK$. In that case the verification algorithm on $\pk$ is left unchanged while the 
+evaluation algortihm on $\widetilde\sk$ is modified. This can result in correctly computed image-proof pairs to be rejected by the verification 
+algorithm, violating perfect correctness.
 
 \begin{proof}[\Cref{lemma:vrfification}]
 We begin by introducing a two relations $\sim_\SK \subseteq \SK^2$ and 
@@ -392,34 +423,64 @@ sampled with both keys. Formally we define the relations $\sim_\SK, \sim_\PK$ as
 \begin{align}
 	\sk_1 \sim_\SK \sk_2 &\iff \exists \pk \in \PK, \Prob*{
 		\begin{aligned}
-			(\sk_1, \pk) &\sample \alg{Gen}{VRF}(1^\lambda) \; \land\\
-			(\sk_2, \pk) &\sample \alg{Gen}{VRF}(1^\lambda)
+			(\sk_1, \pk) &\sample \O_{uppc}.\alg{Gen}{VRF}(1^\lambda) \; \land\\
+			(\sk_2, \pk) &\sample \O_{uppc}.\alg{Gen}{VRF}(1^\lambda)
 		\end{aligned}
 	} > 0 \label{eq:sim_sk}\\ 
-	\pk_1 \sim_\PK \pk_2 &\iff \exists \sk \in \SK, \Prob*{
+	\pk_1 \sim_\PK \pk_2 &\iff \lor \exists \sk \in \SK, \Prob*{
 		\begin{aligned}
-			(\sk, \pk_1) &\sample \alg{Gen}{VRF}(1^\lambda) \; \land\\
-			(\sk, \pk_2) &\sample \alg{Gen}{VRF}(1^\lambda)
+			(\sk, \pk_1) &\sample \O_{uppc}.\alg{Gen}{VRF}(1^\lambda) \; \land\\
+			(\sk, \pk_2) &\sample \O_{uppc}.\alg{Gen}{VRF}(1^\lambda)
 		\end{aligned}
 	} > 0 \label{eq:sim_pk}
 \end{align}
-We now consider the transitive closure of those relations $\sim_\SK^*, \sim_\PK^*$,
+We now consider the reflexive transitive closure of those relations $\sim_\SK^*, \sim_\PK^*$,
 formally defined by $\sim^* = \bigcup_{k \in \N} \sim^k$. The resulting relations 
-$\sim_\SK^*,\sim_\PK^*$ are equivalence relations. Given an element $\sk$
+$\sim_\SK^*,\sim_\PK^*$ are equivalence relations because the underlying relations $\sim_\SK, \sim_\PK$
+are symmetric and the reflexive transitive closure of a symmetric relation remains symmetric and 
+is extended to a reflexive and transitive relation \todo{polish}. Given an element $\sk$
 we denote its equivalence class under $\sim_\SK^*$ with $[\sk]_{\sim_\SK^*} = \Brace{\sk' \in \SK : \sk' \sim_\SK^* \sk}$,
-similarly for an element $\pk$ and the relation $\sim_\PK^*$.
-We claim that keys related with the corresponding relation $\sim^*$
-must induce the same mapping on their function. We formalize this observation in the following claim,
-since its easy to see that it holds we defer the proof to the appendix.
+analogously for an element $\pk$ and the relation $\sim_\PK^*$ we define $[\pk]_{\sim_\PK^*} = \Brace{\pk' \in \PK: \pk' \sim_\PK^* \pk}$.
+We claim that secret and public keys related with the relation $\sim^*_\SK, \sim_\PK^*$ respectively
+induce the same mapping on their respective algorithm. We formally state this observation in the following claim.
 
-\begin{claim}
-	The relations $\sim_\SK^*$ and $\sim_\PK^*$ defined in $\eqref{eq:sim_sk}$ and $\eqref{eq:sim_pk}$
-	respectively are equivalence relations, i.e. reflexive, symmetric and transitive.
+\begin{claim}\label{claim:equiv_rel_and_prop}
+	For all secret keys $\widetilde\sk \in \widetilde\SK$
+	that the following property holds:
+	\[
+		\forall \sk \in [\widetilde\sk]_{\sim_\SK^*}, \O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, \cdot)
+	\]
+	and for all public keys $\widetilde\pk \in \widetilde\PK$ that the following holds
+	\[
+		\forall \pk \in [\widetilde\pk]_{\sim_\PK^*}, \O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \O_{uppc}.\alg{Vfy}{VRF}(\widetilde\pk, \cdot, \cdot, \cdot)
+	\]
 \end{claim}
-\todo{no guarantee on reflexivity, even needed?}
+
+\begin{proof}[\Cref{claim:equiv_rel_and_prop}]
+Let $\widetilde\sk \in \widetilde\SK$ be arbitrary and for a contradiction that there exists a 
+$\sk \in [\widetilde\sk]_{\sim_\SK^*}$ and an arbitrary evaluation point $x \in \bin^\lambda$ such that $\O_{uppc}.\alg{Eval}{VRF}(\sk, x) = y$
+and $\O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, x) = \tilde y$ with $y \neq \tilde y$.
+Note that the following holds:
+\begin{align}
+	\sk \in [\widetilde\sk]_{\sim_\SK^*} 
+	&\iff \sk \in \Brace*{\sk' \in \SK : \sk' \sim_\SK^* \widetilde\sk}\\ 
+	&\iff \sk \in \Brace*{\sk' \in \SK: \exists k \in \N, \sk' \sim_\SK^k \widetilde\sk}\\
+	&\iff \sk \in \bigcup_{k \in \N} \Brace*{\sk' \in \SK: \sk' \sim_\SK^k \widetilde\sk}\\
+	&\iff \sk \in \bigcup_{k \in \N} [\widetilde\sk]_{\sim_\SK^k}
+\end{align}
+Which is why we can establish the claim by induction on $k \in \N$. For the base case note that $\sk \in [\widetilde\sk]_{\sim_\SK^0}$ if and only if $\sk = \widetilde\sk$,
+which directly results in a contradiction since then we would break either unique provability or perfect correctness immediately.
+For the inductive step assume that the claim holds for $k \in \N$, we show that it also holds for $k+1$.
+Let $\sk \in [\widetilde\sk]_{\sim_\SK^{k+1}}$ and let $\widehat\sk \in [\widetilde\sk]_{\sim_\SK^k}$ be arbitrary, then we know that $\sk \sim_\SK \widehat\sk$
+and therefore $\O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widehat\sk, \cdot)$. By the induction hypothesis we know that 
+$\O_{uppc}.\alg{Eval}{VRF}(\widehat\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, \cdot)$
+and therefore we finally arrive at $\O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, \cdot)$.
+The argument for the public key version of that statement is analogous.
+\todo{polish}
+\end{proof}
 
 Additionally, for secret and public keys we define the function $R_\SK$ and $R_\PK$
-respectively as follows. $R$ maps a key to all counterparts with are sampled with that key 
+respectively. $R$ maps a key to all counterparts with are sampled with that key 
 with non-negligible probability.
 \begin{align}
 	R_\PK(\pk) &= \Brace*{\sk\in\SK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}\\ 
