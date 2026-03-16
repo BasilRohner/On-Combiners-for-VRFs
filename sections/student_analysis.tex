@@ -461,7 +461,7 @@ Now we define the closure for subsets $\widetilde\SK \subseteq \SK$ and $\wideti
 at the same time. They correspond to the minimal set of secret or public keys that need to be remapped to preserved 
 unique provability and perfect correctness of $\O_{uppc}$ if we want to remap all keys in $\widetilde\SK$ and $\widetilde\PK$.
 \begin{align}
-	\closure_\SK(\widetilde\SK,\widetilde\PK) &= \closure_\SK(\widetilde\SK) \cup \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)\\ 
+	\closure_\SK(\widetilde\SK,\widetilde\PK) &= \closure_\SK(\widetilde\SK) \cup \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk) \label{eq:closure_sk}\\ 
 	\closure_\PK(\widetilde\SK, \widetilde\PK) &= \closure_\PK(\widetilde\PK) \cup \bigcup_{\widetilde\sk \in \closure_\SK(\widetilde\SK)} R_\SK(\widetilde\sk) 
 \end{align}
 Finally, we constuct an oracle $\widetilde\O_{uppc}$ that interpolates between $\O_{uppc}$ and $\O_{vrf}$.
@@ -541,7 +541,7 @@ and pseudorandom.
 	is $\errtime[prf][uppc]$-pseudorandom in the sense of \Cref{def:pseudorandomness}.
 	Where
 	\[
-		\err[prf][vrf] = (2 + |\tildeSK| + |\tildePK|)\err[prf][uppc] \quad \text{ and } \quad
+		\err[prf][vrf] = \Paren*{1 + \abs*{\widetilde \SK} + \abs*{\widetilde \PK}}\err[prf][uppc] \quad \text{ and } \quad
 	\]
 \end{claim}
 
@@ -593,7 +593,6 @@ of it to the appendix since its a known result.
 		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \Adv*{\O_{vrf}}{prf}{\lambda, \A}\\ 
 		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \err[prf][vrf]\label{eq:halt_1}
 	\end{align}\todo{maybe arrive here seperately}
-
 	Consider the event that the challenger in the pseudorandomness security experiment samples 
 	a secret key $\sk^* \in \closure_\SK(\tildeSK, \tildePK)$. If $\sk^* \notin \closure_\SK(\tildeSK, \tildePK)$ then in $H_2$
 	we are playing the prf security game against $\smash{\widetilde\O_{uppc}}$ which is evaluates to the same 
@@ -601,21 +600,20 @@ of it to the appendix since its a known result.
 	\[
 		\Prob*{H_2^{\lambda, \A} = 1} = \Prob*{H_1^{\lambda, \A} = 1}
 	\]
-	Applying \Cref{lemma:difference_lemma} and resuming from \Cref{eq:halt_1} we obtain:
+
+	It remains to bound the probability that the event $\sk^* \in \closure_\SK(\tildeSK, \tildePK)$.
+	\begin{claim}\label{claim:bound_for_bad_event}
+		Let $\tildeSK \subseteq \SK, \tildePK \subseteq \PK$ be polynomially bounded sets, then
+		\[
+			\Prob*{\sk^* \in \closure_\SK(\widetilde\SK, \widetilde\PK) : (\sk^*, \pk^*) \sample \O_{vrf}.\alg{Gen}{VRF}(1^\lambda)} \le \Paren*{\abs*{\widetilde\SK} + \abs*{\widetilde\PK}} \err[prf][vrf]
+		\]
+	\end{claim}
+	Applying \Cref{lemma:difference_lemma} and subsequently \Cref{claim:bound_for_bad_event} to \Cref{eq:halt_1}:
 	\begin{align}
-		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}
-		&\le \Prob*{\sk^* \in \closure_\SK(\tildeSK, \tildePK)} + \err[prf][vrf]\\ 
-		&\le \Prob*{\sk^* \in \closure_\SK(\tildeSK, \tildePK) \cup \bigcup_{\widetilde\pk \in \closure_\PK(\tilde\PK)} R_\PK(\widetilde\pk)} + \err[prf][vrf]\\ 
-		&\le \Prob*{\sk^* \in \closure_\SK(\tildeSK, \tildePK)} \\ 
-		&\quad +  \Prob*{\sk^* \in \bigcup_{\widetilde\pk \in \closure_\PK(\tilde\PK)} R_\PK(\widetilde\pk)} + \err[prf][vrf]
+		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}\le (1 + |\tildeSK| + |\tildePK|) \err[prf][vrf]
 	\end{align}
+	\todo{...}
 \end{proof}
-\begin{align}
-	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure_\SK(\widetilde\SK,\widetilde\PK)}\\
-	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure_\SK(\widetilde\SK)}\\
-	&\quad + \Prob*{\sk \in \bigcup_{\widehat\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widehat\pk)} \\
-	&\le \err_{\VRF}^{prf} + |\widetilde\SK|\err_\VRF^{prf} + |\widetilde\PK| \err_\VRF^{prf}
-\end{align}
 We bound the probabilities and arrive at the final bound we show that if the probability were non-negligible 
 an adversary would win the pseudorandomness security experiment against $\O_\VRF$ with non-negligible advantage,
 which is a contradiction since we assume $\O_\VRF$ to be pseudorandom.
@@ -634,97 +632,146 @@ $\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetild
 $1/|\widetilde\PK|$. We obtain the bound on the probability of $\err_{\VRF}^{prf}|\widetilde\PK|$.
 \end{proof}
 
-Using this result we claim that for a fixed oracle $\O_i$ and any subset of queries 
-made during the evaluation algorithm which are not reflected in the trace of the verification execution, we call such 
-queries \textit{hidden}, the output of the evaluation algorithm doesn't change for all possible outputs of the oracles.
-That is, if we execute the evaluation algorithm and replace every oracle query 
-to an algorithm of $\O_i$ with the output in the transcript or any other random output in the support if 
-it doesnt occur in the transcript we arrive at the same value for the right secret key $\sk$. 
+Equipped with \Cref{lemma:vrfification}, we now consider the combiner $\BBComb{VRF}[\O_{vrf}, \O_{up}]$ initialized with the oracles
+$\O_{vrf}$ and $\O_{up}$ as introduced above.
+Fix a key pair $(\sk, \pk) \sample \BBComb{VRF}[\O_{vrf}, \O_{up}]$, an evaluation point $x \in \bin^\lambda$,
+the corresponding output $\gets\BBComb{VRF}[\O_{vrf} \O_{up}].\alg{Eval}{VRF}(\sk, x)$ and the verification trace 
+$\tau \gets \textsf{trace}(\BBComb{VRF}[\O_{vrf}, \O_{up}].\alg{Vfy}{VRF}(\pk, x,y,\pi))$.
+
+We classify the vertices of $V(\G_{eval})$ as follows.
+A vertex $v \in V(G_{eval})$ is called \textit{exposed} if the oracle query issued at $v$ 
+during the evaluation of the input $(\sk, x)$ also appears in the verification trace $\tau$.
+Otherwise, we call $v$ \textit{obscure}.
+Observe that exposed queries and queries to $\O_{uppc}$ can be answered without calling any oracle 
+by looking at the verification trace or taking the default values $\sk_{def}, \pk_{def},y_{def},\pi_{def}$ respectively \todo{verification easy by seeing if image $y_{def}$}.
+The only queries whose responses are not directly available without any oracle queries are the obscure queries to $\O_{vrf}$.
+We claim that these responses can be substituted with arbitrary, but well-formed, oracle responses without affecting the combiners output $(\sk, x)$.
 
 \begin{claim}\label{claim:hidden_irrelevant}
-	Let $\O_1, \O_2$ be uniquely provable and perfectly correct VF oracles and let $S$ be a set of hidden vertices in $G_{eval}$ with queries made to only one oracle.
-	Then they are jointly irrelevant to the output of the combiners evaluation algorithm.
-	Specifically we can simulate the output of the individual oracle queries by choosing 
-	arbitrary elements in the support of the oracles algorithm.
+	Let $\O_{vrf}$ and $\O_{uppc}$ be defined as above, let $\sk, \pk, x, y, \pi, \tau$ be defined as above and let 
+	$V_{obs} \subseteq V(\G_{eval})$ be the set of obscure vertices to $\O_{vrf}$.
+	Then the oracles responses at vertices in $V_{obs}$ are irrelevant in the sense that 
+	for any assignment of well-formed responses to the queries at vertices in $V_{obs}$
+	the algorithm $\BBComb{VRF}[\O_{vrf}, \O_{uppc}]$ produces the same image $y$.
 \end{claim}
 
-\paragraph{Proof of \Cref{claim:hidden_irrelevant}}
-Assume this were not the case, we follow the topological ordering and initialize the oracle responses 
-to those queries with arbitrary outputs in the support. If at one point the output of the combiner changes 
-then simply remap the corresponding oracle and make the other oracle a VRF. Subsequently the combiner needs to be 
-uniquely provable, perfectly correct and pseudorandom. By perfect correctness we have
+\begin{proof}[\Cref{claim:hidden_irrelevant}]
+Assume this were not the case, let $\widehat\O_{vrf}$ and $\widetilde\O_{vrf}$ be the oracles obtained from 
+$\O_{vrf}$ by modifying the mapping on the obscure vertices $V_{obs}$ to the two assignments to obtain two different 
+images $y_0\neq y_1$ and let $\widetilde\O_{uppc}$ be the VRF oracle obtained from $\O_{uppc}$ by applying the procedure 
+detailed in \Cref{lemma:vrfification}.
+Since $\widetilde\O_{uppc}$ is a secure VRF, the combiner initialized with the oracles $\widehat\O_{vrf}, \widetilde\O_{uppc}$ and the combiner 
+initialized with the oracle $\widetilde\O_{vrf}, \widetilde\O_{uppc}$ must implement secure VRFs
+and in particular also uniquely provable and perfectly correct VFs. Further note that by \Cref{claim:unique_queries}
+we note that there can be no conflict of having to assign two different outputs to the query made to the same oracle on the same input 
+at a different position since every oracle algorithm is queried at any input at most once. Hence:
 \begin{align}
-	\BBComb{VRF}[\hat\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \hat y, \hat\pi) = 1\\
-	\BBComb{VRF}[\tilde\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \tilde y, \tilde\pi) = 1 \label{eq:correct}
+	\BBComb{VRF}[\widetilde\O_{vrf}, \widetilde\O_{uppc}].\alg{Vfy}{VRF}(\pk, x, \tilde y, \tilde\pi) = 1 \label{eq:correct}\\ 
+	\BBComb{VRF}[\widehat\O_{vrf}, \widetilde\O_{uppc}].\alg{Vfy}{VRF}(\pk, x, \tilde y, \tilde\pi) = 0 \label{eq:unique_provability}
 \end{align}
-And by unique provability and $\hat y \neq \tilde y$ we have that
-\begin{align}
-	\BBComb{VRF}[\hat\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \tilde y, \tilde\pi) = 0 \label{eq:unique_provability}\\
-	\BBComb{VRF}[\tilde\O_1, \O_2^{\VRF}].\alg{Vfy}{VRF}(\pk, x, \hat y, \hat\pi) = 0 
-\end{align}
-Now since the oracle $\tilde\O_1$ and $\hat\O_1$ only differ in the evaluations not covered by the 
-verification algorithm the execution of the algorithm will be identical, given the input is the same.
-This fundamentally contradicts \eqref{eq:correct} and \eqref{eq:uniquely_provable}, we conclude that the 
-resulting combiner is either not perfectly correct or uniquely provable.
+Since the oracle $\widehat\O_{vrf}$ and $\widetilde\O_{vrf}$ only differ on obscure queries we have that the verification algorithm 
+on $(\pk, x, \tilde y, \tilde \pi)$ must evaluate the same and to the same result. This is a contradiction with 
+\eqref{eq:correct} and \eqref{eq:unique_provability}.
+\end{proof}
 
 We define the evaluation simulation $\alg{EvalSim}{VRF}$ that simulates the evaluation 
 without invoking any oracle queries. The simulation will simply traverse the evaluation algorithm 
 of the DAG combiner. For any oracle query it checks the corresponding transcript $\tau_i$.
-If the query is either to oracle $\O_1$ we can honestly answer it with $0$ or in the transcript, 
+If the query is either to oracle $\O_1$ we can honestly answer it with $\x_v^{def}$ or in the transcript, 
 then we can answer it hoenstly as well. If the query is \textit{obscure} then we branch once for every possible 
 assignment of the oracle response which fits the given format, e.g. for a query to eval we branch 
 for every answer $(y,\pi) \in \Y \times \P$. The pseudocode for $\alg{EvalSim}{VRF}$ is shown in \Cref{fig:eval_sim}.
-In the following we show that this algorithm satisfies a few properties.
+In the following we show that this algorithm satisfies a few properties. We want to note that the evaluation simulation algorithm 
+and is clearly inefficient since it enumerates possibly many well-formed oracle queries, since the adversary will use it only in combination 
+with the PSPACE complete oracle in the end that is not a problem. 
 
-\begin{claim}
+\begin{figure}[htbp]
+	\centering 
+	\begin{pchstack}[center, space=1em]
+		\procedure[linenumbering]
+		{Algorithm $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau)$}
+		{
+			v_1, \ldots, v_m \gets \text{topological ordering of } V(\G_{eval}) \setminus \{s_{eval}, t_{eval}\} \\
+			s_{s_{eval}} \gets 1 \pccomment{Number of states or branches}\\
+			\pcfor i = 1 \text{ to } m \pcdo \\
+			\t \t \pclinecomment{Reconstruct all branches:}\\
+			\t \t \sigma \gets \varnothing\\
+			\t \t \pcfor w \in \mathcal N^-_{\G_{eval}}(v_i) \pcdo\\ 
+			\t \t \t \sigma \gets \Brace{A \cup \{(w,\x_w^{(j)})\} : j \in [s_{w}]}\\
+			\t \t \pclinecomment{Iterate all branches:}\\ 
+			\t \t \pcfor B \in \sigma \pcdo\\
+			\t \t \t \mathbf q_{v_i}^{(j)} \gets f_{eval}^{v_i}(B)\\ 
+			\t \t \t \pcif c(v_i) = (2, 1) \pcthen \pccomment{Query to oracle $\O_{uppc}.\alg{Gen}{VRF}$}\\ 
+			\t \t \t \t \x_{v_i}^{(j)} \gets (\sk_{def}, \pk_{def})\\ 
+			\t \t \t \pcelse \pcif c(v_i) = (2,2) \pcthen \pccomment{Query to oracle $\O_{uppc}.\alg{Eval}{VRF}$}\\ 
+			\t \t \t \t \x_{v_i}^{(j)} \gets (y_{def}, \pi_{def})\\ 
+			\t \t \t \pcelse \pcif c(v_i) = (2,3) \pcthen \pccomment{Query to oracle $\O_{uppc}.\alg{Vfy}{VRF}$}\\ 
+			\t \t \t \t \pcif \mathbf q_{v_i}^{(j)} = (\_, \_, y, \_) \pcthen\\ 
+			\t \t \t \t \t \x_{v_i}^{(j)} \gets 1\\ 
+			\t \t \t \t \pcelse \pcif \mathbf q_{v_i}^{(j)} = (\_, \_, y, \_) \pcthen \\
+			\t \t \t \t \t \x_{v_i}^{(j)} \gets 0\\
+			\t \t \t \pcelse \pcif \mathbf q_{v_i}^{(j)} \in \tau \pcthen \pccomment{Vertex $v_i$ is exposed and query it to $\O_{vrf}$}\\
+			\t \t \t \t \x_{v_i}^{(j)} \gets \text{response to }\q_{v_i}^{(j)} \text{ in }\tau\\
+			\t \t \t \pcelse \pcif c(v_i) = (1,1) \pcthen \pccomment{Vertex $v_j$ is obscure and query it to $\O_{vrf}.\alg{Gen}{VRF}$}\\
+			\t \t \t \t \pcfor (\sk, \pk), k \in \SK \times \PK \pcdo\\ 
+			\t \t \t \t \t \sigma' \gets \sigma + |\SK \times \PK|\\
+			\t \t \t \t \sigma \gets \sigma \times |\SK \times \PK|\\ 
+			\t \t \t \pcelse \pcif c(v_i) = (1,2) \pcthen \pccomment{Vertex $v_j$ is obscure and query is to $\O_{vrf}.\alg{Eval}{VRF}$}\\
+			\t \t \t \pcelse \pcif c(v_i) = (1,3) \pcthen \pccomment{Vertex $v_j$ is obscure and query is to $\O_{vrf}.\alg{Vfy}{VRF}$}\\
+		}
+	\end{pchstack}
+	\caption{Pseudocode of the algorithm $\alg{EvalSim}{VRF}$.}
+	\label{fig:eval_sim}
+\end{figure}
+
+\newpage
+\todo{maybe remove}
+
+\begin{claim}\label{claim:eval_sim}
 	Let $\alg{EvalSim}{VRF}$ be the algorithm as described above and in \Cref{fig:eval_sim}
 	taking as input a tuple $(\sk, x, y, \pi, \tau)$ containing a secret key, evaluation point, 
 	image, proof and a trace of the combiners verification algorithm on 
 	$(\pk, x,y,\pi)$ where $\pk$ is the true public key. Then $\alg{EvalSim}{VRF}$ satisfies the following properties.
 	\begin{enumerate}
-		\item $\alg{EvalSim}{VRF}$ makes no oracle queries
-		\item $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \top$ if $\sk = \sk^*$
-		\item $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$ if $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk,x) \neq y$
+		\item $\alg{EvalSim}{VRF}$ makes no oracle queries to the candidates $\O_{vrf}, \O_{up}$
+		\item If $\sk = \sk^*$ then $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \top$
+		\item If $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk,x) \neq y$ then $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$
 	\end{enumerate}
 \end{claim}
 
-Informally this means that the evaluation simulation will return with $\top$ on a \textit{non-empty} subset of secret keys
-which agrees with the true secret key $\sk^*$ on the evaluation of $x$.
+Informally, this means that the evaluation simulation will return with $\top$ on a non-empty subset of secret keys
+which agrees with the true secret key $\sk^*$ on the evaluation of $x$. Non-empty because the security experiments 
+secret key $\sk^*$ will always result in $\top$ due to the second property.
 
-The first property holds by construction of $\alg{EvalSim}{VRF}$ the third property also holds by construction and the 
-fact that if the evaluation of $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x) \neq y$ then there exists an assignment 
-of the obscure queries such that every oracle query is answered exactly the same as in the execution of the combiner, hence the 
-combiner outputs $\bot$. If $\sk = \sk^*$ we need to argue that for every format adhering assignment of the 
-oracle responses to the obscure queries, the output doesn't change. Assume towards a contradiction for two assignments of the 
-obscure queries the output of the combiner changes from $y_0$ to $y_1 \neq y_0$.
-Now we can apply \Cref{lemma:vrfification} to construct a secure VRF from $\O_1$ which agrees with 
-the old candidate on all points queried in evaluation and verification, and reassign obscure queries. 
-By perfect correctness both outputs $y_0, y_1$ must verify in their respective world, however 
-on all oracle queries done by the verification combiner in the two worlds the queries agree exactly 
-(since the queries are obscure) and we break unique provability.
+\begin{proof}[\Cref{claim:eval_sim}]
+	The first property holds by construction. The second property follows directly from 
+	\Cref{claim:hidden_irrelevant}. The third property is because the true execution of 
+	the combiners evaluation algorithm corresponds is always a branch in the execution of 
+	$\alg{EvalSim}{VRF}$, if the output of that branch is not $y$ then by construction the combiner will 
+	return $\bot$.
+\end{proof}
 
 Using this simulator $\alg{EvalSim}{VRF}$ we can describe the set of iteratively filtered candidate secret keys as follows.
-Let $\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$ be a set of $2s(\lambda)$ tuples containing a uniformly random 
+Let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + 2\lambda]}}$ be a set of $s(\lambda) + 2\lambda$ tuples containing a uniformly random 
 evaluation point $x_i \in \bin^\lambda$, the evaluation of $x_i$ resulting in the tuple $(y_i, \pi_i)$ 
-and the transcript of the combiners verification algorithm on $(x_i, y_i, \pi_i)$. The set of candidate keys is defined as:
+and the trace of the combiners verification algorithm on $(x_i, y_i, \pi_i)$. The set of candidate keys is defined as:
 \[
 	\SK_{cand}(x_i,y_i,\pi_i,\tau_i) := \{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i)\}
 \]
-We claim that for any secret key $\sk_{cand} \in \SK_{cand}$, the probability that the secret key 
-evaluates to the same output as the evaluation algorithm of the combiner does on a 
-uniformly random value $x \in \bin^\lambda$ is overwhelming. We state this result formally in 
-the following claim.
+We claim that after filtering for $s(\lambda) + 2\lambda$ rounds, 
+the probability that a remaining candidate key $\sk_{cand}$ sampled u.a.r. from the set 
+of remaining candidate keys evaluates a uniformly random evaluation point $x^* \in \bin^*$
+to the same image $y^*$ as the games secret key $\sk^*$ does is non-negligible.
 
 \begin{claim}\label{claim:candidate_likely_good}
-Let $\SK_{cand}$ be defined as above and let $\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$ 
-then we have that for any secret key $\sk^*$ sampled uniformly at random from the intersection of all filtered
-candidate sets, i.e. sampled from
+Let $\SK_{cand}$ be defined as above and let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + 2\lambda]}}$ 
+then we have for any $\sk^*$ sampled u.a.r. from the set of filtered candidate keys, i.e.
 \[
-	\sk^* \sample \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
+	\sk^* \sample \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
 \]
-The probability that for a uniformly random challenge $x^* \sample \bin^\lambda \setminus \{x_1, \ldots, x_{2s(\lambda)}\}$ 
-the black-box combiner instanciated with the correct oracles evaluates to the same image as for the true secret key
-is bounded from below by
+that the probability of a uniformly random challenge pre-image $x^* \in \bin^\lambda \setminus \{x_1, \ldots, x_{s(\lambda) + 2\lambda}\}$
+the black-box combiner instanciated with the oracles $\O_{vrf}, \O_{uppc}$ evaluates to the same image $y^*$
+as for the secret key $\sk^*$ is non-negligible, i.e.
 \[
 	\Prob*{\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk^*, x) = \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x)} \ge \frac{1}{p(\lambda)}
 \]
@@ -732,46 +779,44 @@ For $p$ a polynomial in $\lambda$.
 \end{claim}
 
 \begin{proof}[\Cref{claim:candidate_likely_good}]
-	For a secret key $\sk \in \SK$ we define the number of secret keys $\sk \in \SK$
-	for which the evaluation algorithm under $\sk$ on $x$ agrees with the evaluation algorithm 
-	under $\sk^*$ on $x$. 
+	For a secret key $\sk \in \SK$ we define $\X(\sk)$ to be the number of evaluation points
+	$x \in \bin^\lambda$ for which the evaluation of $x$ under $\sk$ agrees with the evaluation 
+	of $x$ under $\sk^*$, the games secret key, i.e.
 	\[
 		\X(\sk) = \abs*{\Brace*{x \in \bin^\lambda : \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x) = \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk^*, x)}}
 	\]
-	We say that a secret key is \textit{unfavorable} if the probability of a uniformly random 
-	evaluation point differing in the output is at least $1/2$
-	and let $\SK_{unfav} \subseteq \SK$ be the set of unfavorable keys.
-	Since we sample the evaluation points $x$ uniformly at random from $\bin^\lambda$
-	the probability of the key surviving the filtering step is given by the following:
+	We say that a secret key $\sk$ is \textit{unfavorable}, if the probability of an evaluation point $x$
+	sampled u.a.r. from $\bin^\lambda$ evaluating to a different image under $\sk$ then under $\sk^*$ is at least $1/2$.
+	Let $\SK_{unfav} \subseteq \SK$ be the set of unfavorable secret keys. Note that the probability of a secret key $\sk$
+	surviving a filtering step is given by the following.
 	\[
 		\Prob*{\sk \in \SK_{cand}(x,y,\pi,\tau)} = \frac{\X(\sk)}{2^\lambda}
 	\]
-	Since the $2s(\lambda)$ evaluation points $x$ are furthermore sampled i.i.d.
-	we can bound the probability the a fixed secret key $\sk \in \SK$ is in the intersection of all 
-	$2s(\lambda)$ tuples by the following expression:
-	\[
-		\Prob*{\sk \in \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i, \tau_i)} = \Paren*{\frac{\X(\sk)}{2^\lambda}}^{2s(\lambda)}
-	\]
-	We can bound the expected number of unfavorable secret keys that survive $2s(\lambda)$
-	rounds of secret key filtering over the randomness of $x_1, \ldots, x_{2s(\lambda)}$
-	by applying the union bound:
+	We can bound the expected number of unfavorable secret keys that survive $s(\lambda) + 2\lambda$
+	rounds of secret key filtering over the randomness of $x_1, \ldots, x_{s(\lambda) + 2\lambda}$.
+	We use $\mathbf 1_\E$ to denote the random indicator variable for the event $\E$.
 	\begin{align}
 		&\Expect*{\abs*{
-			\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
+			\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)
 		}} \\
-		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \Prob*{\sk_{unfav} \in \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}\\ 
-		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [2s(\lambda)]} \Prob*{\sk_{unfav} \in \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}\\ 
-		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [2s(\lambda)]} \frac{\X(\sk)}{2^\lambda}\\ 
-		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [2s(\lambda)]} \frac{1}{2}\\ 
-		\le &\frac{2^\lambda}{2^{2s(\lambda)}}
+		=& \Expect*{
+			\sum_{\sk_{unfav} \in \SK_{unfav}} \mathbf 1_{\sk_{unfav} \in \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)}
+		}\\ 
+		=&\sum_{\sk_{unvaf} \in \SK_{unfav}} \Prob*{\sk_{unfav} \in \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \label{eq:int_1}\\[.5em] % this was just bothering me 
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + 2\lambda]} \Prob*{\sk_{unfav} \in \SK_{cand}(x_i,y_i,\pi_i,\tau_i)} \label{eq:int_2}\\
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + 2\lambda]} \frac{\X(\sk_{unfav})}{2^\lambda} \label{eq:int_3}\\ 
+		\le &\sum_{\sk_{unvaf} \in \SK_{unfav}} \prod_{i \in [s(\lambda) + 2\lambda]} \frac{1}{2}\\ 
+		\le &\frac{1}{2^{s(\lambda) + \lambda}}
 	\end{align}
-	Which for general polynomials $s(\lambda) > \lambda$\todo{add assumption?} is negligibly small.
-	We can now use a simple Markov bound to show that the probability of a bad key surviving the filtering 
+	Where in \eqref{eq:int_1} we use linearity of expectation and the fact that $\mathbf 1_\E$ are Barnoulli random variables and in
+	\eqref{eq:int_2} we use that the evaluation points $x_1, \ldots, x_{s(\lambda) + 2\lambda}$ are sampled i.i.d. 
+	from $\bin^\lambda$.
+	We can now use a simple Markov bound to show that the probability of a unfavorable key surviving the filtering 
 	is negligibly small. Note that the expected number of surviving unfavorable secret keys is by 
 	definition non-negative and therefore we have that the probability of all keys filtered is given by the 
 	following expression:
 	\[
-		\Prob*{\abs*{\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1} \le \frac{2^\lambda}{2^{2s(\lambda)}}
+		\Prob*{\abs*{\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1} \le \frac{1}{2^{s(\lambda) + \lambda}}
 	\]
 	To bound the final probability simply condition on the event that no bad key survives.
 	Let $\E$ be the event that $|\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i, y_i,\pi_i,\tau_i)| = 0$
