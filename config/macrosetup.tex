@@ -86,17 +86,68 @@
 \newcommand{\VRF}{\textup{\textbf{VRF}}}      % for the VRF primitive
 \newcommand{\PPTM}{\textup{\textsf{ PPTM }}}
 \newcommand{\iddots}{\ensuremath{{\cdot^{\cdot^{\cdot}}}}}
+
 \newcommand{\SK}{\mathcal{SK}}
 \newcommand{\PK}{\mathcal{PK}}
+\newcommand{\tildeSK}{\smash{\widetilde\SK}}
+\newcommand{\tildePK}{\smash{\widetilde\PK}}
 
 \newcommand{\PSPACE}{\ensuremath{\textup{\textsf{PSPACE}}}}
 \newcommand{\NP}{\ensuremath{\textup{\textsf{NP}}}}
 \newcommand{\PP}{\ensuremath{\textup{\textsf{P}}}}
 
-\newcommand{\err}{\ensuremath{\eps}}
-\newcommand{\runtime}{\ensuremath{\mathfrak{t}}}
-\newcommand{\errtime}{\ensuremath{(\runtime, \eps)}}
-\newcommand{\errtimelen}{\ensuremath{(\runtime, \eps, \mathfrak{a}, \mathfrak{b})}}
+\NewDocumentCommand{\err}{o o}{%
+  \ensuremath{
+    \IfNoValueTF{#1}{
+      \IfNoValueTF{#2}{
+        \eps
+      }{
+        \smash{\eps_{2}}
+      }
+    }{
+      \IfNoValueTF{#2}{
+        \smash{\eps^{#1}}
+      }{
+        \smash{\eps^{#1}_{#2}}
+      }
+    }
+  }
+}
+\NewDocumentCommand{\runtime}{o o}{%
+  \ensuremath{
+    \IfNoValueTF{#1}{
+      \IfNoValueTF{#2}{
+        \mathfrak{t}
+      }{
+        \smash{\mathfrak{t}_{#2}}
+      }
+    }{
+      \IfNoValueTF{#2}{
+        \smash{\mathfrak{t}^{#1}}
+      }{
+        \smash{\mathfrak{t}^{#1}_{#2}}
+      }
+    }
+  }
+}
+\NewDocumentCommand{\errtime}{o o}{%
+  \ensuremath{
+    \IfNoValueTF{#1}{
+      \IfNoValueTF{#2}{
+        (\mathfrak{t}, \eps)
+      }{
+        \smash{(\mathfrak{t}_{#2}, \eps_{2})}
+      }
+    }{
+      \IfNoValueTF{#2}{
+        \smash{(\mathfrak{t}^{#1}, \eps^{#1})}
+      }{
+        \smash{(\mathfrak{t}^{#1}_{#2}, \eps^{#1}_{#2})}
+      }
+    }
+  }
+}
+\newcommand{\errtimelen}{\ensuremath{(\mathfrak{t}, \eps, \mathfrak{a}, \mathfrak{b})}}
 \newcommand{\sk}{\ensuremath{\textup{\textsf{sk}}}}
 \newcommand{\pk}{\ensuremath{\textup{\textsf{pk}}}}
 \newcommand{\pcreq}{\operatorname{\textbf{req}}}

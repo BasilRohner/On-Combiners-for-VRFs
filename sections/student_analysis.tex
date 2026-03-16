@@ -435,20 +435,18 @@ sampled with both keys. Formally we define the relations $\sim_\SK, \sim_\PK$ as
 	} > 0 \label{eq:sim_pk}
 \end{align}
 We now consider the reflexive transitive closure of those relations $\sim_\SK^*, \sim_\PK^*$,
-formally defined by $\sim^* = \bigcup_{k \in \N} \sim^k$. The resulting relations 
-$\sim_\SK^*,\sim_\PK^*$ are equivalence relations because the underlying relations $\sim_\SK, \sim_\PK$
-are symmetric and the reflexive transitive closure of a symmetric relation remains symmetric and 
-is extended to a reflexive and transitive relation \todo{polish}. Given an element $\sk$
+formally defined by $\sim^* = \bigcup_{k \in \N} \sim^k$. Since $\sim_\SK$ and $\sim_\PK$ are symmetric by definition, their 
+reflexive transitive closures are reflexive, symmetric and transitive and hence equivalence relations. Given an element $\sk$
 we denote its equivalence class under $\sim_\SK^*$ with $[\sk]_{\sim_\SK^*} = \Brace{\sk' \in \SK : \sk' \sim_\SK^* \sk}$,
 analogously for an element $\pk$ and the relation $\sim_\PK^*$ we define $[\pk]_{\sim_\PK^*} = \Brace{\pk' \in \PK: \pk' \sim_\PK^* \pk}$.
 We claim that secret and public keys related with the relation $\sim^*_\SK, \sim_\PK^*$ respectively
-induce the same mapping on their respective algorithm. We formally state this observation in the following claim.
+induce the same mapping on their respective algorithm. We formally state this observation in \Cref{claim:equiv_prop}.
 
-\begin{claim}\label{claim:equiv_rel_and_prop}
+\begin{claim}\label{claim:equiv_prop}
 	For all secret keys $\widetilde\sk \in \widetilde\SK$
 	that the following property holds:
 	\[
-		\forall \sk \in [\widetilde\sk]_{\sim_\SK^*}, \O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, \cdot)
+		\forall \sk \in [\widetilde\sk]_{\sim_\SK^*}, \O_{uppc}.\alg{Eval}{VRF}^y(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}^y(\widetilde\sk, \cdot)
 	\]
 	and for all public keys $\widetilde\pk \in \widetilde\PK$ that the following holds
 	\[
@@ -456,7 +454,7 @@ induce the same mapping on their respective algorithm. We formally state this ob
 	\]
 \end{claim}
 
-\begin{proof}[\Cref{claim:equiv_rel_and_prop}]
+\begin{proof}[\Cref{claim:equiv_prop}]
 Let $\widetilde\sk \in \widetilde\SK$ be arbitrary and for a contradiction that there exists a 
 $\sk \in [\widetilde\sk]_{\sim_\SK^*}$ and an arbitrary evaluation point $x \in \bin^\lambda$ such that $\O_{uppc}.\alg{Eval}{VRF}(\sk, x) = y$
 and $\O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, x) = \tilde y$ with $y \neq \tilde y$.
@@ -480,14 +478,13 @@ The argument for the public key version of that statement is analogous.
 \end{proof}
 
 Additionally, for secret and public keys we define the function $R_\SK$ and $R_\PK$
-respectively. $R$ maps a key to all counterparts with are sampled with that key 
-with non-negligible probability.
+respectively that map a key to all counterparts which are sampled with that key with non-negligible probability.
 \begin{align}
 	R_\PK(\pk) &= \Brace*{\sk\in\SK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}\\ 
 	R_\SK(\sk) &= \Brace*{\pk\in\PK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}
 \end{align}
-Next we define the notion of the closure of a set.
-Given a subset of secret $\widetilde\SK$ or public keys $\widetilde\PK$ we define its closure 
+Next, we define the notion of the closure of a set of secret or public keys.
+Given a subset of secret keys $\widetilde\SK$ or public keys $\widetilde\PK$ we define its closure 
 $\closure_\SK(\widetilde\SK)$ and $\closure_\PK(\widetilde\PK)$ which are just the union over the equivalence classes 
 of all keys in the subsets. We formally define the functions as follows:
 \begin{align}
@@ -498,76 +495,115 @@ Observe that the secret key closure $\closure_\SK(\widetilde\SK)$ for a subset $
 is the set of secret keys that need to be remapped if we want to remap all of the evaluations on the 
 secret keys $\widetilde\SK$ to preserve unique provability and correctness. The same holds for the public key closure.
 Now we define the closure for subsets $\widetilde\SK \subseteq \SK$ and $\widetilde\PK \subseteq \PK$
-at the same time.
+at the same time. They correspond to the minimal set of secret or public keys that need to be remapped to preserved 
+unique provability and perfect correctness of $\O_{uppc}$ if we want to remap all keys in $\widetilde\SK$ and $\widetilde\PK$.
 \begin{align}
 	\closure_\SK(\widetilde\SK,\widetilde\PK) &= \closure_\SK(\widetilde\SK) \cup \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)\\ 
 	\closure_\PK(\widetilde\SK, \widetilde\PK) &= \closure_\PK(\widetilde\PK) \cup \bigcup_{\widetilde\sk \in \closure_\SK(\widetilde\SK)} R_\SK(\widetilde\sk) 
 \end{align}
-We now constuct an oracle $\widetilde\O_{up}$ that interpolates between $\O_{up}$ and $\O_\VRF$.
-To be precise we define all of the algorithms of $\widetilde\O_{up}$:
+Finally, we constuct an oracle $\widetilde\O_{uppc}$ that interpolates between $\O_{uppc}$ and $\O_{vrf}$.
 The key generation algorithm is defined to be the function for key generation of 
-$\O_\VRF$ while the function for evaluation and verification are defined as follows.
+$\O_{vrf}$, the evaluation and the verification algorithm of $\widetilde\O_{uppc}$ are defined as follow,
+they evaluate to the output of $\O_{uppc}$ on all keys in $\widetilde\SK$ and $\widetilde\PK$
+and they evaluate to the output of $\O_{vrf}$ otherwise.
 \begin{align}
-	\widetilde\O_{up}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
-		\O_{up}.\alg{Eval}{VRF}(\sk, x) & \text{if } \sk \in \closure_\SK(\widetilde\SK,\widetilde\PK)\\ 
-		\O_{\VRF}.\alg{Eval}{VRF}(\sk, x) & \text{otherwise}
-	\end{cases}\\ 
-	\widetilde\O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) &= \begin{cases}
-		\O_{up}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{if } \pk \in \closure_\PK(\widetilde\SK,\widetilde\PK)\\  
-		\O_{\VRF}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{otherwise}
-	\end{cases}
+	\widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
+		\O_{uppc}.\alg{Eval}{VRF}(\sk, x) & \text{if } \sk \in \closure_\SK(\widetilde\SK,\widetilde\PK)\\ 
+		\O_{vrf}.\alg{Eval}{VRF}(\sk, x) & \text{otherwise}
+	\end{cases}\label{eq:uppc_eval}\\ 
+	\widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, x, y, \pi) &= \begin{cases}
+		\O_{uppc}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{if } \pk \in \closure_\PK(\widetilde\SK,\widetilde\PK)\\  
+		\O_{vrf}.\alg{Vfy}{VRF}(\pk, x, y, \pi) & \text{otherwise}
+	\end{cases}\label{eq:uppc_vfy}
 \end{align}
-Note that the properties $1.$ and $2.$ of \Cref{lemma:vrfification} hold by definition of the oracle
-since by reflexivity of $\sim_\SK^*$ and $\sim_\PK^*$ we have 
-$\widetilde\SK \subseteq \closure_\SK(\widetilde\SK,\widetilde\PK)$ 
-and $\widetilde\PK \subseteq \closure_\PK(\widetilde\SK,\widetilde\PK)$.
-We show that $3.$ holds by showing the $\widetilde\O_{up}$ is uniquely provable and perfectly correct 
-and pseudorandom seperately.
+The properties $1.$ and $2.$ of \Cref{lemma:vrfification} hold by definition of $\widetilde\O_{uppc}$
+since $\widetilde\SK \subseteq \closure_\SK(\widetilde\SK) \subseteq \closure_\SK(\widetilde\SK, \widetilde\PK)$
+and $\widetilde\PK \subseteq  \closure_\PK(\widetilde\PK) \subseteq \closure_\PK(\widetilde\SK, \widetilde\PK)$
+which hold by reflexivity of $\sim_\SK^*$ and $\sim_\PK^*$ respectively.
+We show that $3.$ holds by showing the $\widetilde\O_{uppc}$ is uniquely provable, perfectly correct 
+and pseudorandom.
 
 \begin{claim}\label{claim:vrfification_pc_up}
-	Let $\O_{up}, \O_{vrf}$ be oracles implementing a uniquely provable VF in the sense of \Cref{def:unique_provability}
-	and a VRF in the sense of \Cref{def:vrf} respectively. The oracle $\O_{mix}$ constructed from 
-	$\O_{up}$ and $\O_{vrf}$ is perfectly correct in the sense of \Cref{def:correctness}
+	Let $\O_{uppc}$ be a VF oracle that is uniquely provable in the sense of \Cref{def:unique_provability}
+	and perfectly correct in the sense of \Cref{def:correctness} and let $\O_{vrf}$
+	be a VF oracle that implements a secure VRF in the sense of \Cref{def:vrf}.
+	The oracle $\widetilde\O_{uppc}$ constructed from 
+	$\O_{up}$ and $\O_{vrf}$ for given subsets $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$
+	as in \eqref{eq:uppc_eval} and \eqref{eq:uppc_vfy}
+	is perfectly correct in the sense of \Cref{def:correctness}
 	and uniquely provable in the sense of \Cref{def:unique_provability}.
 \end{claim}
 
-Let $\lambda \in \N$ be arbitrary. For perfect correctness let $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$, 
-let $x \in \bin^\lambda$ be arbitrary and let $(y,\pi) \gets \O_{mix}.\alg{Eval}{VRF}(\sk, x)$. 
-We show that $\sk \in \SK_{map}$ if and only if $\pk \in \PK_{map}$, following that, if $\sk \in \SK_{map}$ then 
-$(y,\pi)$ verifies by perfect correctness of $\O_{up}$ and if $\sk \notin \SK_{map}$ then $(y,\pi)$
-verifies by perfect correctness of $\O_{vrf}$.
+\begin{proof}[\Cref{claim:vrfification_pc_up}]
+	Let $\lambda \in \N$ be arbitrary but fixed.
+	We show unique provability and perfect correctness seperately.
 
-We show only $\sk \in \SK_{map} \implies \pk \in \PK_{map}$, the other direction follows from a 
-symmetric argument. Assume $\sk \in \SK_{map}$, by definition of $\SK_{map}$ we distinguish the cases 
-$\sk \in \closure(\widetilde\SK)$ and $\sk \in \bigcup_{\widetilde\pk \in \closure(\widetilde\PK)} R_\PK(\widetilde\pk)$.
-If $\sk \in \closure(\widetilde\SK)$ then together with $\pk \in R_\PK(\sk)$ we get $\pk \in \bigcup_{\widetilde\sk \in \closure(\widetilde\SK)} R_\SK(\widetilde\sk)$
-and therefore $\pk \in \PK_{map}$. On the other hand if $\sk \in \bigcup_{\widetilde\pk \in \closure(\widetilde\PK)} R_\PK(\widetilde\pk)$
-then for some $\widetilde\pk \in \closure(\widetilde\PK)$ we have $\sk \in R_\PK(\widetilde\pk)$ but since 
-$\widetilde\pk \sim_\PK \pk$ and therefore in particular $\widetilde\pk \sim_\PK^* \pk$ we have 
-$\pk \in \closure(\widetilde\pk)$, implying $\pk \in \PK_{map}$.
+	\textit{Correctness}: Let $(\sk, \pk) \sample \widetilde\O_{uppc}.\alg{Gen}{VRF}(1^\lambda)$,
+	let $x \in \bin^\lambda$ be arbitrary and let $(y,\pi) \gets \widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk, x)$.
+	To show that $\widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1$ with probability $1$
+	it suffices to show that $\sk \in \closure_\SK(\tildeSK, \tildePK)$ if and only if 
+	$\pk \in \closure_\PK(\tildeSK, \tildePK)$, since if $\sk \in \closure_\SK(\tildeSK, \tildePK)$
+	and hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$ verifies by perfect correctness of 
+	$\O_{uppc}$ while if $\sk \notin_\SK(\tildeSK, \tildePK)$ and hence $\pk \notin \closure_\PK(\tildeSK, \tildePK)$
+	verifies by perfect correctness of $\O_{vrf}$.
 
-For unique provability, suppose for a contradiction, that there exist two distinct images 
-$y_0 \neq y_1$ with corresponding proofs $\pi_0, \pi_1$ such that
-$\O_{mix}.\alg{Vfy}{VRF}(\pk, x, y_0, \pi_0) = \O_{mix}.\alg{Vfy}{VRF}(\pk, x, y_1, \pi_1) = 1$.
-Now, if $\pk \in \PK_{map}$ then we break the assumed unique provability of $\O_{up}$
-and if $\pk \notin \PK_{map}$ then we break the assumed unique provability of $\O_{vrf}$.
-We conclude that the constructed oracle $\O_{mix}$ must indeed be perfectly correct 
-and uniquely provable.
+	We show $\sk \in \closure_\SK(\tildeSK, \tildePK) \implies \pk \in \closure_\PK(\tildeSK, \tildePK)$, the 
+	converse follows analogously. Assume the left-hand side, i.e. $\sk \in \closure_\SK(\tildeSK,\tildePK)$ and distinguish 
+	two cases based on the definition of $\closure_\SK(\tildeSK, \tildePK)$.
+	If $\sk \in \closure_\SK(\tildeSK)$ then since $\pk \in R_\SK(\sk)$ we obtain 
+	$\pk \in \bigcup_{\widetilde\sk \in \closure_\SK(\tildeSK)} R_\SK(\widetilde\sk)$ and hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$.
+	On the other hand, if $\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\tildePK)} R_\PK(\widetilde\pk)$ 
+	then $\sk \in R_\PK(\widetilde\pk)$ for some $\widetilde\pk \in \closure_\PK(\tildePK)$. By definition of the closure we have 
+	$\pk \sim_\PK^* \widetilde\pk$, hence $\pk \in \closure_\PK(\tildePK)$ and thus $\pk \in \closure_\PK(\tildeSK, \tildePK)$.\todo{more details}
 
-Next we show that if $\O_{\VRF}$ is pseudorandom then $\O_{mix}$ is also pseudorandom. 
-We formulate this statement precisely in the following claim.
+	\textit{Unique Provability}: Assume towards a contradiction that there exist two image-proof pairs 
+	$(y_1,\pi_1)$ and $(y_2, \pi_2)$ with distinct images $y_1 \neq y_2$ such that 
+	$\widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, x, y_1, \pi_1) = 1$ and $\widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, x, y_2, \pi_2) = 1$.
+	If $\pk \in \closure_\PK(\tildeSK, \tildePK)$ then verification is defined by $\O_{uppc}$ and we arrive at a contradiction 
+	with the unique provability of $\O_{uppc}$. If $\pk \notin \closure_\PK(\tildeSK, \tildePK)$ then verification is defined by 
+	$\O_{vrf}$ and therefore we arrive at a contradiction with the assumed unique provability of $\O_{vrf}$.
+	In either case we reach a contradiction, hence there cannot exist such image-proof pairs.
+
+	We conclude that $\widetilde\O_{uppc}$ is perfectly correct and uniquely provable.
+\end{proof}
 
 \begin{claim}\label{claim:vrfification_prf}
-	Let $\O_{up}, \O_{vrf}$ be oracles implementing a uniquely provable VF in the sense of 
-	\Cref{def:unique_provability} and a VRF in the sense of \Cref{def:vrf} respectively
-	that is $\errtime$-pseudorandom.
-	Let $\widetilde\SK \subseteq \SK, \widetilde\PK \subseteq \PK$ be polynomially bounded subsets of 
-	the secret and public key space respectively, i.e. $|\widetilde\SK|, |\widetilde\PK| \in \poly$.
-	Then $\widetilde\O_{mix}^{\widetilde\SK, \widetilde\PK, \O_{up}, \O_{vrf}}$ which is constructed from $\O_{up}$ and $\O_{vrf}$
-	using the above procedure is $\errtime$-pseudorandom for $\err_{mix}^{prf} = \err_{vrf}^{prf} + \mu_1(\lambda) + \mu_2(\lambda)$
-	where both $\mu_1(\lambda)$ and $\mu_2(\lambda)$ are negligible functions depending on the size of the closure of 
-	$\widetilde\SK$ and $\widetilde\PK$ respectively.
+	Let $\O_{uppc}$ be a VF oracle that is uniquely provable in the sense of \Cref{def:unique_provability}
+	and perfectly correct in the sense of \Cref{def:correctness} and let $\O_{vrf}$
+	be a VF oracle that implements a secure VRF in the sense of \Cref{def:vrf}
+	that is $\errtime[prf][vrf]$-pseudorandom.
+	The oracle $\widetilde\O_{uppc}$ constructed from 
+	$\O_{up}$ and $\O_{vrf}$ for given subsets $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$
+	as in \eqref{eq:uppc_eval} and \eqref{eq:uppc_vfy}
+	is $\errtime[prf][uppc]$-pseudorandom in the sense of \Cref{def:pseudorandomness}.
+	Where
+	\[
+		\err[prf][vrf] = (2 + |\tildeSK| + |\tildePK|)\err[prf][uppc] \quad \text{ and } \quad
+	\]
 \end{claim}
+
+Use a hybrid argument for the proof. Intuitively the proof works by bounding the probability that a bad event $\E$, that the 
+secret key $\sk^*$ sampled in the pseudorandomness security experiment is in the set $\closure_\SK(\tildeSK, \tildePK)$.
+If $\E$ doesn't occur, then the security game is identical to the security game against $\O_{vrf}$ which no adversary running in time
+$\runtime[prf][vrf]$ wins with advantage greater than $\err[prf][vrf]$. Using the difference lemma we can then bound the advantage 
+of any adversary playing the pseudorandomness game against $\widetilde\O_{uppc}$ from above by an expression 
+in $\err[prf][vrf]$. Before we formally prove \Cref{claim:vrfification_prf} we state the difference lemma, we defer the proof 
+of it to the appendix since its a known result.
+
+\begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
+	let $W_0,W_1$ and $B$ be events satisfying:
+	\[
+		\Prob*{W_0 \mid \lnot B} = \Prob*{W_1 \mid \lnot B} 
+	\]
+	Then we can impose the following bound:
+	\[
+		\abs*{\Prob*{W_0} - \Prob*{W_1}} \le \Prob*{B}
+	\]	
+\end{lemma}
+
+\begin{proof}[\Cref{claim:vrfification_prf}]
+	
+\end{proof}
 
 Assume, towards a contradiction, that $\O_{mix}$ is not pseudorandom, i.e. 
 that there exists an efficient (ppt.) adversary $\A$ such that $\A$ wins the pseudorandomness 
