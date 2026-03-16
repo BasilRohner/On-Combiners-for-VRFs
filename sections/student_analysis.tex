@@ -439,43 +439,6 @@ formally defined by $\sim^* = \bigcup_{k \in \N} \sim^k$. Since $\sim_\SK$ and $
 reflexive transitive closures are reflexive, symmetric and transitive and hence equivalence relations. Given an element $\sk$
 we denote its equivalence class under $\sim_\SK^*$ with $[\sk]_{\sim_\SK^*} = \Brace{\sk' \in \SK : \sk' \sim_\SK^* \sk}$,
 analogously for an element $\pk$ and the relation $\sim_\PK^*$ we define $[\pk]_{\sim_\PK^*} = \Brace{\pk' \in \PK: \pk' \sim_\PK^* \pk}$.
-We claim that secret and public keys related with the relation $\sim^*_\SK, \sim_\PK^*$ respectively
-induce the same mapping on their respective algorithm. We formally state this observation in \Cref{claim:equiv_prop}.
-
-\begin{claim}\label{claim:equiv_prop}
-	For all secret keys $\widetilde\sk \in \widetilde\SK$
-	that the following property holds:
-	\[
-		\forall \sk \in [\widetilde\sk]_{\sim_\SK^*}, \O_{uppc}.\alg{Eval}{VRF}^y(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}^y(\widetilde\sk, \cdot)
-	\]
-	and for all public keys $\widetilde\pk \in \widetilde\PK$ that the following holds
-	\[
-		\forall \pk \in [\widetilde\pk]_{\sim_\PK^*}, \O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \O_{uppc}.\alg{Vfy}{VRF}(\widetilde\pk, \cdot, \cdot, \cdot)
-	\]
-\end{claim}
-
-\begin{proof}[\Cref{claim:equiv_prop}]
-Let $\widetilde\sk \in \widetilde\SK$ be arbitrary and for a contradiction that there exists a 
-$\sk \in [\widetilde\sk]_{\sim_\SK^*}$ and an arbitrary evaluation point $x \in \bin^\lambda$ such that $\O_{uppc}.\alg{Eval}{VRF}(\sk, x) = y$
-and $\O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, x) = \tilde y$ with $y \neq \tilde y$.
-Note that the following holds:
-\begin{align}
-	\sk \in [\widetilde\sk]_{\sim_\SK^*} 
-	&\iff \sk \in \Brace*{\sk' \in \SK : \sk' \sim_\SK^* \widetilde\sk}\\ 
-	&\iff \sk \in \Brace*{\sk' \in \SK: \exists k \in \N, \sk' \sim_\SK^k \widetilde\sk}\\
-	&\iff \sk \in \bigcup_{k \in \N} \Brace*{\sk' \in \SK: \sk' \sim_\SK^k \widetilde\sk}\\
-	&\iff \sk \in \bigcup_{k \in \N} [\widetilde\sk]_{\sim_\SK^k}
-\end{align}
-Which is why we can establish the claim by induction on $k \in \N$. For the base case note that $\sk \in [\widetilde\sk]_{\sim_\SK^0}$ if and only if $\sk = \widetilde\sk$,
-which directly results in a contradiction since then we would break either unique provability or perfect correctness immediately.
-For the inductive step assume that the claim holds for $k \in \N$, we show that it also holds for $k+1$.
-Let $\sk \in [\widetilde\sk]_{\sim_\SK^{k+1}}$ and let $\widehat\sk \in [\widetilde\sk]_{\sim_\SK^k}$ be arbitrary, then we know that $\sk \sim_\SK \widehat\sk$
-and therefore $\O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widehat\sk, \cdot)$. By the induction hypothesis we know that 
-$\O_{uppc}.\alg{Eval}{VRF}(\widehat\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, \cdot)$
-and therefore we finally arrive at $\O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\widetilde\sk, \cdot)$.
-The argument for the public key version of that statement is analogous.
-\todo{polish}
-\end{proof}
 
 Additionally, for secret and public keys we define the function $R_\SK$ and $R_\PK$
 respectively that map a key to all counterparts which are sampled with that key with non-negligible probability.
@@ -602,7 +565,23 @@ of it to the appendix since its a known result.
 \end{lemma}
 
 \begin{proof}[\Cref{claim:vrfification_prf}]
-	
+	We define games $H_1, H_2, H_3$ as follows. 
+	\begin{itemize}
+		\item $H_1$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 0}$
+	against the oracle $\highlight{\O_{vrf}}$,
+	i.e. the adversary is playing against the prf security game where he is given a challenge image $y^*$ computed from 
+	the challenge pre-image $x^*$ using $\O_{vrf}.\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$ is the hidden 
+	secret key sampled by the challenger.
+		\item $H_2$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 0}$
+	against the oracle $\highlight{\widetilde\O_{uppc}}$, 
+	i.e. the adversary is playing the prf security game where he is given a challenge image $y^*$ computed from 
+	the challenge pre-image $x^*$ using $\widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$
+	is the hidden secret key sampled by the challenger.
+		\item $H_2$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 1}$
+	against the oracle $\highlight{\O_{vrf}}$, 
+	i.e. the adversary is playing the prf security game where he is given a challenge image $y^*$ which the challenger sampled u.a.r. from 
+	the image co-domain $\Y$.
+	\end{itemize}
 \end{proof}
 
 Assume, towards a contradiction, that $\O_{mix}$ is not pseudorandom, i.e. 
