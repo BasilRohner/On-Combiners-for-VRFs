@@ -577,53 +577,39 @@ of it to the appendix since its a known result.
 	i.e. the adversary is playing the prf security game where he is given a challenge image $y^*$ computed from 
 	the challenge pre-image $x^*$ using $\widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$
 	is the hidden secret key sampled by the challenger.
-		\item $H_2$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 1}$
+		\item $H_3$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 1}$
 	against the oracle $\highlight{\O_{vrf}}$, 
 	i.e. the adversary is playing the prf security game where he is given a challenge image $y^*$ which the challenger sampled u.a.r. from 
 	the image co-domain $\Y$.
 	\end{itemize}
-\end{proof}
+	We write $H_i^{\lambda,\A} = 1$ to denote the event that adversary $\A$ wins the 
+	game $H_i$ for all $i \in [3]$, we can now bound the advantage of any adversary $\A$ against $\smash{\widetilde\O_{uppc}}$
+	in the pseudorandomness security experiment as follows.
+	\begin{align}
+		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}
+		&= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}\\ 
+		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}}\\ 
+		&\quad +\abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}\\ 
+		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \Adv*{\O_{vrf}}{prf}{\lambda, \A}\\ 
+		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \err[prf][vrf]\label{eq:halt_1}
+	\end{align}\todo{maybe arrive here seperately}
 
-Assume, towards a contradiction, that $\O_{mix}$ is not pseudorandom, i.e. 
-that there exists an efficient (ppt.) adversary $\A$ such that $\A$ wins the pseudorandomness 
-experiment against $\O_{mix}$ with non-negligible advantage.  We now show that 
-the pseudorandomness game against $\O_{mix}$ and $\O_\VRF$ are statistically close,
-i.e. we bound the probability that the hidden secret key $\sk \in \SK_{map}$ and apply the difference lemma. 
-We define the following games $H_1(\lambda, \A), H_2(\lambda, \A)$ and $H_3(\lambda, \A)$
-corresponding to the pseudorandomness security experiment for hidden bit $b = 0$ against $\O_\VRF$, 
-the pseudorandomness security experiment for hidden bit $b = 1$ against $\O_\VRF$ and 
-the pseudorandomness security experiment for hidden bit $b = 1$ against $\O_{mix}$ respectively 
-as defined in \Cref{fig:prf_wprf_up_experiment}.
-
-We use $H_i^{prf}(\lambda, \A) = 1$ to denote the event that adversary $\A$ wins the game $H_i$ for $i \in [3]$.
-\todo{define games of the hybrid formally}
-\begin{align}
-	\Adv{VRF}{prf}{\A, \O_{mix}} &= \abs*{\Prob*{H_0^{prf}(\lambda,\A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}\\ 
-	&= \Big|\Prob*{H_0^{prf}(\lambda, \A) = 1} - \Prob*{H_2^{prf}(\lambda, \A) = 1} \\ 
-	&+ \Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}\Big|\\ 
-	&\le \abs*{\Prob*{H_0^{prf}(\lambda, \A) = 1} - \Prob*{H_2^{prf}(\lambda, \A) = 1}} \\ 
-	&+\abs*{\Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}\\ 
-	&\le \err_{VRF, mix}^{prf} + \abs*{\Prob*{H_2^{prf}(\lambda, \A) = 1} - \Prob*{H_1^{prf}(\lambda, \A) = 1}}
-\end{align}
-Let $\E$ be the event that $\sk \in \SK_{map}$ for $(\sk, \pk) \sample \O_{mix}.\alg{Gen}{VRF}(1^\lambda)$.
-Observe that the games $H_2, H_1$ are identical if the event $\E$ doesn't occur.
-The difference lemma is a classical result in cryptography and states that the difference in probability of 
-an event happening can be bounded from above by the probability of a "bad" event happening conditioned on which 
-the previous two events have the same probability of happening.
-For completeness we state the result but defer the proof to the appendix.
-\begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
-	let $W_0,W_1$ and $B$ be events satisfying:
+	Consider the event that the challenger in the pseudorandomness security experiment samples 
+	a secret key $\sk^* \in \closure_\SK(\tildeSK, \tildePK)$. If $\sk^* \notin \closure_\SK(\tildeSK, \tildePK)$ then in $H_2$
+	we are playing the prf security game against $\smash{\widetilde\O_{uppc}}$ which is evaluates to the same 
+	outputs as $\O_{vrf}$. Hence we have that under the event not happening that $H_1 = H_2$ and therefore in particular that
 	\[
-		\Prob*{W_0 \mid \lnot B} = \Prob*{W_1 \mid \lnot B} 
+		\Prob*{H_2^{\lambda, \A} = 1} = \Prob*{H_1^{\lambda, \A} = 1}
 	\]
-	Then we can impose the following bound:
-	\[
-		\abs*{\Prob*{W_0} - \Prob*{W_1}} \le \Prob*{B}
-	\]	
-\end{lemma}
-By the above observation we can therefore bound the difference in probability over the two games 
-by the probability of event $\E$ occuring. Applying a union bound and the definition of the joint closure
-we then arrive at the following bound of the adversary $\A$'s advantage.
+	Applying \Cref{lemma:difference_lemma} and resuming from \Cref{eq:halt_1} we obtain:
+	\begin{align}
+		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}
+		&\le \Prob*{\sk^* \in \closure_\SK(\tildeSK, \tildePK)} + \err[prf][vrf]\\ 
+		&\le \Prob*{\sk^* \in \closure_\SK(\tildeSK, \tildePK) \cup \bigcup_{\widetilde\pk \in \closure_\PK(\tilde\PK)} R_\PK(\widetilde\pk)} + \err[prf][vrf]\\ 
+		&\le \Prob*{\sk^* \in \closure_\SK(\tildeSK, \tildePK)} \\ 
+		&\quad +  \Prob*{\sk^* \in \bigcup_{\widetilde\pk \in \closure_\PK(\tilde\PK)} R_\PK(\widetilde\pk)} + \err[prf][vrf]
+	\end{align}
+\end{proof}
 \begin{align}
 	\Adv{VRF}{prf}{\mathcal A, \O_{mix}} &\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure_\SK(\widetilde\SK,\widetilde\PK)}\\
 	&\le \err_{VRF, mix}^{prf} + \Prob*{\sk \in \closure_\SK(\widetilde\SK)}\\
