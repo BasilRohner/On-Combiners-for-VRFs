@@ -908,24 +908,13 @@ Subsequently, $\A$ uses the evaluation oracle in the prf game to evaluate the po
 $(y_1, \pi_1), \ldots, (y_{s(\lambda) + \lambda}, \pi_{s(\lambda) + \lambda})$. Using the public key $\pk^*$
 the adversary will then compute the combiners verifier traces for all tuples consisting of evaluation point and image-proof pair
 $(x_1, y_1, \pi_1), \ldots, (x_{s(\lambda) + \lambda}, y_{s(\lambda) + \lambda}, \pi_{s(\lambda) + \lambda})$ to obtain 
-$\tau_1, \ldots, \tau_{s(\lambda) + \lambda}$. Next, by means of binary search $\A$ will find the size of candidate key set
-relying on the oracle $\PSPACE$.
-
-
-We can now describe the distinguisher $\mathcal D$ for the pseudorandomness game as follows:
-$\mathcal D$ first samples $2s(\lambda)$ evaluation points $x_i$ uniformly at random from $\bin^\lambda$,
-then he uses the evaluation oracle of the pseudorandomness security experiment $\O_{eval}$
-to evaluate the points and obtain $(y_1, \pi_1), \ldots, (y_{2s(\lambda)}, \pi_{2s(\lambda)})$.
-Subsequently he computes the trace of the combiners verification algorithm $\tau_i$ on $(x_i, y_i, \pi_i)$.
-Using binary search and at most $2s(\lambda)$ many queries to its PSPACE complete oracle it can recover 
-the size of the set of candidate secret keys $\SK_{cand}$ using the language $\mathcal L_{size}$.
-He then samples a uniformly random number $\rho \in [|\SK_{cand}|]$ then then bit-for-bit, again 
-using $2s(\lambda)$ many queries recovers a the $\rho$'th candidate key in canonical ordering from $\SK_{cand}^{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in 2s(\lambda)}}$.
-He then samples a uniformly random challenge $x^* \sample \bin$, 
-checking that $x^* \neq x_i$ and returns the secret key candidate $\sk_{cand}$ in the state and $x^*$.
-
-In the second stage then then gets $\sk_{cand}, x^*$ and $y^*$. He simply recomputes $y' \gets \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk_{cand}, x)$
-and returns $0$ if $y^* = y'$ and $1$ otherwise. 
+$\tau_1, \ldots, \tau_{s(\lambda) + \lambda}$. Next, the adversary will use binary search over $m$ to find the size 
+of the candidate key set, $k$, by querying the $\PSPACE$ oracle to decide membership in $\mathcal L_{size}$ before 
+sampling a random element $\rho \sample [k]$ and recovering the $\rho$'th candidate $\sk_{cand}$ bit-by-bit using the PSAPCE oracle 
+to decide membership in $\mathcal L_{cand}$.
+Finally, the adversary samples a random challenge pre-image $x^* \sample \bin^\lambda \setminus \{x_1, \ldots, x_{s(\lambda) + \lambda}\}$,
+obtain from the challenger the challenge image $y^*$, computes the image $y'$ of $x^*$ under the combiners evaluation algorithm 
+with the secret key candidate $\sk_{cand}$ and guesses bit $b = 0$ if and only if $y' = y^*$.
 We illustrate the distinguisher in \Cref{fig:distinguisher}.
 
 \begin{figure}[hptb]
@@ -965,22 +954,36 @@ We illustrate the distinguisher in \Cref{fig:distinguisher}.
 	\label{fig:distinguisher}
 \end{figure}
 
-
-Finally, using what we proved before, we show that the distinguisher $\mathcal D^{\PSPACE, \O_1, \O_2}$ has non-negligible advantage 
-in the pseudorandomness game against $\BBComb{VRF}[\O_1, \O_2]$. We state this result formally in the final claim.
-
 \begin{claim}\label{claim:advantage_distinguisher}
-	The advantage of the adversary $(\mathcal D_1^{\PSPACE, \O_1, \O_2}, \mathcal D_2^{\PSPACE, \O_1, \O_2})$
-	in the pseudorandomness game against the combiner $\BBComb{VRF}[\O_1, \O_2]$ is
-	overwhelming, i.e.
+	Let $\A$ be the adversary as described above and in \Cref{fig:distinguisher}. $\A$ runs in time polynomial in 
+	the security parameter $\lambda$ and wins the pseudorandomness security experiment agaginst any robust black-box DAG combiner $\BBComb{VRF}$
+	instanciated with the candidates $\O_{vrf}$ and $\O_{up}$ as above with non-negligible advantage.
+	Specifically
 
 	\[
-		\Adv{VRF}{prf}{\mathcal A, \lambda} \ge 1 - 3\err_{VRF,mix}^{prf}
+		\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\mathcal A, \lambda} \ge \frac{1}{2} - \frac{1}{2^{\lambda + 1}}
 	\]
 \end{claim}
 
 \begin{proof}[\Cref{claim:advantage_distinguisher}]
-	The claim is established by applying the claims proven before.\todo{lots of arguing to do}
+	\textit{Runtime}: The adversary $\A$ can sample $s(\lambda) + \lambda$ evaluation points,
+	query the games evaluation oracle on them to obtain the image-proof pairs and 
+	evaluate the combiners verifiation algorithm on the point-image-proof tuples to obtain the trace in time $\O(s(\lambda) + \lambda)$.
+	The set of candidate keys is bounded in size by the size of the secret key space, thus by means of binary search $\A$
+	can obtain the size with at most $s(\lambda)$ queries to the PSPACE complete oracle.
+	With another $s(\lambda)$ queries $\A$ can then recover the $\rho$'th candidate key
+	bit-by-bit. The final evaluation of the combiners evaluation algorithm on the candidate secret key and the challenge pre-image
+	can also be done in polynomial time due to the efficiency requirement on the robust black-box DAG combiners.
+	Overall, the adversary runs in time polynomial in $\lambda$ and $n$.
+
+	\textit{Advantage}: During its execution, $\A$ will correctly compute the size of the candidate key set,
+	then obtain a uniformly random candidate secret key. We invoke \Cref{claim:candidate_likely_good}
+	which yields that with probability at least $\tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}$ the candidate secret key 
+	will evaluate to the same image on the challenge pre-image $x^*$ as the games internal secret key would.
+	Therefore, with probability at least $\tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}$ $\A$ wins the game.
+	Otherwise, with probability at most $\frac{1}{2} + \tfrac{1}{2^{\lambda + 1}}$ the adversary will not obtain the correct 
+	image $y^*$. If the hidden bit $b = 0$ then the adversary loses since he will guess $b = 1$, if the hidden bit 
+	is $b = 1$ then he will win except if the output $y' = y^*$ by chance. 
 \end{proof}
 
 While robust $(2;1)$ black-box combiners are generally sufficient to construct robust $(n;1)$ black-box combiners,
