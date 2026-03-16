@@ -322,10 +322,7 @@ they are indistinguishable for the combiners verification algorithm. This forces
 
 We show the description of the full adversary $\A$ in \Cref{fig:distinguisher}.
 
-\begin{proof}[\Cref{thm:impossibility_21_comb}] 
-	\todo{replace}
-\end{proof}
-\paragraph{Proof of \Cref{thm:impossibility_21_comb}.}
+\paragraph{Formal Treatment.}
 Let $\BBComb{VRF}$ be an arbitrary robust $(2;1)$ black-box DAG combiner for the VRF primitive.
 Let $\O_{vrf}$ be a VF oracle implementing a secure VRF and let $\O_{uppc}$ be an oracle implementing 
 a trivial, uniquely provable and perfectly correct VF such that the key generation algorithm always returns 
@@ -983,74 +980,61 @@ We illustrate the distinguisher in \Cref{fig:distinguisher}.
 	Therefore, with probability at least $\tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}$ $\A$ wins the game.
 	Otherwise, with probability at most $\frac{1}{2} + \tfrac{1}{2^{\lambda + 1}}$ the adversary will not obtain the correct 
 	image $y^*$. If the hidden bit $b = 0$ then the adversary loses since he will guess $b = 1$, if the hidden bit 
-	is $b = 1$ then he will win except if the output $y' = y^*$ by chance. 
+	is $b = 1$ then he will win except if the output $y' = y^*$ by chance. Since $y$ is in that case sampled u.a.r. 
+	we can bound the probability of that happening with $1-\tfrac{1}{|\Y|}$. Overall we get:
+
+	\begin{align}
+		\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
+		&= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+		&= \abs*{\Prob*{\A = 1 \mid b = 0}}
+	\end{align}
+\end{proof}
+
+Using \Cref{claim:advantage_distinguisher} we can now finally prove the \Cref{thm:impossibility_21_comb}.
+
+\begin{proof}[\Cref{thm:impossibility_21_comb}]
+	\Cref{claim:advantage_distinguisher} states that for every robust $(2;1)$ black-box DAG VRF-combiner $\BBComb{VRF}$ 
+	there exists a polynomial time adversary $\A$ with non-negligible advantage against $\BBComb{VRF}$ initialized with 
+	candidates $\O_{vrf}$ and $\O_{up}$. Since $\O_{vrf}$ implements a secure VRF we conclude that there exists no
+	robust $(2;1)$ black-box DAG VRF combiner since there exists no polynomial time adversary $\mathcal B$ against $\O_{vrf}$.
+	Since there exists no robust $(2;1)$ black-box DAG VRF-combiner, by \Cref{thm:generality_dag_comb}, there also 
+	doesn't exist a robust $(2;1)$ black-box VRF-combiner.
 \end{proof}
 
 While robust $(2;1)$ black-box combiners are generally sufficient to construct robust $(n;1)$ black-box combiners,
 non-existence of a robust $(2;1)$ black-box combiner 
 only allows one to deduce the impossibility of a robust $(n;\lfloor n/2\rfloor)$ black-box combiner.
-This holds since we can easily construct a robust $(2;1)$ black-box combiner from a
-robust $(n;\lfloor n/2\rfloor)$ black-box combiner by running the robust $(n;\lfloor n/2\rfloor)$ black-box 
-combiner and for every query made to the first $\lfloor n/2\rfloor$ oracle candidates we answer with the first 
-oracle candidate given to $\BBComb{VRF}^{(2;1)}$ and for the upper $n - \lfloor n/2\rfloor$
-candidate we simply query the other oracle. If at least one oracle given to $\BBComb{VRF}^{(2;1)}$
-implements a secure VRF, then at least $\lfloor n/2\rfloor$ candidates correspond to a VRF oracle.
-We can derive the following corollary.\todo{change title to lemma maybe}
+This allows us to extend the result in \Cref{thm:impossibility_21_comb} to an infinite family of robust black-box VRF-combiners.
 
 \begin{lemma}[Robust $(n; \lfloor n/2\rfloor)$ Black-Box VRF Combiner]\label{lemma:nhalf}
 	There exists no robust $(n; \lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} for the VRF primitive 
 	defined in \Cref{def:vrf} for all $n \in \N^+$.
 \end{lemma}
 
-Extending this result to an impossibility of robust $(n;n-1)$ seems difficult. We elaborate on the reason why the proof 
-for \Cref{lemma:warmup} cannot easily be extended to general robust $(n;n-1)$ black-box VRF-combiners.
-We still believe that robust $(n;n-1)$ black-box VRF-combiners are not possible and therefore pose the following 
-conjecture. We dedicate a brief paragraph in the appendix to show why the proof for result \Cref{thm:main}
-cannot easily be extended to cover this more general result. Briefly, the issue is that the hidden queries,
-which we show are candidate-wise jointly irrelevant to the combiner output are not jointly irrelevant over multiple 
-candidates if we increase the number of candidates. This means that we cannot simply exhaust every possible output of the 
-hidden oracle queries and guarantee that for the correct secret key the output is always $y$.
+\begin{proof}[\Cref{lemma:nhalf}]
+	We show how to construct a robust $(2;1)$ black-box VRF-combiner $\DAGComb{VRF}$ from a robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner $\BBComb{VRF}$.
+	The result holds by contraposition of this fact applied to \Cref{thm:impossibility_21_comb}.
+	$\DAGComb{VRF}$ is simply $\BBComb{VRF}$ but the first $\lfloor n/2\rfloor$ candidates are initialized with $\O_1$
+	and the other $\lceil n/2\rceil$ candidates are initialized with $\O_2$. If either $\O_1$ or $\O_2$
+	implements a secure VRF then at least $\lfloor n/2\rfloor$ candidates used to initialize $\BBComb{VRF}$ are secure,
+	the initialized combiner is secure. 
+\end{proof}
+
+Extending this result to an impossibility of robust $(n;n-1)$ turned out to be more difficult than expected. 
+While the proof for \Cref{thm:impossibility_21_comb} doesn't seem to generalize to an impossibility result for 
+robust $(n;n-1)$ robust black-box VRF-combiner we still believe that such constructions can be proven to be impossible.
+We state the result as a conjecture and defer to the appendix for a discussion on why the approaches don't easily generalize.
 
 \begin{conjecture}
 	There exists no robust $(n;n-1)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} for the VRF primitive 
-	as defined in \Cref{def:vrf} for all natural numbers $n > 1$.
+	as defined in \Cref{def:vrf} for all positive natural numbers $n \in \N^+$.
 \end{conjecture}
-
-Instead of extending the impossibility of robust $(2;1)$ black-box VRF-combiners to 
-an impossibility of more general robust $(n;n-1)$ black-box VRF-combiners,
-we show that the impossibility still holds if we lower the requirements on the combiner.
-Specifically we show that even if we only require the combiner to be weakly pseudorandom or unpredictable
-and statistically correct, there still exists no robust $(2;1)$ black-box VRF-combiner.
-
-\begin{theorem}[Weak Robust $(n;\lfloor n/2\rfloor)$ Black-Box VRF Combiners]\label{thm:main}
-	There exist no robust $(n;\lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner}
-	that implements a VF in \Cref{def:vf} that is statistically correct in the sense of \Cref{def:correctness},
-	uniquely provable in the sense of \Cref{def:unique_provability} and weakly pseudorandom in the sense of \Cref{def:weak_pseudorandomness},
-	even if at least $n-1$ candidates implement a secure VRF in the sense of \Cref{def:vrf}.
-\end{theorem}
-
-\paragraph{Intuition.}
-The proof works similar to the proof for \Cref{thm:impossibility_21_comb},
-we note that the current adversary already has the capability to break the weak pseudorandomness 
-of the combiner. Additionally, even if the combiner is only required to satisfy statistical correctness, 
-we argue that over a random secret key $\sk$ and a polynomial number of uniformly random evaluation points $x$ we can still 
-expect the combiner to be correct with high probability. The proof works by additionally conditioning on the 
-probability that the combiner is correct on all evaluations $x$ sampled during the pseudorandomness game.
-
-\begin{proof}[\Cref{thm:main}]
-	Again we fix a robust $(2;1)$ black-box VRF-combiner $\BBComb{VRF}$ that is only $\err$-correct for some $\err \in \negl$.
-	Let $\E$ be the event that under the true secret key $\sk^*$ the combiner is not correct on at least one 
-	evaluation point $x_i$. We now redo the analysis of the adversary in the proof of
-	\Cref{thm:impossibility_21_comb}, specifically \Cref{claim:advantage_distinguisher}. Additionally we now 
-	condition on the event $\E$, to obtain the following bound. \todo{todo}
-\end{proof}
-
 
 Finally we want to note that the distinguisher constructed in the proof of \Cref{thm:impossibility_21_comb}
 can predict the image of any arbitrary pre-image $x \in \bin^\lambda$. This means that the adversary is strong enough
-win the weak pseudorandomness and unpredictability security experiment with significant advantage.
-As a corollary of \Cref{thm:impossibility_21_comb} we get the impossibility of robust $(n;\lfloor n/2\rfloor)$
-black-box combiners for the VUF and WVRF primitive.
+win the weak pseudorandomness and unpredictability security experiment with the same advantage as in \Cref{claim:advantage_distinguisher}.
+As a corollary of \Cref{thm:impossibility_21_comb}, we get the impossibility of robust $(n;\lfloor n/2\rfloor)$
+black-box combiners for the VUF and WVRF primitive. 
 
 \begin{corollary}[Robust $(n;\lfloor n/2\rfloor)$ Black-Box $\prim{VUF}$-combiner]\label{cor:impossibility_vrf_comb}
 	There exists no robust $(n;\lfloor n/2\rfloor)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner}
@@ -1064,51 +1048,50 @@ black-box combiners for the VUF and WVRF primitive.
 
 \newpage
 
-\section{Strong Robust Black-Box Combiners}
+\section{Relaxed Robust Black-Box VRF-Combiners}
 
-Having ruled out the possibility of combining VRFs, VUFs, wVRFs even for statistical notions of correctness 
-and unique provability and all oracles pseudorandomness we need to make an even stronger assumption to allow for combiners to exist.
-We will assume that all candidates satisfy unique provability. This is a strong assumption since 
-unique provability is one of the main properties of VRFs which distinguishes VRFs from PRFs
-which admit simple robust $(n;1)$ black-box combiner constructions. 
-We note that unique provability is generally required to be perfect for good constructions,
-meaning that most existing constructions come with rigorous mathematical proofs that assert their 
-unique provability. Examples of this are ECVRF and Lattice VRFs, which are the most 
-famous constructions of VRFs.\todo{change}
+In the previous section we established an impossibility of robust $(n;\lfloor n/2\rfloor)$ black-box combiners for the 
+VRF, WVRF and VUF primitives and conjectured that the result extends to robust $(n;n-1)$ black-box combiners.
+A natural follow-up question is whether the impossibility results can be circumvented by relaxing by either strengthening by introducing 
+additional assumptions on the candidates. In this section, we show that under the additional assumption that all candidates 
+satisfy unique provability and perfect correctness, there exist simple robust $(n;1)$ black-box combiners for VRFs.
 
-As previously mentioned, PRFs admit a simple robust $(n;1)$ black-box combiner
+We argue that the additional assumptions are reasonable in practice.
+Since perfect correctness and unique provability are information theoretic properties they don't rely on 
+computational hardness assumptions but can generally be proved rigorously.
+As a result, for concrete VRF constructions that satisfy those properties, the guarantee holds 
+regardless of advances in cryptography and therefore there is no reason to hedge against them by using combiners.
+Examples are ECVRF \cite{} and LatticeVRF \cite{}.
+
+As already mentioned in \Cref{sec:intro_prf_combiners}, PRFs admit a simple robust $(n;1)$ black-box combiner
 which simply xors the outputs of all PRF candidates. We show that this construction 
-can be extended to VRFs by simply computing the trace of the evaluation algorithms trace 
-and providing this as a proof. The existence of such combiners is formalized in the following lemma.
+can be extended to VRFs by simply computing the transcript of the evaluation algorithms 
+and providing this as a proof. 
 
-\begin{lemma}[Strong Robust $(n;1)$ Black-Box VRF Combiners]\label{lemma:strong_robust_black_box_combiners}
+\begin{lemma}[Relaxed Robust $(n;1)$ Black-Box VRF Combiners]\label{lemma:strong_robust_black_box_combiners}
 	There exist robust $(n;1)$ black-box combiners in the sense of \Cref{def:robust_blackbox_combiner}
-	for the VRF primitive \Cref{def:vrf} if we assume that all candidates are uniquely provable 
-	and perfectly correct.
+	for the VRF primitive \Cref{def:vrf} if we assume that all candidates are uniquely provable in the sense of \Cref{def:unique_provability}
+	and perfectly correct in the sense of \Cref{def:correctness}.
 \end{lemma}
 
-\paragraph{Proof of \Cref{lemma:strong_robust_black_box_combiners}.}
-We show the existence of a robust $(2;1)$ black-box VRF-combiner under the assumption 
-that all candidates are perfectly correct and uniquely provable. A robust $(n;n-1)$ black-box VRF-combiner 
-can be constructed by iteratively applying the construction on the previous combiner and a new candidate instance until all candidates 
-are combined.
-We provide a construction which is very similar to PRF combiners shown in \Cref{fig:prf_comb},
-the key generation function samples a key pair for both candidates and returns a 
-secret key $\sk = (\sk_1, \sk_2)$ and public key $\pk = (\pk_1, \pk_2)$. The evaluation algorithm 
-computes the image by computing the XOR of the individual outputs $y = y_1 \xor y_2$
-and the proof by collecting all intermediate results $\pi = (y_1, \pi_1, y_2, \pi_2)$.
-The verification then works by first checking whether both the values $y_1, y_2$
-have been correctly computed with $\O_1.\alg{Vfy}{VRF}(\pk_1, x_1, y_1, \pi_1)$
-and $\O_2.\alg{Vfy}{VRF}(\pk_2, x_2, y_2, \pi_2)$ and then subsequently checks whether $y = y_1 \xor y_2$.
-The combiner construction is shown in \Cref{fig:vrf_comb}.
+% \begin{proof}[\Cref{lemma:strong_robust_black_box_combiners}]
 
-\begin{claim}
-	The combiner in \Cref{fig:prf_combiner} is perfectly correct in the sense of \Cref{def:correctness}
-	and uniquely provable in the sense of \Cref{def:unique_provability} if all candidates
-	are perfectly correct \Cref{def:correctness} and uniquely provable \Cref{def:unique_provability}.
-\end{claim}
+We construct a robust $(2;1)$ black-box VRF-combiner under the assumption that all 
+candidates are perfectly correct and uniquely provable. A robust $(n;1)$ black-box VRF-combiner 
+can then be constructed by iteratively applying the construction, combining the previous combiner's output 
+with the next candidate oracle until all $n$ candidate schemes are incorporated.
 
-\begin{figure}[hptb]
+The construction, illustrated in \Cref{fig:vrf_comb}, closely follows the construction of the robust 
+$(2;1)$ black-box PRF-combiner in \Cref{fig:prf_comb}.
+The key generation algorithm samples a key pair per candidate and combines the secret and public keys to 
+form the combined key pair. The evaluation algorithm evaluates the point $x$ with both candidate schemes
+to obtain $(y_1, \pi_1)$ and $(y_2, \pi_2)$. The image is then $y = y_1 \xor y_2$ with the proof being 
+$\pi = (y_1, \pi_1, y_2, \pi_2)$.
+The verification algorithm works by first checking whether both values $y_1, y_2$ with proof $\pi_1, \pi_2$ in the proof 
+verify under the verification algorithm of the respective candidate 
+and secondly checks whether $y = y_1 \xor y_2$.
+
+\begin{figure}[htbp]
 	\centering 
 	\begin{pcvstack}[space=1em]
 		\begin{pchstack}[center, space=1em]
@@ -1136,24 +1119,33 @@ The combiner construction is shown in \Cref{fig:vrf_comb}.
 		{
 			(\pk_1, \pk_2) \gets \pk\\ 
 			(y_1, \pi_1, y_2, \pi_2) \gets \pi\\ 
-			\pcreq y = y_1 \oplus y_2\\ 
-			\pcreq \O_1.\alg{Vfy}{VRF}(\pk_1, x, y_1, \pi_1) = 1\\ 
-			\pcreq \O_2.\alg{Vfy}{VRF}(\pk_2, x, y_2, \pi_2) = 1
+			b_1 \gets \O_1.\alg{Vfy}{VRF}(\pk_1, x, y_1, \pi_1)\\ 
+			b_2 \gets \O_2.\alg{Vfy}{VRF}(\pk_2, x, y_2, \pi_2)\\
+			\pcif  y = y_1 \xor y_2 \land b_1 = 1 \land b_2 = 1 \pcthen\\ 
+			\t \pcreturn 1\\
+			\pcelse \\ 
+			\t \pcreturn 0 
 		}
 		\end{pchstack}
 	\end{pcvstack}
-	\caption{Combiner for VRFs if all candidate schemes are uniquely provable.}
+	\caption{Relaxed robsut $(2;1)$ black-box VRF-combiner $\BBComb{VRF}$ for uniquely provable and perfectly correct candidates $\O_1, \O_2$.}
 	\label{fig:vrf_comb}
 \end{figure}
 
+\begin{claim}\label{claim:pc_up_vrf_comb}
+	The combiner in \Cref{fig:vrf_comb} is perfectly correct in the sense of \Cref{def:correctness}
+	and uniquely provable in the sense of \Cref{def:unique_provability} if all candidates
+	are perfectly correct \Cref{def:correctness} and uniquely provable \Cref{def:unique_provability}.
+\end{claim}
+
 The proof of this claim follows essentially by definition of the combiner construction and 
-the assumed unique provability and pseudorandomness of all candidates. We lead the detailed argument 
-in the appendix but believe that its easy to see why the claim holds.
-We only need to show that the combiner is pseudorandom, we employ a reductionist approach 
-to show the following claim.
+the assumed unique provability and pseudorandomness of all candidates. 
+We believe that its easy to see that the claim holds and therefore defer the proof to \Cref{sec:pc_up_vrf_comb}. 
+
+\todo{from here}
 
 \begin{claim}
-	The combiner in \Cref{fig:prf_combiner} is $\errtime$-pseudorandom in the sense of \Cref{def:pseudorandomness} if at least one candidates 
+	The combiner in \Cref{fig:vrf_comb} is $\errtime$-pseudorandom in the sense of \Cref{def:pseudorandomness} if at least one candidates 
 	are $\errtime$-pseudorandom. In particular if at least one candidate is pseudorandom then the combiner 
 	is pseudorandom.
 \end{claim}
@@ -1235,37 +1227,3 @@ An unbiasable VRF requires security against biasing the output of the VRF for ma
 
 \todo{Only touch if sufficient time}
 \end{comment}
-
-
-\newpage
-
-\section{Discussion}
-
-There are different ways to combine VRFs, for both unique provability and key-homomorphism 
-they cannot be combined in a black-box fashion if we want to preserve properties such as 
-unpredictability and therefore also randomness. On the other hand we manage to construct a 
-robust black-box combiner that combines unbiasabile VRFs under guaranteed unique provability 
-for all candidates. We find that the black-box combination of information theoretic properties 
-generally seems hard if other properties such as unpredictability need to be preserved. 
-While the class of all robust black-box combiners initially seems to be very broad we show that 
-we can capture all polynomially bounded combiners using the notion of a robust black-box DAG combiner,
-which allows a more systematic analysis of possible constructions by abstracting a graph structure 
-in the computation executed by the implemented algorithms. We have not considered 
-possible combiner constructions for stronger relaxations, such as computational unique provability 
-or correctness with error, this is mainly because the resulting construction only offer weak 
-guarantees that are insufficient for practical applications.
-
-\paragraph{Extensions.}
-We show that there exists no robust $(n;\lfloor n/2\rfloor)$ black-box combiner for the VRF primitive,
-naturally we wonder whether an impossibility can be shown for robust $(n;n-1)$ black-box VRF-combiners
-which eliminates the possibility of combining VRFs if even one candidate is not guaranteed to be secure.
-We believe this statement to be true. Additionally it would be interesting to study how to strongly combine 
-the notion of unbiasable VRFs, another advanced notion of VRFs introduced in \cite{}.
-
-Having shown that general notion of combiners on VRFs even with relaxed requirements on the security 
-properties of the combiner are impossibile and the combiners on VRFs with guaranteed unique provability 
-are easy we want to strengthen the result by considering combiners for VRFs (assuming all candidates are 
-uniquely provable) with advanced additional properties, namely constrainability as in \Cref{def:constrainableVRF}, key-homomorphism as in \Cref{def:keyhom},
-aggregability as in \Cref{def:agg} and finally unbiasability as in \Cref{def:unbias}.
-In the section \todo{} in the appendix we extend the combiner in \Cref{fig:vrf_comb}
-to those notions except for unbiasability.
