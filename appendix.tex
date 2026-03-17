@@ -50,7 +50,24 @@ $\pk \sim_\PK^* \widetilde\pk$, hence $\pk \in \closure_\PK(\tildePK)$ and thus 
 
 \advrewritingone*
 
-Let $b'$ be the hidden bit in the pseudorandomness security experiment against $\widetilde\O_{uppc}$ then we have that
+The proof is by equivalence transformations.
+
+\begin{align}
+    \Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
+    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+    &= 2 \cdot \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
+    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
+    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
+    &= \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_2^{\lambda, \A} = 1}}\\ 
+    &\ge\abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
+\end{align}\todo{...}
 
 \begin{align*}
     &2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} \\ 
@@ -66,7 +83,24 @@ Let $b'$ be the hidden bit in the pseudorandomness security experiment against $
 
 \advrewritingtwo*
 
-Similarly to the proof of \Cref{claim:adv_rewriting_2} we can simply bound this with a computation.
+The proof is by equivalence transformations.
+
+\begin{align}
+    \Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
+    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+    &= 2 \cdot \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
+    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
+    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
+    &= \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_2^{\lambda, \A} = 1}}\\ 
+    &\ge\abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
+\end{align}\todo{...}
 
 \begin{align*}
     &2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} \\ 
@@ -106,6 +140,43 @@ could just assume that this case happens and guess the corresponding image with 
 yielding the correct image with probability at least the product of two non-negligible functions which is itself 
 a non-negligible function. Since we however know that $\O_{vrf}$ is pseudorandom this cannot be the case, we conclude 
 that the probabilities must be negligible each.
+
+\subsection{Proof of \Cref{claim:adv_bound}}
+
+\advbound*
+
+We define the following games:
+
+We define games $H_1, H_2$ as follows. 
+\begin{itemize}
+    \item $H_1$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 0}$
+against the oracle $\O_{vrf}$,
+i.e. the adversary is playing against the prf security game where he is given a challenge image $y^*$ computed from 
+the challenge pre-image $x^*$ using $\O_{vrf}.\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$ is the hidden 
+secret key sampled by the challenger.
+    \item $H_2$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 1}$
+against the oracle $\O_{uppc}$, 
+i.e. the adversary is playing the prf security game where he is given a challenge image $y^*$ computed from 
+the challenge pre-image $x^*$ using $\widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$
+is the hidden secret key sampled by the challenger.
+\end{itemize}
+
+\begin{align}
+    \Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
+    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+    &= 2 \cdot \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
+    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
+    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
+    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
+    &= \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_2^{\lambda, \A} = 1}}\\ 
+    &\ge\abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
+\end{align}\todo{...}
 
 \subsection{Conjecture}
 

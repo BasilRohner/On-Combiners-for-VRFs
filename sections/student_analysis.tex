@@ -585,19 +585,19 @@ in $\err[prf][vrf]$.
 	game $H_i$ for all $i \in [3]$. We can now bound the advantage of any adversary $\A$ against $\smash{\widetilde\O_{uppc}}$
 	in the pseudorandomness security experiment as follows. We make the following three claims whose proof we defer to the appendix:
 	\begin{restatable}{claim}{advrewritingone}\label{claim:adv_rewriting_1}
-		Let the games $H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
+		Let the games $H_1,H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
 		\[
 			2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} = \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}
 		\]
 	\end{restatable}
 	\begin{restatable}{claim}{advrewritingtwo}\label{claim:adv_rewriting_2}
-		Let the games $H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
+		Let the games $H_1,H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
 		\[
 			\abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} \le \err[prf][vrf]
 		\]
 	\end{restatable}
 	\begin{restatable}{claim}{advrewritingthree}\label{claim:adv_rewriting_3}
-		Let the games $H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
+		Let the games $H_1,H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
 		\[
 			\abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \le \mu(\lambda) % \abs*{\widetilde\SK}\err[prf][vrf] + \abs*{\widetilde\PK}\err[prf][vrf]
 		\]
@@ -609,16 +609,16 @@ in $\err[prf][vrf]$.
 	\begin{proof}[\Cref{claim:vrfification_prf}]
 		Using \Cref{def:pseudorandomness} for \eqref{eq:halt_0}, \Cref{claim:adv_rewriting_1} for \eqref{eq:halt_1}, \Cref{claim:adv_rewriting_2} for \eqref{eq:halt_2}
 	and \Cref{claim:adv_rewriting_3} for \eqref{eq:halt_3} we obtain the desired bound.
+	\eqref{eq:triangle} is the result of subtracting and adding $\Prob{H_1^{\lambda, \A} = 1}$ and then applying the triangle inequality.
 	\begin{align}
 		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}
 		&= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\label{eq:halt_0}\\ 
 		&= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \label{eq:halt_1}\\ 
-		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}}\\ 
+		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} \label{eq:triangle}\\ 
 		&\quad + \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}\\ 
-		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \err[prf][vrf] \label{eq:halt_2}\\ 
+		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \err[prf][vrf] \label{eq:halt_2}\\[.5em]
 		&\le \mu + \err[prf][vrf] \label{eq:halt_3}
 	\end{align}
-	
 \end{proof}
 
 
@@ -817,15 +817,17 @@ as for the secret key $\sk^*$ is non-negligible, i.e.
 		\Prob*{\abs*{\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + \lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1} \le \frac{1}{2^{\lambda}}
 	\]
 
-	\todo{this section is gruesome}
-	Define the following events:
+	We define the following events:
 	\begin{align}
 		\mathcal F &:= 
-		\Brace*{\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*)}\\ 
+		\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*)\\ 
 		\mathcal E &:=
-		\Brace*{\abs*{\SK_{unfav} \cap \textstyle\bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1}
+		{\abs*{\SK_{unfav} \cap \textstyle\bigcap_{i \in [s(\lambda) + \lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1}
 	\end{align}
-	Then we have:
+	Note that $\mathcal F$ is exactly the event whose probability we want to bound for \Cref{claim:candidate_likely_good} and
+	$\E$ is the event that at least one unfavorable key survives the filtering. Therefore, $\lnot \E$ is the event that only favorable
+	keys survive the filtering. To bound $\Prob{\mathcal F}$, we condition on the event $\lnot \E$ using the fact that a favorable key has 
+	probability at least $\tfrac{1}{2}$ to evaluate to the same image $y^*$ on a uniformly random evaluation point as $\sk^*$.
 	\begin{align}
 		\Prob*{\mathcal F} &= \Prob*{\mathcal F \mid \lnot\mathcal E}\Prob*{\lnot\mathcal E} +
 		\Prob*{\mathcal F \mid \mathcal E} \Prob*{\mathcal E}\\ 
@@ -833,7 +835,7 @@ as for the secret key $\sk^*$ is non-negligible, i.e.
 		&\ge  \tfrac{1}{2} (1 - \tfrac{1}{2^\lambda})\\ 
 		&\ge \tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}
 	\end{align}
-	Which concludes this proof.
+	This concludes this proof.
 \end{proof}
 
 Now, we define two languages $\mathcal L_{cand}, \mathcal L_{size}$ as follows.
@@ -968,8 +970,8 @@ We illustrate the adversary in \Cref{fig:distinguisher}.
 	Specifically
 
 	\[
-		\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\mathcal A, \lambda} \ge \frac{1}{2} - \frac{1}{2^{\lambda + 1}}
-	\]\todo{...}
+		\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\mathcal A, \lambda} \ge \abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
+	\]\
 \end{claim}
 
 \begin{proof}[\Cref{claim:advantage_distinguisher}]
@@ -991,16 +993,19 @@ We illustrate the adversary in \Cref{fig:distinguisher}.
 	Otherwise, with probability at most $\frac{1}{2} + \tfrac{1}{2^{\lambda + 1}}$ the adversary will not obtain the correct 
 	image $y^*$. If the hidden bit $b = 0$ then the adversary loses since he will guess $b = 1$, if the hidden bit 
 	is $b = 1$ then he will win except if the output $y' = y^*$ by chance. Since $y$ is in that case sampled u.a.r. 
-	we can bound the probability of that happening with $1-\tfrac{1}{|\Y|}$. Overall we get:
+	we can bound the probability of that happening with $1-\tfrac{1}{|\Y|}$. Since the proof of the advantage bound is lengthy, we defer it 
+	to the appendix.
 
-	\begin{align}
-		\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
-		&= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
-		&= \abs*{\Prob*{\A = 1 \mid b = 0} - \Prob*{\A = 1 \mid b = 1}}\\ 
-		&= \abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}\\ 
-	\end{align}\todo{...}
+	\begin{restatable}{claim}{advbound}\label{claim:adv_bound}
+		Let $\A$ be the adversary as in \Cref{fig:distinguisher}. Then
+		\[
+			\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\mathcal A, \lambda} \ge \abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
+		\]
+	\end{restatable}
 
-	Assuming that $\tfrac{1}{|\Y|} < \frac{1}{4}$ we have that the advantage is at least $\tfrac{1}{4}$. Which is non-negligible.
+	Using \Cref{claim:adv_bound} concludes this proof.
+	Note that if $|\Y| \in \poly$ then the scheme would trivially admit efficient adversaries against the pseudorandomness security experiment.
+	Therefore, we can assume that $1/|\Y| \in \negl$ which then results a non-negligible advantage bound for $\A$.
 \end{proof}
 
 Using \Cref{claim:advantage_distinguisher} we can now finally prove the \Cref{thm:impossibility_21_comb}.
@@ -1065,12 +1070,12 @@ black-box combiners for the VUF and WVRF primitive.
 
 In the previous section we established an impossibility of robust $(n;\lfloor n/2\rfloor)$ black-box combiners for the 
 VRF, WVRF and VUF primitives and conjectured that the result extends to robust $(n;n-1)$ black-box combiners.
-A natural follow-up question is whether the impossibility results can be circumvented by relaxing by either strengthening by introducing 
+A natural follow-up question is whether the impossibility results can be circumvented by either relaxing the requirements or imposing 
 additional assumptions on the candidates. In this section, we show that under the additional assumption that all candidates 
 satisfy unique provability and perfect correctness, there exist simple robust $(n;1)$ black-box combiners for VRFs.
 
 We argue that the additional assumptions are reasonable in practice.
-Since perfect correctness and unique provability are information theoretic properties they don't rely on 
+Since perfect correctness and unique provability are information-theoretic properties they don't rely on 
 computational hardness assumptions but can generally be proved rigorously.
 As a result, for concrete VRF constructions that satisfy those properties, the guarantee holds 
 regardless of advances in cryptography and therefore there is no reason to hedge against them by using combiners.
@@ -1099,9 +1104,8 @@ The key generation algorithm samples a key pair per candidate and combines the s
 form the combined key pair. The evaluation algorithm evaluates the point $x$ with both candidate schemes
 to obtain $(y_1, \pi_1)$ and $(y_2, \pi_2)$. The image is then $y = y_1 \xor y_2$ with the proof being 
 $\pi = (y_1, \pi_1, y_2, \pi_2)$.
-The verification algorithm works by first checking whether both values $y_1, y_2$ with proof $\pi_1, \pi_2$ in the proof 
-verify under the verification algorithm of the respective candidate 
-and secondly checks whether $y = y_1 \xor y_2$.
+The verification algorithm works by first checking whether both values $y_1, y_2$ with their respective proofs $\pi_1, \pi_2$ 
+verify under the verification algorithm of the respective candidate. Secondly, it checks whether $y = y_1 \xor y_2$.
 
 \begin{figure}[htbp]
 	\centering 
@@ -1140,40 +1144,49 @@ and secondly checks whether $y = y_1 \xor y_2$.
 		}
 		\end{pchstack}
 	\end{pcvstack}
-	\caption{Relaxed robsut $(2;1)$ black-box VRF-combiner $\BBComb{VRF}$ for uniquely provable and perfectly correct candidates $\O_1, \O_2$.}
+	\caption{Relaxed robust $(2;1)$ black-box VRF-combiner $\BBComb{VRF}$ for uniquely provable and perfectly correct candidates $\O_1, \O_2$.}
 	\label{fig:vrf_comb}
 \end{figure}
 
 \begin{claim}\label{claim:pc_up_vrf_comb}
-	The combiner in \Cref{fig:vrf_comb} is perfectly correct in the sense of \Cref{def:correctness}
-	and uniquely provable in the sense of \Cref{def:unique_provability} if all candidates
-	are perfectly correct \Cref{def:correctness} and uniquely provable \Cref{def:unique_provability}.
+	The combiner in \Cref{fig:vrf_comb} is perfectly correct (\Cref{def:correctness})
+	and uniquely provable (\Cref{def:unique_provability}) if all candidates
+	are perfectly correct (\Cref{def:correctness}) and uniquely provable (\Cref{def:unique_provability}).
 \end{claim}
 
 \begin{proof}[\Cref{claim:pc_up_vrf_comb}]
-	\textit{Correctness:} Since both $\O_1$ and $\O_2$ are assumed to be correct the images $(y_1, \pi_1)$ and $(y_2, \pi_2)$
-	must correctly verify. By construction of the combiner $y = y_1 \xor y_2$ and therefore the combiner verification verifies.
+	\textit{Correctness:} Since both $\O_1$ and $\O_2$ are assumed to be correct, the image-proof pairs $(y_1, \pi_1)$ and $(y_2, \pi_2)$
+	computed are accepted by their respective verification algorithm. By construction of the combiner $y = y_1 \xor y_2$. Therefore, an honestly produced image-proof pair is accepted by the combiner's verification algorithm.
 
 	\textit{Unique Provability:} 
-	Assume towards a contradiction that there exist image-proof pairs $(y_1, \pi_1)$ and $(y_2, \pi_2)$ with $y_1 \neq y_2$ such that both verify under 
-	a shared public key $\pk$. By construction we know $y_1 = y_{11} \xor y_{12}$ and $y_2 = y_{21} \xor y_{22}$. Since $y_1 \neq y_2$
-	we have that $(y_{11}, y_{12}) \neq (y_{21}, y_{22})$, w.l.o.g. let $y_{11} \neq y_{21}$. Since both $(y_1, \pi_1)$ and $(y_2, \pi_2)$
-	verify however, by construction of the combiner, there must exist $\pi_{11}$ and $\pi_{21}$ such that the verification algorithm of $\O_1$
-	both accepts $(y_{11}, \pi_{11})$ and $(y_{21}, \pi_{21})$ which is a contradiction as we assumed all candidates to be uniquely provable.
+	Assume towards a contradiction that there exist image-proof pairs $(y_1, \pi_1)$ and $(y_2, \pi_2)$ with $y_1 \neq y_2$, such that both are accepted by the combiner's verification algorithm under 
+	a common public key $\pk$. By construction, we know $y_1 = y_{11} \xor y_{12}$, $y_2 = y_{21} \xor y_{22}$, $\pi_1 = (y_{11},\pi_{11}, y_{12},\pi_{12})$ and $\pi_2 = (y_{21}, \pi_{21}, y_{22}, \pi_{22})$ (otherwise the verification algorithm would reject).
+	Since $y_1 \neq y_2$ we have that $(y_{11}, y_{12}) \neq (y_{21}, y_{22})$. W.l.o.g. let $y_{11} \neq y_{21}$. Since both $(y_1, \pi_1)$ and $(y_2, \pi_2)$
+	are accepted by the verification algorithm, by construction of the combiner, there must exist $\pi_{11}$ and $\pi_{21}$ such that the verification algorithm of $\O_1$
+	both accepts $(y_{11}, \pi_{11})$ and $(y_{21}, \pi_{21})$. This is a contradiction with the assumed unique provability of $\O_1$.
 \end{proof}
 
 \todo{from here}
 
-\begin{claim}
-	The combiner in \Cref{fig:vrf_comb} is $\errtime[prf][comb]$-pseudorandom in the sense of \Cref{def:pseudorandomness} if at least one candidate 
-	are $\errtime[prf][i]$-pseudorandom. In particular if at least one candidate is pseudorandom then the combiner 
-	is pseudorandom.
+\begin{claim}\label{claim:prf_vrf_comb}
+	Consider a combiner $\BBComb{VRF}$ as defined in \Cref{fig:vrf_comb} instantiated with candidates $\O_1, \O_2$.
+	If at least one candidate is $\errtime$-pseudorandom (\Cref{def:pseudorandomness}), then the combiner is $\errtime$-pseudorandom.
+	In particular, if at least one candidate is pseudorandom, then the combiner is pseudorandom.
 \end{claim}
 
-Assume, towards a contradiction, that there exists an adversary $\A$ running in time $t$ that breaks 
+W.l.o.g., assume that $\O_1$ is $\errtime$-pseudorandom for $\err \in \poly$ and $\runtime \in \poly$.
+Let $\A = (\A_1, \A_2)$ be an adversary against the combiner $\BBComb{VRF}[\O_1, \O_2]$ running in time at most 
+$\runtime$. We construct an adversary $\mathcal B = (\mathcal B_1, \mathcal B_2)$ that uses $\A$ to break the pseudorandomness of 
+$\O_1$ with the same advantage. The adversary $\mathcal B$ is shown in \Cref{fig:reduction}.
+
+$\mathcal B$ samples its own key-pair $(\sk, \pk)$ for the candidate $\O_2$ and uses $\O_{\text{Eval}}$ to simulate the combiner $\BBComb{VRF}[\O_1, \O_2]$
+in the pseudorandomness security game of $\A$. Whenever $\A$ queries an input $x$ to its evaluation oracle, 
+$\mathcal B$ queries $x$ to its own evaluation oracle to obtain $(y,\pi)$ then computes the output
+
+Assume, towards a contradiction, that there exists an adversary $\A$ running in time $\runtime$ that breaks the
 pseudorandomness of the combiner $\BBComb{VRF}[\O_1, \O_2]$ with advantage $\err$, we show that 
 we can construct an adversary $\mathcal R_i$ running in time $t_i$ that wins the prf security experiment 
-of the $i$'th candidate $\O_i$ with advantage $\err_i$ for $i \in [2]$. The reduction $\mathcal R_i$ samples it own 
+of the $i$'th candidate $\O_i$ with advantage $\err_i$ for $i \in [2]$. The reduction $\mathcal R_i$ samples its own 
 secret key for candidate $\O_{2-i}$ and uses $\O_{eval}$ for candidate $\O_{i}$ simulate the combiner 
 in the prf security experiment for the adversary $\A$. $\A$ then makes a prediction for the hidden bit. 
 If the hidden bit of the challenger is $0$ then $\A$ is simulated perfectly in the sense that the queries are answered exactly 
@@ -1217,9 +1230,13 @@ in \Cref{fig:reduction}.
 
 The reduction $\mathcal R_i$ makes as many queries to its evaluation oracle $\O_{i_{eval}}$ as $\A$ does to its evaluation oracle $\O_{comb_{eval}}$
 and makes additionally as many queries to the oracle $\O_{2-i}$. Besides the oracle queries every computation performed by $\mathcal R_i$
-is efficiently computable. Since we assume $\A$ to be efficient (ppt.) the reduction $\mathcal R_i$ msut also be efficient (ppt.).
+is efficiently computable. Since we assume $\A$ to be efficient (ppt.) the reduction $\mathcal R_i$ must also be efficient (ppt.).
 
 The advantage of the reduction $\mathcal R_i$ in the prf security experiment against candidate $\O_i$ can be bounded from below as follows.
 \begin{align}
 	\Adv{i}{prf}{\lambda, \mathcal R_i} = \Adv{comb}{prf}{\lambda, \A}
 \end{align}
+
+\begin{proof}[\Cref{lemma:strong_robust_black_box_combiners}]
+	Follows directly from \Cref{claim:pc_up_vrf_comb} and \Cref{claim:prf_vrf_comb} and 
+\end{proof}
