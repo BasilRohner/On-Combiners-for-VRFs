@@ -374,7 +374,7 @@ queries every oracle algorithm on any given input at most once.
 	We conclude that therefore the algorithm $\alg{Eval}{VRF}$ of $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n]$
 	are functionally equivalent.
 
-	It remains to show that $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ runs in polynomial time. Observe that the number of vertices in $\G_{\text{Eval}}$
+	It remains to show that $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ runs in polynomial time. Observe, that the number of vertices in $\G_{\text{Eval}}$
 	remains unchanged from $\BBComb{VRF}[\O_1, \ldots, \O_n]$. Therefore, $|V(G_{\text{Eval}})| \in \poly[n, \lambda]$. At each vertex $v$,
 	the Turing machine $\widetilde f_{\text{Eval}}^v$ performs the same computation as $f_{\text{Eval}}^v$ plus a table lookup in $T_v$.
 	Since the size of the table is bounded from above by the number of vertices $|V(G_{\text{Eval}})|$ the lookup is efficiently computable.
@@ -460,7 +460,7 @@ of all keys in the subsets. We formally define the functions as follows:
 	\closure_\SK(\widetilde\SK) &= \bigcup_{\widetilde \sk \in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}\\ 
 	\closure_\PK(\widetilde\PK) &= \bigcup_{\widetilde \pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*} 
 \end{align}
-Observe that the secret key closure $\closure_\SK(\tildeSK)$ for a subset $\tildeSK \subseteq \SK$
+Observe, that the secret key closure $\closure_\SK(\tildeSK)$ for a subset $\tildeSK \subseteq \SK$
 is the set of secret keys that need to be remapped if we want to remap all of the evaluations on the 
 secret keys $\tildeSK$ to preserve unique provability and correctness. The same holds for the public key closure.
 Now we define the closure for subsets $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$
@@ -553,28 +553,12 @@ if and only if $\pk$ is in the closure of $\tildePK$. Since the claim is intuiti
 	for $\mu \in \negl$. Therefore, if $\O_{vrf}$ is pseudorandom, then $\widetilde\O_{uppc}$ is pseudorandom.
 \end{claim}
 
-We prove the claim with a hybrid argument. Intuitively the proof works by bounding the probability that a bad event $\E$, that the 
+We prove the claim with a hybrid argument. Intuitively the proof works by bounding the probability that a bad event $\E$: that the 
 secret key $\sk^*$ sampled in the pseudorandomness security experiment is in the set $\closure_\SK(\tildeSK, \tildePK)$.
 If $\E$ doesn't occur, then the security game is identical to the security game against $\O_{vrf}$ which no adversary running in time
 $\runtime[prf][vrf]$ wins with advantage greater than $\err[prf][vrf]$. Using the difference lemma we can then bound the advantage 
 of any adversary playing the pseudorandomness game against $\widetilde\O_{uppc}$ from above by an expression 
 in $\err[prf][vrf]$.
-
-\begin{comment}
-Before we formally prove \Cref{claim:vrfification_prf} we state the difference lemma, we defer the proof 
-of it to the appendix since its a known result.
-
-\begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
-	let $W_0,W_1$ and $B$ be events satisfying:
-	\[
-		\Prob*{W_0 \mid \lnot B} = \Prob*{W_1 \mid \lnot B} 
-	\]
-	Then we can impose the following bound:
-	\[
-		\abs*{\Prob*{W_0} - \Prob*{W_1}} \le \Prob*{B}
-	\]	
-\end{lemma}
-\end{comment}
 
 \begin{comment}
 \begin{proof}[\Cref{claim:vrfification_prf}]
@@ -594,12 +578,12 @@ of it to the appendix since its a known result.
 		\item $H_3$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 1}$
 	against the oracle $\highlight{\O_{vrf}}$, 
 	i.e. the adversary is playing the prf security game where he is given a challenge image $y^*$ which the challenger sampled u.a.r. from 
-	the image co-domain $\Y$.
+	the image codomain $\Y$.
 	\end{itemize}
 
 	We write $H_i^{\lambda,\A} = 1$ to denote the event that adversary $\A$ guesses bit $b' = 1$ in the 
-	game $H_i$ for all $i \in [3]$, we can now bound the advantage of any adversary $\A$ against $\smash{\widetilde\O_{uppc}}$
-	in the pseudorandomness security experiment as follows. We make the following three claims whose proof we move to the appendix:
+	game $H_i$ for all $i \in [3]$. We can now bound the advantage of any adversary $\A$ against $\smash{\widetilde\O_{uppc}}$
+	in the pseudorandomness security experiment as follows. We make the following three claims whose proof we defer to the appendix:
 	\begin{restatable}{claim}{advrewritingone}\label{claim:adv_rewriting_1}
 		Let the games $H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
 		\[
@@ -628,7 +612,7 @@ of it to the appendix since its a known result.
 	\begin{align}
 		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}
 		&= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\label{eq:halt_0}\\ 
-		&= \abs*{\Prob*{H_2^{\lambda, \A} = 1} + \Prob*{H_3^{\lambda, \A} = 1}} \label{eq:halt_1}\\ 
+		&= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \label{eq:halt_1}\\ 
 		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}}\\ 
 		&\quad + \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}\\ 
 		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \err[prf][vrf] \label{eq:halt_2}\\ 
@@ -654,7 +638,7 @@ We classify the vertices of $V(\G_{\text{Eval}})$ as follows.
 A vertex $v \in V(G_{\text{Eval}})$ is called \textit{exposed} if the oracle query issued at $v$ 
 during the evaluation of the input $(\sk, x)$ also appears in the verification trace $\tau$.
 Otherwise, we call $v$ \textit{obscure}.
-Observe that exposed queries and queries to $\O_{uppc}$ can be answered without calling any oracle 
+Observe, that exposed queries and queries to $\O_{uppc}$ can be answered without calling any oracle 
 by looking at the verification trace or taking the default values $\sk_{def}, \pk_{def},y_{def},\pi_{def}, b_{def}$ respectively (where $b_{def}$ depends on the input $y$ to the verification).
 The only queries whose responses are not directly available without any oracle queries are the obscure queries to $\O_{vrf}$.
 We claim that these responses can be substituted with arbitrary, but well-formed, oracle responses without affecting the combiners output $(\sk, x)$.
@@ -694,8 +678,10 @@ then we can answer it honestly as well. If the query is \textit{obscure} then we
 assignment of the oracle response which fits the given format, e.g. for a query to eval we branch 
 for every answer $(y,\pi) \in \Y \times \P$. The pseudocode for $\alg{EvalSim}{VRF}$ is shown in \Cref{fig:eval_sim}.
 In the following we show that this algorithm satisfies a few properties. We want to note that the evaluation simulation algorithm 
-and is clearly inefficient since it enumerates possibly many well-formed oracle queries, since the adversary will use it only in combination 
+is clearly inefficient since it enumerates possibly many well-formed oracle queries, since the adversary will use it only in combination 
 with the PSPACE-complete oracle in the end that is not a problem. 
+
+%%-- until here
 
 \begin{figure}[htbp]
 	\centering 
@@ -734,7 +720,7 @@ with the PSPACE-complete oracle in the end that is not a problem.
 			\pcreturn \top
 		}
 	\end{pchstack}
-	\caption{Pseudocode of the algorithm $\alg{EvalSim}{VRF}$. We use $c_v$ to denote the number of possible branches at vertex $v$, $\smash{\x_v^{def}}$ for the default value of the oracle of $\O_{uppc}$ at vertex $v$ (e.g. if $c(v) = (2,2)$ then $(y_{def}, \pi_{def})$) and with $\mathcal S_v$ the corresponding co-domain of the oracle at $v$ (e.g. if $c(v) = (1,2)$ then $\Y \times \P$).}
+	\caption{Pseudocode of the algorithm $\alg{EvalSim}{VRF}$. We use $c_v$ to denote the number of possible branches at vertex $v$, $\smash{\x_v^{def}}$ for the default value of the oracle of $\O_{uppc}$ at vertex $v$ (e.g. if $c(v) = (2,2)$ then $(y_{def}, \pi_{def})$) and with $\mathcal S_v$ the corresponding codomain of the oracle at $v$ (e.g. if $c(v) = (1,2)$ then $\Y \times \P$).}
 	\label{fig:eval_sim}
 \end{figure}
 
@@ -758,7 +744,7 @@ secret key $\sk^*$ will always result in $\top$ due to the second property.
 
 \begin{proof}[\Cref{claim:eval_sim}]
 	The first property holds by construction. The second property follows directly from 
-	\Cref{claim:hidden_irrelevant}. The third property is because the true execution of 
+	\Cref{claim:hidden_irrelevant}. The third property holds because the true execution of 
 	the combiner's evaluation algorithm corresponds is always a branch in the execution of 
 	$\alg{EvalSim}{VRF}$, if the output of that branch is not $y$ then by construction the combiner will 
 	return $\bot$.
@@ -1192,8 +1178,8 @@ secret key for candidate $\O_{2-i}$ and uses $\O_{eval}$ for candidate $\O_{i}$ 
 in the prf security experiment for the adversary $\A$. $\A$ then makes a prediction for the hidden bit. 
 If the hidden bit of the challenger is $0$ then $\A$ is simulated perfectly in the sense that the queries are answered exactly 
 as they would have been answered in the combiners prf security experiment. In that case $\mathcal R_i$ wins the experiment if and only if 
-$\A$ wins. If $b = 1$ the output of $\O_{eval}$ is a uniformly random element in the image co-domain and therefore the queries made by $\A$
-are also answered with a uniformly random element in the co-domain.
+$\A$ wins. If $b = 1$ the output of $\O_{eval}$ is a uniformly random element in the image codomain and therefore the queries made by $\A$
+are also answered with a uniformly random element in the codomain.
 Also in this case $\A$ is simulated perfectly. 
 and uses adversary $\A$ to break that one candidate. We show the reduction $\mathcal R_i$
 in \Cref{fig:reduction}.
