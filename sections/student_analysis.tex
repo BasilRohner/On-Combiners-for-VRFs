@@ -27,7 +27,7 @@ A robust black-box DAG combiner has to satisfy the requirements that the algorit
 is a robust black-box combiner. We formally define robust black-box DAG combiners below. 
 
 \begin{definition}[Robust $(n;k)$ Black-Box DAG P-Combiner]\label{def:robust_blackbox_dag_combiner}
-	A robust $(n;k)$ black-box DAG combiner for a primitive P is a robust $(n;k)$ black-box combiner $\BBComb{P}$ in the sense of \Cref{def:robust_blackbox_combiner}, i.e,. a tuple algorithms $\Paren{\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{p}}$
+	A robust $(n;k)$ black-box DAG combiner for a primitive P is a robust $(n;k)$ black-box combiner $\BBComb{P}$ in the sense of \Cref{def:robust_blackbox_combiner}, i.e., a tuple of algorithms $\Paren{\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{p}}$
 	where every algorithm $\alg{Alg}{P}$ is specified by a tuple of the following form
 	\[
 		\Paren*{\G, s, t, \ell, \Brace{f^{v}}_{v \in V(\G) \setminus \{s\}}}
@@ -56,7 +56,7 @@ is a robust black-box combiner. We formally define robust black-box DAG combiner
 			}
 		\end{pchstack}
 		\caption{Definition of the robust black-box DAG combiner algorithm $\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}$ instantiated with candidates $\O_1, \ldots, \O_n$.
-		We use the notation $\O_{\ell(v)}$ for $\ell(v) = (i,j)$ to denote the oracle algorithm $j$ or the $i$-th candidate $\O_i$, i.e., $\smash{\O_i.\alg{Alg}{P}^j}$.}
+		We use the notation $\O_{\ell(v)}$ for $\ell(v) = (i,j)$ to denote the oracle algorithm $j$ of the $i$-th candidate $\O_i$, i.e., $\smash{\O_i.\alg{Alg}{P}^j}$.}
 		\label{fig:dag_combiner}
 	\end{figure}
 \end{definition}
@@ -81,7 +81,7 @@ of $\BBComb{P}$ until the $k$-th oracle query. Since the Turing machine $f^v$ ca
 vertices to obtain the answer to those queries. For the $i$-th query, the Turing machine 
 simply uses the output of the correct vertex on layer $i$ to simulate the oracle query. 
 Once we reach the $k$-th query and we would make a query to oracle $\O_{(i,j)}$ then we distinguish two cases 
-depending on whether we are at the vertex $v$ with $\ell(v) = (i,j)$.
+depending on whether $\ell(v) = (i,j)$.
 
 If the current vertex satisfies $\ell(v) = (i,j)$, we return the query $\q_v$, resulting in the correct query being made.
 Otherwise, if $\ell(v) \neq (i,j)$, we return an arbitrary query that meets the expected input format of $\O_{\ell(v)}$.
@@ -91,7 +91,7 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 
 \begin{proof}[\Cref{thm:generality_dag_comb}]
 	Let $\BBComb{P}$ be a fixed robust $(n;k)$ black-box combiner for primitive $\prim{P}$,
-	and let $\alg{Alg}{P}$ be an arbitrary algorithm implemented by $\prim{P}$.
+	and let $\alg{Alg}{P}$ be an arbitrary algorithm implemented by $\BBComb{P}$.
 	We label the candidate schemes $\O_1, \ldots, \O_n$.
 	We construct a robust $(n;k)$ black-box DAG combiner $\DAGComb{P}$ that is computationally equivalent to $\BBComb{P}$.
 
@@ -106,7 +106,7 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 	\end{align}
 
 	We define the vertex labeling $\ell(d,i,j) = (i,j)$ and the ppt. Turing machines $f^{v}$
-	as follows. On input $\{(w,\x_w)_{w \in \mathcal N^-_{\G}}(v)\}$, simulate the Turing machine $\BBComb{P}.\alg{Alg}{P}$
+	as follows. On input $\{(w,\x_w)_{w \in \mathcal N^-_{\G}(v)}\}$, simulate the Turing machine $\BBComb{P}.\alg{Alg}{P}$
 	on the input $\x$. For every $q$-th query made to the oracle $(i,j)$, look up the values of $\x_{(q,i,j)}$ and continue execution with that oracle response.
 	For the $k$-th query, if the query is to oracle $\ell(v)$, return the query. Otherwise,
 	if the $k$-th query is to an oracle $(i,j) \neq \ell(v)$ return an arbitrary element in the domain of oracle $\ell(v)$ (this query will not be considered further in the execution).
@@ -119,7 +119,7 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 	\begin{claim}\label{claim:correctness_dag_comb}
 		Let $\BBComb{P}$ be a robust $(n;k)$ black-box combiner for primitive $\prim{P}$ (\Cref{def:robust_blackbox_combiner})
 		and let $\DAGComb{P}$ be the combiner obtained by the procedure above. Then for all candidates $\O_1, \ldots, \O_n$
-		and every algorithm $\alg{Alg}{P}$ implemented by $\prim{P}$ we have
+		and every algorithm $\alg{Alg}{P}$ implemented by $\BBComb{P}$ we have
 		\[
 			\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P} \equiv \DAGComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}
 		\]
@@ -141,7 +141,7 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 
 		We say that a vertex $v$ on layer $d \in [Q(n,\lambda)]$ is \textit{correct}
 		if in the execution of $\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}(\x)$ the $d$-th oracle query is 
-		made to the oracle $\ell(v)$. We say that it's \textit{incorrect} otherwise.
+		made to the oracle $\ell(v)$. We say that it is \textit{incorrect} otherwise.
 		Formally, we show that for every $d \in [Q(n,\lambda)]$, the output of the $d$-th query of $\BBComb{P}[\O_1, \ldots, \O_n]$
 		is equal to the output at the correct vertex on layer $d$ of $\DAGComb{P}[\O_1, \ldots, \O_n]$.
 		We proceed by strong induction over $d$:
@@ -157,24 +157,24 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 		using the outputs of correct vertices on preceding layers to answer oracle queries. 
 		By the induction hypothesis, these outputs match those of $\BBComb{P}[\O_1, \ldots, \O_n]$
 		so $f^v$ computes the same query input $\q_v$. Since the vertex is correct, it queries the same oracle on the same input under the coupled randomness.
-		Therefore, the response are identical.
+		Therefore, the responses are identical.
 	\end{proof}
 
 	\begin{claim}\label{claim:time_dag_comb}
 		Let $\BBComb{P}$ be a robust $(n;k)$ black-box combiner for a primitive $\prim{P}$ (\Cref{def:robust_blackbox_combiner})
-		and let $\DAGComb{P}$ be the combiner obtain by the procedure above. Then for all candidates $\O_1, \ldots, \O_n$.
-		Every algorithm $\alg{Alg}{P}$ implemented by $\DAGComb{P}[\O_1, \ldots, \O_n]$
+		and let $\DAGComb{P}$ be the combiner obtained by the procedure above. Then for all candidates $\O_1, \ldots, \O_n$,
+		every algorithm $\alg{Alg}{P}$ implemented by $\DAGComb{P}[\O_1, \ldots, \O_n]$
 		runs in time polynomial in $n$, $\lambda$ and the size of the input to $\alg{Alg}{P}$.
 	\end{claim}
 
 	\begin{proof}[\Cref{claim:time_dag_comb}]
 		By construction, the DAG $\G$ has at most $2 + n \cdot |\prim{P}| \cdot Q(n,\lambda)$ vertices.
-		Where $Q(n,\lambda)$ is a polynomial upper bound on the number of queries of $\BBComb{P}.\alg{Alg}{P}$ and 
-		where we assume that $\prim{P}$ is constant.
+		Here, $Q(n,\lambda)$ is a polynomial upper bound on the number of queries of $\BBComb{P}.\alg{Alg}{P}$, where 
+		we assume that $\prim{P}$ is constant.
 		For every vertex $v \in V(\G)$, the Turing machine $f^v$ simulates $\BBComb{P}.\alg{Alg}{P}$.
 		In this simulation every oracle query except the last one is answered with a constant-time lookup of the query response 
 		in the predecessor outputs. The last query is made to a candidate oracle, also in constant-time.
-		Thus, the computation done at each vertex is therefore bounded by $T(n,\lambda)$, where $T$
+		Therefore, the computation done at each vertex is bounded by $T(n,\lambda)$, where $T$
 		is a polynomial bounding the runtime of $\BBComb{P}.\alg{Alg}{P}$ from above.
 		The overall running time is bounded by the following expression.
 		\[
@@ -183,7 +183,7 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 	\end{proof}
 
 	It remains to show that $\DAGComb{P}$ is a robust $(n;k)$ black-box combiner.
-	By \Cref{claim:correctness_dag_comb}, the algorithms implemented by $\BBComb{\prim{P}}[\O_1, \ldots, \O_n]$
+	By \Cref{claim:correctness_dag_comb}, the algorithms implemented by $\DAGComb{P}[\O_1, \ldots, \O_n]$
 	and $\BBComb{P}[\O_1, \ldots, \O_n]$ have equivalent output distributions. In particular, any adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$
 	against $\DAGComb{P}[\O_1, \ldots, \O_n]$ is also an adversary against $\BBComb{P}[\O_1, \ldots, \O_n]$
 	with the same advantage. 
@@ -200,7 +200,7 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 We illustrate the concept of a robust $(n;k)$ black-box DAG combiner in \Cref{fig:prf_dag_comb}
 using the example of the robust $(2;1)$ black-box PRF-combiner in \Cref{fig:prf_comb}. 
 Note that the robust black-box DAG combiner shown in \Cref{fig:prf_dag_comb}
-is not the same one would have obtained by applying the procedure from the proof of \Cref{thm:generality_dag_comb}.
+is not the same as one would have obtained by applying the procedure from the proof of \Cref{thm:generality_dag_comb}.
 
 \newpage
 
@@ -265,7 +265,7 @@ Recall that we require the security properties of the combiner to hold relative 
 precisely because we want the combiner to derive its security from the candidate oracles rather than implementing it itself.
 
 $\alg{EvalSim}{VRF}$ makes no oracle queries, yet still only returns $\top$ only if a secret key candidate $\sk \in \SK$
-\textit{agrees} with the games secret key $\sk^*$ in the sense that on $x_i$, both evaluate to the same image.
+\textit{agrees} with the game's secret key $\sk^*$ in the sense that on $x_i$, both evaluate to the same image.
 Using its PSPACE-complete oracle $\PSPACE$, the adversary can enumerate the entire secret key space $\SK$
 and discard any secret key candidate for which there exists a tuple $(x_i, y_i, \pi_i, \tau_i)$
 such that $\alg{EvalSim}{VRF}$ returns $\bot$. (Strictly speaking, the $\PSPACE$ oracle decides membership queries for PSPACE languages,
@@ -278,13 +278,12 @@ If for sufficiently many tuples $(x_i,y_i,\pi_i,\tau_i)$ the number of eliminate
 is sufficiently large, then after $s(\lambda) + \lambda$
 iterations of filtering, we end up with a polynomially sized set $\SK_{cand}$ containing $\sk^*$.
 The adversary can then sample a secret key $\sk_{cand} \sample \SK_{cand}$ uniformly at random.
-If $\sk_{cand} = \sk^*$, the adversary wins the pseudorandomness security experiment, which happens 
-with non-negligible probability.  
+If $\sk_{cand} = \sk^*$, the adversary wins the pseudorandomness security experiment. This happens with non-negligible probability.
 
 On the other hand, if only for a small number of tuples $(x_i, y_i, \pi_i, \tau_i)$ set of candidate keys 
 decreases significantly in size, then for many of the remaining candidates, the probability of evaluating a uniformly random evaluation point to the 
 same image as $\sk^*$ has to be non-negligible.
-In this scenario, the adversary proceeds analogously: he samples a uniformly random secret key candidate and 
+In this scenario, the adversary proceeds analogously: It samples a uniformly random secret key candidate and 
 evaluates the challenge input $x^*$ to compare it with the challenge image $y^*$.
 Since $\sk_{cand}$ and $\sk^*$ evaluate $x^*$ to the same image $y^*$ with non-negligible probability, 
 the adversary wins the game with non-negligible advantage.
@@ -308,25 +307,25 @@ continues the execution for every branch. Finally if for all branches the evalua
 then $\alg{EvalSim}{VRF}$ returns $\top$, otherwise it returns $\bot$.
 We illustrate the algorithm $\alg{EvalSim}{VRF}$ with pseudocode in \Cref{fig:eval_sim}.
 
-Its easy to see that the first and third requirements for the $\alg{EvalSim}{VRF}$ algorithm are met.
+It is easy to see that the first and third requirements for the $\alg{EvalSim}{VRF}$ algorithm are met.
 By construction $\alg{EvalSim}{VRF}$ makes no oracle queries to candidates.
 Assuming that $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x_i) \neq y_i$
 then, since we answer all queries to $\O_1$ and the exposed queries to $\O_2$
-truthfully, there must exits a well-formed assignment of oracle responses to 
+truthfully, there must exist a well-formed assignment of oracle responses to 
 obscure queries to candidate $\O_2$ such that the execution of 
 $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x_i)$ is simulated perfectly 
 and therefore the output is not $y_i$, thus we have $\alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \bot$.
 
-For the second property, we argue that for the security experiments secret key $\sk^*$
+For the second property, we argue that for the security experiment's secret key $\sk^*$
 any assignment of responses to obscure queries to candidate $\O_2$ does not change the image produced by the combiner simulation.
 Suppose for a contradiction that there exists two different assignments of oracle responses that result in two different 
 images $\tilde y \neq \hat y$. We derive a contradiction in three steps. First, we may assume without loss of generality that 
-in the evaluation of the robust black-box DAG combiners evaluation algorithm every specific oracle is queried on a specific input 
+in the evaluation of the robust black-box DAG combiner's evaluation algorithm every specific oracle is queried on a specific input 
 at most once (\Cref{claim:unique_queries}). Secondly, we construct two oracles $\widehat\O_2, \widetilde\O_2$, possibly not uniquely provable or perfectly correct, which are 
 the oracle $\O_2$ remapped on the obscure queries to the two assignments that produce different images $\hat y \neq \tilde y$ respectively.
 Third, we turn $\O_1$ into a full VRF by remapping all but a small subset of evaluation points to agree with the secure VRF $\O_2$ (\Cref{lemma:vrfification}).
 Since $\widehat\O_2, \widetilde\O_2$ produce different images but only differ on obscure queries not contained in the verification trace 
-they are indistinguishable for the combiners verification algorithm. This forces the combiner to violate either unique provability or perfect correctness.
+they are indistinguishable for the combiner's verification algorithm. This forces the combiner to violate either unique provability or perfect correctness.
 We show the description of the full adversary $\A$ in \Cref{fig:distinguisher}.
 
 \paragraph{Formal Treatment.}
@@ -335,7 +334,7 @@ Let $\O_{vrf}$ be a VF oracle implementing a secure VRF and let $\O_{uppc}$ be a
 a trivial, uniquely provable and perfectly correct VF such that the key generation algorithm always returns 
 $(\sk_{def}, \pk_{def})$, the evaluation algorithm returns $(y_{def}, \pi_{def})$ for every input and 
 the verification algorithm accepts a tuple $(\pk, x, y, \pi)$ if and only if $y = y_{def}$.
-First, we show two important results that central to the proof stated in \Cref{claim:unique_queries} and 
+First, we show two important results that are central to the proof stated in \Cref{claim:unique_queries} and 
 \Cref{lemma:vrfification}.
 
 We claim that we can assume without loss of generality, that the robust black-box DAG combiner 
@@ -361,29 +360,29 @@ queries every oracle algorithm on any given input at most once.
 	to any vertex $(d',i',j')$ if $d < d'$ and from every vertex to the sink.
 
 	To show that $\DAGComb{VRF}$ is indeed a valid robust $(n;k)$ black-box DAG VRF-combiner it is sufficient to show that
-	for any tuple of $n$ candidate schemes $\O_1, \ldots, \O_n$ of which at least $k$ implement a secure VRF. 
-	The algorithms implemented by $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n]$
-	have equivalent output distributions. Since we dont modify the algorithms $\alg{Gen}{VRF}$ and $\alg{Vfy}{VRF}$ we only need to show that 
+	for any tuple of $n$ candidate schemes $\O_1, \ldots, \O_n$ of which at least $k$ implement a secure VRF the 
+	algorithms implemented by $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n]$
+	have equivalent output distributions. Since we do not modify the algorithms $\alg{Gen}{VRF}$ and $\alg{Vfy}{VRF}$, we only need to show that 
 	equivalence holds for $\alg{Eval}{VRF}$.
 
 	Assume towards a contradiction that this is not the case, i.e. that there exists an input $(\sk, x) \in \SK \times \bin^\lambda$
 	such that $\BBComb{VRF}[\O_1, \ldots, \O_n].\alg{Eval}{VRF}(\sk, x) = y_1$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n].\alg{Eval}{VRF}(\sk, x) = y_2$
-	with $y_1 \neq y_2$. Since the Turing machine around the oracle calls are simulated the same way in both this either means that $f^t_{eval}$
-	is probabilistic which or that an oracle query is answered differently and thus not deterministic. In both cases we have that 
-	both $y_1, y_2$ could also have been produced by $\BBComb{VRF}[\O_1, \ldots, \O_n]$. By perfect correctness both $y_1,y_2$
+	with $y_1 \neq y_2$. Since the Turing machines around the oracle calls are simulated the same way in both, this either means that $f^t_{eval}$
+	is probabilistic or that an oracle query is answered differently and thus not deterministic. In both cases, both $y_1$ and $y_2$ could also have been produced 
+	by $\BBComb{VRF}[\O_1, \ldots, \O_n]$. By perfect correctness both $y_1,y_2$
 	must be verifiable but by unique provability only at most one of $y_1,y_2$ can be verifiable. A contradiction.
-	We conclude that therefore the algorithm $\alg{Eval}{VRF}$ of $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_2]$
+	We conclude that therefore the algorithm $\alg{Eval}{VRF}$ of $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n]$
 	are functionally equivalent.
 
-	It remains to show that $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ runs in polynomial time. Observer that the number of vertices in $\G_{\text{Eval}}$
+	It remains to show that $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ runs in polynomial time. Observe that the number of vertices in $\G_{\text{Eval}}$
 	remains unchanged from $\BBComb{VRF}[\O_1, \ldots, \O_n]$. Therefore, $|V(G_{\text{Eval}})| \in \poly[n, \lambda]$. At each vertex $v$,
 	the Turing machine $\widetilde f_{\text{Eval}}^v$ performs the same computation as $f_{\text{Eval}}^v$ plus a table lookup in $T_v$.
 	Since the size of the table is bounded from above by the number of vertices $|V(G_{\text{Eval}})|$ the lookup is efficiently computable.
 	Hence, the overall running time of $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ is bounded by a polynomial in $n$ and $\lambda$.
 \end{proof}
 
-From now on we will assume that for every input to the combiners evaluation algorithm, 
-and oracle is queried on any given input at most once. That is, if we remap the output of an oracle on a single point, 
+From now on we will assume that for every input to the combiner's evaluation algorithm, 
+an oracle is queried on any given input at most once. That is, if we remap the output of an oracle on a single point, 
 then at most one oracle query differs in the execution of the evaluation algorithm for every input.
 
 Next, let $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$ be sets
@@ -406,7 +405,7 @@ Formally stated in the following lemma.
 			\[
 				\forall \widetilde\sk \in \widetilde\SK, \widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot) = \O_{uppc}.\alg{Eval}{VRF}(\sk, \cdot)
 			\]
-		\item The verification algorithm of $\widetilde\O_{uppc}$ agrees with the evaluation algorithm of $\widetilde\O_{uppc}$
+		\item The verification algorithm of $\widetilde\O_{uppc}$ agrees with the verification algorithm of $\O_{uppc}$
 			on all public keys $\widetilde\pk\in\widetilde\PK$, i.e. we have that
 			\[
 				\forall \widetilde\pk \in \widetilde\PK, \widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot)
@@ -415,7 +414,7 @@ Formally stated in the following lemma.
 	\end{enumerate}
 \end{lemma}
 
-A too simple idea would be to replace the mapping of $\O_{vrf}.\alg{Eval}{VRF}$ on all inputs $(\sk, x)$
+A naive idea would be to replace the mapping of $\O_{vrf}.\alg{Eval}{VRF}$ on all inputs $(\sk, x)$
 with $\sk \in \tildeSK$ and similarly modify the mapping of $\O_{vrf}.\alg{Vfy}{VRF}$ on all inputs $(\pk, x, y, \pi)$
 with $\pk \in \tildePK$. However, the resulting oracle doesn't necessarily need to be uniquely provable or perfectly correct anymore.
 For instance, imagine the scenario where a secret key $\widetilde\sk \in \tildeSK$ is remapped but the corresponding 
@@ -423,10 +422,10 @@ public key $\pk$ does not itself belong to $\tildePK$. In that case the verifica
 evaluation algorithm on $\widetilde\sk$ is modified. This can result in correctly computed image-proof pairs to be rejected by the verification 
 algorithm, violating perfect correctness.
 
-We begin by introducing a two relations $\sim_\SK \subseteq \SK^2$ and 
+We begin by introducing two relations $\sim_\SK \subseteq \SK^2$ and 
 $\sim_\PK \subseteq \PK^2$. Intuitively, these relations capture
 whether two secret or public keys have a counterpart which could have been 
-sampled with both keys. Formally we define the relations $\sim_\SK, \sim_\PK$ as follows:
+sampled with both keys. Formally, we define the relations $\sim_\SK, \sim_\PK$ as follows:
 \begin{align}
 	\sk_1 \sim_\SK \sk_2 &\iff \exists \pk \in \PK, \Prob*{
 		\begin{aligned}
@@ -434,7 +433,7 @@ sampled with both keys. Formally we define the relations $\sim_\SK, \sim_\PK$ as
 			(\sk_2, \pk) &\sample \O_{uppc}.\alg{Gen}{VRF}(1^\lambda)
 		\end{aligned}
 	} > 0 \label{eq:sim_sk}\\ 
-	\pk_1 \sim_\PK \pk_2 &\iff \lor \exists \sk \in \SK, \Prob*{
+	\pk_1 \sim_\PK \pk_2 &\iff \exists \sk \in \SK, \Prob*{
 		\begin{aligned}
 			(\sk, \pk_1) &\sample \O_{uppc}.\alg{Gen}{VRF}(1^\lambda) \; \land\\
 			(\sk, \pk_2) &\sample \O_{uppc}.\alg{Gen}{VRF}(1^\lambda)
@@ -443,7 +442,7 @@ sampled with both keys. Formally we define the relations $\sim_\SK, \sim_\PK$ as
 \end{align}
 We now consider the reflexive transitive closure of those relations $\sim_\SK^*, \sim_\PK^*$,
 formally defined by $\sim^* = \bigcup_{k \in \N} \sim^k$. Since $\sim_\SK$ and $\sim_\PK$ are symmetric by definition, their 
-reflexive transitive closures are reflexive, symmetric and transitive and hence equivalence relations. Given an element $\sk$
+reflexive transitive closures are reflexive, symmetric and transitive and hence equivalence relations. Given an element $\sk$,
 we denote its equivalence class under $\sim_\SK^*$ with $[\sk]_{\sim_\SK^*} = \Brace{\sk' \in \SK : \sk' \sim_\SK^* \sk}$,
 analogously for an element $\pk$ and the relation $\sim_\PK^*$ we define $[\pk]_{\sim_\PK^*} = \Brace{\pk' \in \PK: \pk' \sim_\PK^* \pk}$.
 
@@ -454,7 +453,7 @@ respectively that map a key to all counterparts which are sampled with that key 
 	R_\SK(\sk) &= \Brace*{\pk\in\PK : \Prob*{(\sk, \pk) \sample \alg{Gen}{VRF}(1^\lambda)} > 0}
 \end{align}
 Next, we define the notion of the closure of a set of secret or public keys.
-Given a subset of secret keys $\widetilde\SK$ or public keys $\widetilde\PK$ we define its closure 
+Given a subset of secret keys $\widetilde\SK$ or public keys $\widetilde\PK$, we define its closure 
 $\closure_\SK(\widetilde\SK)$ and $\closure_\PK(\widetilde\PK)$ which are just the union over the equivalence classes 
 of all keys in the subsets. We formally define the functions as follows:
 \begin{align}
@@ -473,8 +472,8 @@ unique provability and perfect correctness of $\O_{uppc}$ if we want to remap al
 \end{align}
 Finally, we construct an oracle $\widetilde\O_{uppc}$ that interpolates between $\O_{uppc}$ and $\O_{vrf}$.
 The key generation algorithm is defined to be the function for key generation of 
-$\O_{vrf}$, the evaluation and the verification algorithm of $\widetilde\O_{uppc}$ are defined as follow,
-they evaluate to the output of $\O_{uppc}$ on all keys in $\tildeSK$ and $\tildePK$
+$\O_{vrf}$, the evaluation and the verification algorithm of $\widetilde\O_{uppc}$ are defined as follows:
+They evaluate to the output of $\O_{uppc}$ on all keys in $\tildeSK$ and $\tildePK$
 and they evaluate to the output of $\O_{vrf}$ otherwise.
 \begin{align}
 	\widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
@@ -490,7 +489,7 @@ The properties $1.$ and $2.$ of \Cref{lemma:vrfification} hold by definition of 
 since $\tildeSK \subseteq \closure_\SK(\tildeSK) \subseteq \closure_\SK(\tildeSK, \tildePK)$
 and $\tildePK \subseteq  \closure_\PK(\tildePK) \subseteq \closure_\PK(\tildeSK, \tildePK)$
 which hold by reflexivity of $\sim_\SK^*$ and $\sim_\PK^*$ respectively.
-We show that $3.$ holds by showing the $\widetilde\O_{uppc}$ is uniquely provable, perfectly correct 
+We show that $3.$ holds by showing that $\widetilde\O_{uppc}$ is uniquely provable, perfectly correct 
 and pseudorandom.
 
 \begin{claim}\label{claim:vrfification_pc_up}
@@ -503,6 +502,8 @@ and pseudorandom.
 	is perfectly correct (\Cref{def:correctness})
 	and uniquely provable (\Cref{def:unique_provability}).
 \end{claim}
+
+%%-- until here
 
 Before we prove \Cref{claim:vrfification_pc_up} we claim that if a secret key $\sk$ can be sampled together with a public key $\pk$,
 for any subset of secret keys $\tildeSK$ and any subset of public keys $\tildePK$, $\sk$ is in the closure of $\tildeSK$
@@ -742,7 +743,7 @@ with the PSPACE-complete oracle in the end that is not a problem.
 \begin{claim}\label{claim:eval_sim}
 	Let $\alg{EvalSim}{VRF}$ be the algorithm as described above and in \Cref{fig:eval_sim}
 	taking as input a tuple $(\sk, x, y, \pi, \tau)$ containing a secret key, evaluation point, 
-	image, proof and a trace of the combiners verification algorithm on 
+	image, proof and a trace of the combiner's verification algorithm on 
 	$(\pk, x,y,\pi)$ where $\pk$ is the true public key. Then $\alg{EvalSim}{VRF}$ satisfies the following properties.
 	\begin{enumerate}
 		\item $\alg{EvalSim}{VRF}$ makes no oracle queries to the candidates $\O_{vrf}, \O_{up}$
@@ -752,13 +753,13 @@ with the PSPACE-complete oracle in the end that is not a problem.
 \end{claim}
 
 Informally, this means that the evaluation simulation will return with $\top$ on a non-empty subset of secret keys
-which agrees with the true secret key $\sk^*$ on the evaluation of $x$. Non-empty because the security experiments 
+which agrees with the true secret key $\sk^*$ on the evaluation of $x$. Non-empty because the security experiment's 
 secret key $\sk^*$ will always result in $\top$ due to the second property.
 
 \begin{proof}[\Cref{claim:eval_sim}]
 	The first property holds by construction. The second property follows directly from 
 	\Cref{claim:hidden_irrelevant}. The third property is because the true execution of 
-	the combiners evaluation algorithm corresponds is always a branch in the execution of 
+	the combiner's evaluation algorithm corresponds is always a branch in the execution of 
 	$\alg{EvalSim}{VRF}$, if the output of that branch is not $y$ then by construction the combiner will 
 	return $\bot$.
 \end{proof}
@@ -766,14 +767,14 @@ secret key $\sk^*$ will always result in $\top$ due to the second property.
 Using this simulator $\alg{EvalSim}{VRF}$ we can describe the set of iteratively filtered candidate secret keys as follows.
 Let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + \lambda]}}$ be a set of $s(\lambda) + \lambda$ tuples containing a uniformly random 
 evaluation point $x_i \in \bin^\lambda$, the evaluation of $x_i$ resulting in the tuple $(y_i, \pi_i)$ 
-and the trace of the combiners verification algorithm on $(x_i, y_i, \pi_i)$. The set of candidate keys is defined as:
+and the trace of the combiner's verification algorithm on $(x_i, y_i, \pi_i)$. The set of candidate keys is defined as:
 \[
 	\SK_{cand}(x_i,y_i,\pi_i,\tau_i) := \{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i)\}
 \]
 We claim that after filtering for $s(\lambda) + \lambda$ rounds, 
 the probability that a remaining candidate key $\sk_{cand}$ sampled u.a.r. from the set 
 of remaining candidate keys evaluates a uniformly random evaluation point $x^* \in \bin^*$
-to the same image $y^*$ as the games secret key $\sk^*$ does is non-negligible.
+to the same image $y^*$ as the game's secret key $\sk^*$ does is non-negligible.
 
 \begin{claim}\label{claim:candidate_likely_good}
 Let $\SK_{cand}$ be defined as above and let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + \lambda]}}$ 
@@ -792,7 +793,7 @@ as for the secret key $\sk^*$ is non-negligible, i.e.
 \begin{proof}[\Cref{claim:candidate_likely_good}]
 	For a secret key $\sk \in \SK$ we define $\X(\sk)$ to be the number of evaluation points
 	$x \in \bin^\lambda$ for which the evaluation of $x$ under $\sk$ agrees with the evaluation 
-	of $x$ under $\sk^*$, the games secret key, i.e.
+	of $x$ under $\sk^*$, the game's secret key, i.e.
 	\[
 		\X(\sk) = \abs*{\Brace*{x \in \bin^\lambda : \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x) = \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk^*, x)}}
 	\]
@@ -915,14 +916,14 @@ against the combiner initialized with oracles $\O_{vrf}$ and $\O_{uppc}$ with no
 First, $\A$ first samples $s(\lambda) + \lambda$ evaluation points uniformly at random $x_1, \ldots, x_{s(\lambda) + \lambda}$.
 Subsequently, $\A$ uses the evaluation oracle in the prf game to evaluate the points to obtain 
 $(y_1, \pi_1), \ldots, (y_{s(\lambda) + \lambda}, \pi_{s(\lambda) + \lambda})$. Using the public key $\pk^*$
-the adversary will then compute the combiners verifier traces for all tuples consisting of evaluation point and image-proof pair
+the adversary will then compute the combiner's verifier traces for all tuples consisting of evaluation point and image-proof pair
 $(x_1, y_1, \pi_1), \ldots, (x_{s(\lambda) + \lambda}, y_{s(\lambda) + \lambda}, \pi_{s(\lambda) + \lambda})$ to obtain 
 $\tau_1, \ldots, \tau_{s(\lambda) + \lambda}$. Next, the adversary will use binary search over $m$ to find the size 
 of the candidate key set, $k$, by querying the $\PSPACE$ oracle to decide membership in $\mathcal L_{size}$ before 
 sampling a random element $\rho \sample [k]$ and recovering the $\rho$'th candidate $\sk_{cand}$ bit-by-bit using the PSAPCE-complete oracle 
 to decide membership in $\mathcal L_{cand}$.
 Finally, the adversary samples a random challenge pre-image $x^* \sample \bin^\lambda \setminus \{x_1, \ldots, x_{s(\lambda) + \lambda}\}$,
-obtain from the challenger the challenge image $y^*$, computes the image $y'$ of $x^*$ under the combiners evaluation algorithm 
+obtain from the challenger the challenge image $y^*$, computes the image $y'$ of $x^*$ under the combiner's evaluation algorithm 
 with the secret key candidate $\sk_{cand}$ and guesses bit $b = 0$ if and only if $y' = y^*$.
 We illustrate the adversary in \Cref{fig:distinguisher}.
 
@@ -988,11 +989,11 @@ We illustrate the adversary in \Cref{fig:distinguisher}.
 \begin{proof}[\Cref{claim:advantage_distinguisher}]
 	\textit{Runtime}: The adversary $\A$ can sample $s(\lambda) + \lambda$ evaluation points,
 	query the games evaluation oracle on them to obtain the image-proof pairs and 
-	evaluate the combiners verification algorithm on the point-image-proof tuples to obtain the trace in time $\O(s(\lambda) + \lambda)$.
+	evaluate the combiner's verification algorithm on the point-image-proof tuples to obtain the trace in time $\O(s(\lambda) + \lambda)$.
 	The set of candidate keys is bounded in size by the size of the secret key space, thus by means of binary search $\A$
 	can obtain the size with at most $s(\lambda)$ queries to the PSPACE complete oracle.
 	With another $s(\lambda)$ queries $\A$ can then recover the $\rho$'th candidate key
-	bit-by-bit. The final evaluation of the combiners evaluation algorithm on the candidate secret key and the challenge pre-image
+	bit-by-bit. The final evaluation of the combiner's evaluation algorithm on the candidate secret key and the challenge pre-image
 	can also be done in polynomial time due to the efficiency requirement on the robust black-box DAG combiners.
 	Overall, the adversary runs in time polynomial in $\lambda$ and $n$.
 
