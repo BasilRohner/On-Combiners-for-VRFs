@@ -68,7 +68,7 @@ Black-box combiners for VRFs have, to the best of our knowledge, not been studie
 VRFs can be viewed as a public-key version of PRFs with an additional verifiability requirement.
 Simple robust black-box PRF combiners are known for PRFs. One such combiner evaluates the input 
 $x$ under each candidate scheme to obtain images $y_1, y_2$ and returns their XOR $y = y_1 \xor y_2$.
-We illustrate the construction in \Cref{fig:prf_comb}.
+We illustrate the construction the following schematic.
 
 \begin{figure}[hptb]
     \begin{pchstack}[center, space=1em]
@@ -87,7 +87,6 @@ Pseudorandomness of the combined scheme follows from a standard reductionist arg
 given an adversary $\A$ against the combiner, we construct an adversary $\mathcal B$ against each individual candidate that runs in the same 
 time as $\A$ and breaks the candidates pseudorandomness if $\A$ breaks the combiners pseudorandomness.
 By contraposition, if at least one candidate is pseudorandom then the combiner is pseudorandom. 
-We outline the reduction and refer to the \Cref{sec:app_robust_prf_comb} for a formal proof.
 
 The reduction against candidate scheme $\O_i$ has access to the pseudorandomness oracle 
 $\O_{\text{eval}}$ of the pseudorandomness security experiment against $\O_i$ and internally simulates the 

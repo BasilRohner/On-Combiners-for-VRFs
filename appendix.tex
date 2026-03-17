@@ -1,26 +1,13 @@
 \chapter{Appendix}
 \label{ch:appendix}
 
-\section{Robust $(2;1)$ Black-Box PRF-Combiner}
-\label{sec:app_robust_prf_comb}
-
-\section{Proof of \Cref{claim:sk_iff_pk}}
-\label{sec:sk_iff_pk}
-
-We show $\sk \in \closure_\SK(\tildeSK, \tildePK) \implies \pk \in \closure_\PK(\tildeSK, \tildePK)$, the 
-converse follows analogously. Assume the left-hand side, i.e. $\sk \in \closure_\SK(\tildeSK,\tildePK)$ and distinguish 
-two cases based on the definition of $\closure_\SK(\tildeSK, \tildePK)$.
-If $\sk \in \closure_\SK(\tildeSK)$ then since $\pk \in R_\SK(\sk)$ we obtain 
-$\pk \in \bigcup_{\widetilde\sk \in \closure_\SK(\tildeSK)} R_\SK(\widetilde\sk)$ and hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$.
-On the other hand, if $\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\tildePK)} R_\PK(\widetilde\pk)$ 
-then $\sk \in R_\PK(\widetilde\pk)$ for some $\widetilde\pk \in \closure_\PK(\tildePK)$. By definition of the closure we have 
-$\pk \sim_\PK^* \widetilde\pk$, hence $\pk \in \closure_\PK(\tildePK)$ and thus $\pk \in \closure_\PK(\tildeSK, \tildePK)$.\todo{more details}
+\section{Deferred Proofs}
 
 \subsection{Proof of \Cref{lemma:difference_lemma}}
 
 We present the proof of the difference lemma, formally:
 
-\begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
+\begin{restatable}[Difference Lemma]{lemma}{difflemma}\label{lemma:difference_lemma}
     Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events with
     \[
         \Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E} 
@@ -29,7 +16,7 @@ We present the proof of the difference lemma, formally:
     \[
         \abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}} \le \Prob{\mathcal E}
     \]
-\end{lemma}
+\end{restatable}
 
 \paragraph{Proof of \Cref{lemma:difference_lemma}.}
 Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events and assume $\Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E}$.
@@ -43,6 +30,80 @@ Then we can deduce the following:
     =& \abs*{\Prob{\mathcal W_0 \mid \mathcal E} - \Prob{\mathcal W_1 \mid \mathcal E}} \Prob{\mathcal E}\\
     \le&\Prob{\mathcal E} 
 \end{align}
+
+
+\subsection{Proof of \Cref{claim:sk_iff_pk}}
+\label{sec:sk_iff_pk}
+
+We show $\sk \in \closure_\SK(\tildeSK, \tildePK) \implies \pk \in \closure_\PK(\tildeSK, \tildePK)$, the 
+converse follows analogously. Assume the left-hand side, i.e. $\sk \in \closure_\SK(\tildeSK,\tildePK)$ and distinguish 
+two cases based on the definition of $\closure_\SK(\tildeSK, \tildePK)$.
+If $\sk \in \closure_\SK(\tildeSK)$ then since $\pk \in R_\SK(\sk)$ we obtain 
+$\pk \in \bigcup_{\widetilde\sk \in \closure_\SK(\tildeSK)} R_\SK(\widetilde\sk)$ and hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$.
+On the other hand, if $\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\tildePK)} R_\PK(\widetilde\pk)$ 
+then $\sk \in R_\PK(\widetilde\pk)$ for some $\widetilde\pk \in \closure_\PK(\tildePK)$. By definition of the closure we have 
+$\pk \sim_\PK^* \widetilde\pk$, hence $\pk \in \closure_\PK(\tildePK)$ and thus $\pk \in \closure_\PK(\tildeSK, \tildePK)$.\todo{more details}
+
+\subsection{Proof of \Cref{claim:adv_rewriting_1}}
+
+\advrewritingone*
+
+Let $b'$ be the hidden bit in the pseudorandomness security experiment against $\widetilde\O_{uppc}$ then we have that
+
+\begin{align*}
+    &2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} \\ 
+    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} \Prob*{b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} \Prob*{b' = 1} - \frac{1}{2}} \\ 
+    &= 2 \cdot \abs*{\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0}  + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} - \frac{1}{2}} \\ 
+    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}  - 1} \\ 
+    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Paren*{1 - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}}} \\ 
+    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 0 \mid b' = 1}} \\ 
+    &= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} 
+\end{align*}
+
+\subsection{Proof of \Cref{claim:adv_rewriting_2}}
+
+\advrewritingtwo*
+
+Similarly to the proof of \Cref{claim:adv_rewriting_2} we can simply bound this with a computation.
+
+\begin{align*}
+    &2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} \\ 
+    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} \Prob*{b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} \Prob*{b' = 1} - \frac{1}{2}} \\ 
+    &= 2 \cdot \abs*{\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0}  + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} - \frac{1}{2}} \\ 
+    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}  - 1} \\ 
+    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Paren*{1 - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}}} \\ 
+    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 0 \mid b' = 1}} \\ 
+    &= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} 
+\end{align*}
+
+\subsection{Proof of \Cref{claim:adv_rewriting_3}}
+
+\advrewritingthree*
+
+For this result we rely on the difference lemma which stated that \Cref{lemma:difference_lemma}.
+For that we note that the events $H_1^{\lambda, \A}$ and $H_3^{\lambda, \A}$ are equivalent conditioned on 
+the event that the secret key $\sk^*$ sampled by the challenger in the pseudorandomness security experiment is 
+not in the closure of $\closure_\SK(\tildeSK, \tildePK)$. Since the events are the same conditioned on that event we have in particular that
+\[
+    \Prob*{H_1^{\lambda, \A} = 1 \mid \sk^* \notin \closure_\SK(\widetilde{\SK}, \widetilde\PK)}
+    = 
+    \Prob*{H_3^{\lambda, \A} = 1 \mid \sk^* \notin \closure_\SK(\widetilde{\SK}, \widetilde\PK)}
+\]
+Applying \Cref{lemma:difference_lemma} we obtain the bound:
+\begin{align}
+    \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} &\le \Prob*{\sk^* \in \closure_\SK(\widetilde\SK, \widetilde\PK)}
+\end{align}
+Applying the definition of $\closure_\SK(\tildeSK, \tildePK)$ and subsequently a union bound we obtain:
+\begin{align}
+    \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \le \Prob*{\sk^* \in \closure_\SK(\widetilde\SK)} + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)}
+\end{align}
+We bound the two terms seperately. Specifically we show that in every set on the RHS of the events 
+the number of images corresponding to the secret keys is bounded by $|\tildeSK|$ and $|\tildePK|$
+respectively. Now assuming that one of those probabilities is non-negligible then the adversary 
+could just assume that this case happens and guess the corresponding image with non-negligible probability 
+yielding the correct image with probability at least the product of two non-negligible functions which is itself 
+a non-negligible function. Since we however know that $\O_{vrf}$ is pseudorandom this cannot be the case, we conclude 
+that the probabilities must be negligible each.
 
 \subsection{Conjecture}
 
@@ -64,118 +125,3 @@ as the combiner does with the true secret key on a uniformly random evaluation p
 However, since the hidden queries must not necessarily be jointly-irrelevant this argument cannot be applied if 
 we have more candidates, of which still $n-1$ need to be secure for the combiner to be required to 
 implement unique provability and pseudorandomness.
-
-TODO\todo{example of axis-constant function}
-
-\subsection{Proof of \Cref{claim:pc_up_vrf_comb}}\label{sec:pc_up_vrf_comb}
-
-% \begin{figure}[H]
-% 	\centering 
-% 	\begin{pcvstack}[boxed]
-% 		\begin{pchstack}
-% 			\procedure[linenumbering]
-% 			{$\alg{Gen}{\Comb\vrf}(1^\lambda)$}
-% 			{
-% 				(sk_1, pk_1) \sample \alg{Gen}{\mathcal O_{\vrf1}}(1^\lambda)\\ 
-% 				(sk_2, pk_2) \sample \alg{Gen}{\mathcal O_{\vrf2}}(1^\lambda)\\ 
-% 				sk \gets (sk_1, sk_2)\\ 
-% 				pk \gets (pk_1, pk_2)\\ 
-% 				\pcreturn (sk, pk)
-% 			}
-% 			\procedure[linenumbering]
-% 			{$\alg{Eval}{\Comb\vrf}(sk, x)$}
-% 			{
-% 				(sk_1, sk_2) \gets sk\\ 
-% 				(y_1, \pi_1) \sample \alg{Eval}{\mathcal O_{\vrf1}}(sk_1, x)\\ 
-% 				(y_2, \pi_2) \sample \alg{Eval}{\mathcal O_{\vrf2}}(sk_2, x)\\ 
-% 				y \gets y_1 \xor y_2\\ 
-% 				\pi \gets (\pi_1, \pi_2, y_1, y_2)\\ 
-% 				\pcreturn (y, \pi)
-% 			}
-% 		\end{pchstack}
-% 		\procedure[linenumbering]
-% 		{$\alg{Vfy}{\Comb\vrf}(pk, x, y, \pi)$}
-% 		{
-% 			(pk_1, pk_2) \gets pk\\ 
-% 			(\pi_1, \pi_2, y_1, y_2) \gets \pi\\ 
-% 			b_1 \gets \alg{Vfy}{\mathcal O_{\vrf1}}(pk_1, x, y_1, \pi_1)\\ 
-% 			b_2 \gets \alg{Vfy}{\mathcal O_{\vrf2}}(pk_2, x, y_2, \pi_2)\\ 
-% 			\pcif (y \neq y_1 \xor y_2) \land b_1 \land b_2
-% 		}
-% 	\end{pcvstack}
-% 	\caption{$(1;2)$-Robust Black-Box Combiner for VRF with uniquely provable candidates.}
-% 	\label{fig:construction1}
-% \end{figure}
-
-\begin{comment}
-
-\section{Strong Combiner for Advanced Notions of VRF}
-
-We first extend VRFs to constrainable VRFs. Constrainable VRFs as introduced in \cite{}
-extend the concept of constrainable PRFs \cite{} which allow constraining of the keys 
-to a subset of evaluation points. A constrained key $\sk_S$, constrained to a subset of 
-$S \subseteq \bin^\lambda$ of evaluation keys, can then only be used to evaluate 
-points in $S$. We take inspiration from \cite{} to define constrainable verifiable function (CVF) as follows.
-
-\begin{definition}[Constrainable Verifiable Function]\label{def:cvf}
-    
-\end{definition}
-
-Similarly to VF we define additional security properties on a CVF to obtain a constrainable 
-verifiable random function (CVRF). The notions of correctness, unique provability and pseudorandomness 
-extend intuitively from the corresponding notions on VFs, we additionally introduce a 
-property ... that guarantees that no adversary given a constrained key can obtain images for evaluation 
-points outside the set $S$.
-
-\begin{definition}
-    
-\end{definition}
-
-\begin{definition}
-    
-\end{definition}
-
-\begin{definition}
-    
-\end{definition}
-
-To extend the robust $(2;1)$ black-box combiner for VRFs with uniquely provable and perfectly 
-correct candidates we only need to combine the constrain algorithm. Since the secret keys 
-for each candidate are grouped into a tuple we can simply constrain the keys component-wise.
-We state the result in the following lemma.
-
-\begin{lemma}[Weak Robust $(2;1)$ Black-Box CVRF-Combiner]\label{lemma:cvrf_comb}
-    
-\end{lemma}
-
-\begin{proof}[\Cref{lemma:cvrf_comb}]
-    
-\end{proof}
-
-Next we consider the notion of a key-homomorphic VRF (khVRF) \cite{}.
-In khVRF the secret key space $\SK$, and the product of the image co-domain and proof space $\Y\times \P$
-endowed with a group structure $(\SK, \circledast_\SK)$ and $(\Y \times \P, \circledast_{\Y \times \P})$
-respectively. A VF is then defined to be key-homomorphic if $\alg{Eval}{VRF}(\cdot, x): \SK \to \Y \times \P$
-is a group homomorphism for every $x \in \bin^\lambda$. 
-
-\begin{definition}[Key-Homomorphism]\label{def:key_homomorphism}
-    
-\end{definition}
-
-
-
-\subsection{Combiner Construction}
-
-Finally we want to mention that more advanced notions of VRF such as constrainable VRFs \cite{}
-which additionally allow the constraining of secret key to a specific subset of evaluation points.
-Key-homomorphic VRFs \cite{} satisfy that the secret key space $\SK$ and image-proof space $\Y \times \P$
-admit algebraic group structures $(\SK, \circledast_\SK)$ and $(\Y \times \P, \circledast_{\Y \times \P})$
-and $\alg{Eval}{VRF}(\cdot, x)$ admits a group homomorphism for any $x \in \bin^\lambda$.
-Aggregable VRFs \cite{} additionally implement algorithms to aggregate many public keys and corresponding 
-image-proof pairs into a single image-proof pair, requiring that in addition to the existing properties of the VRF 
-the aggregated input is pseudorandom and statistically binding.
-Finally unbiasable VRFs \cite{} are VRFs which additionally protect from adversaries skewing the output distribution 
-of the VRF by maliciously crafting public keys.
-We show that under the assumption of uniquely provable and perfectly correct candidates all of those advanced notions admit robust $(2;1)$ black-box combiners.
-
-\end{comment}
