@@ -246,7 +246,7 @@ The key ingredient is a ppt. Turing machine $\alg{EvalSim}{VRF}$ that takes as i
 a tuple $(\sk,x_i,y_i,\pi_i,\tau_i)$ and returns either $\top$ or $\bot$, satisfying the following properties:
 
 \begin{itemize}
-	\item $\alg{EvalSim}{VRF}$ makes no oracle queries to the candidates $\O_1, \ldots, \O_n$
+	\item $\alg{EvalSim}{VRF}$ makes no oracle queries to the candidates $\O_1, \O_2$
 	\item If $\sk = \sk^*$ then $\alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top$
 	\item If $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x_i) \neq y_i$ then $\alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \bot$
 \end{itemize}
@@ -298,7 +298,7 @@ For every obscure query to $\O_2$ the adversary branches its execution for every
 of the query (e.g. all possible values in $\Y \times \P$ if the query is to $\O_2$s evaluation algorithm) and
 continues the execution for every branch. Finally if for all branches the evaluation of the combiner is $y_i$
 $\alg{EvalSim}{VRF}$ returns $\top$, otherwise it returns $\bot$.
-We illustrate the algorithm $\alg{EvalSim}{VRF}$ in \Cref{fig:eval_sim}.\todo{!}
+We illustrate the algorithm $\alg{EvalSim}{VRF}$ in \Cref{fig:eval_sim}.
 
 Its easy to see that the first and third requirements for the $\alg{EvalSim}{VRF}$ algorithm are met.
 By construction $\alg{EvalSim}{VRF}$ makes no oracle queries to candidates.
@@ -689,40 +689,41 @@ with the PSPACE complete oracle in the end that is not a problem.
 		{Algorithm $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau)$}
 		{
 			v_1, \ldots, v_m \gets \text{topological ordering of } V(\G_{eval}) \setminus \{s_{eval}, t_{eval}\} \\
-			s_{s_{eval}} \gets 1 \pccomment{Number of states or branches}\\
+			c_{s_{eval}} \gets 1 \pccomment{Number of states or branches}\\
 			\pcfor i = 1 \text{ to } m \pcdo \\
 			\t \t \pclinecomment{Reconstruct all branches:}\\
-			\t \t \sigma \gets \varnothing\\
+			\t \t \Sigma \gets \varnothing\\
 			\t \t \pcfor w \in \mathcal N^-_{\G_{eval}}(v_i) \pcdo\\ 
-			\t \t \t \sigma \gets \Brace{A \cup \{(w,\x_w^{(j)})\} : j \in [s_{w}]}\\
+			\t \t \t \Sigma \gets \Brace{\Sigma \cup \{(w,\x_w^{(j)})\} : j \in [c_{w}]}\\
 			\t \t \pclinecomment{Iterate all branches:}\\ 
-			\t \t \pcfor B \in \sigma \pcdo\\
-			\t \t \t \mathbf q_{v_i}^{(j)} \gets f_{eval}^{v_i}(B)\\ 
-			\t \t \t \pcif c(v_i) = (2, 1) \pcthen \pccomment{Query to oracle $\O_{uppc}.\alg{Gen}{VRF}$}\\ 
-			\t \t \t \t \x_{v_i}^{(j)} \gets (\sk_{def}, \pk_{def})\\ 
-			\t \t \t \pcelse \pcif c(v_i) = (2,2) \pcthen \pccomment{Query to oracle $\O_{uppc}.\alg{Eval}{VRF}$}\\ 
-			\t \t \t \t \x_{v_i}^{(j)} \gets (y_{def}, \pi_{def})\\ 
-			\t \t \t \pcelse \pcif c(v_i) = (2,3) \pcthen \pccomment{Query to oracle $\O_{uppc}.\alg{Vfy}{VRF}$}\\ 
-			\t \t \t \t \pcif \mathbf q_{v_i}^{(j)} = (\_, \_, y, \_) \pcthen\\ 
-			\t \t \t \t \t \x_{v_i}^{(j)} \gets 1\\ 
-			\t \t \t \t \pcelse \pcif \mathbf q_{v_i}^{(j)} = (\_, \_, y, \_) \pcthen \\
-			\t \t \t \t \t \x_{v_i}^{(j)} \gets 0\\
-			\t \t \t \pcelse \pcif \mathbf q_{v_i}^{(j)} \in \tau \pcthen \pccomment{Vertex $v_i$ is exposed and query it to $\O_{vrf}$}\\
+			\t \t j \gets 1\\
+			\t \t \pcfor \sigma \in \Sigma \pcdo\\
+			\t \t \t \mathbf q_{v_i}^{(j)} \gets f_{eval}^{v_i}(\sigma)\\ 
+			\t \t \t \pcif \ell(v_i) = (2, \_) \pcthen \pccomment{Query to oracle $\O_{uppc}$}\\ 
+			\t \t \t \t \x_{v_i}^{(j)} \gets \x_{v_i}^{def}\\ 
+			\t \t \t \pcelse \pcif \mathbf q_{v_i}^{(j)} \in \tau \pcthen \pccomment{Exposed query to $\O_{vrf}$}\\
 			\t \t \t \t \x_{v_i}^{(j)} \gets \text{response to }\q_{v_i}^{(j)} \text{ in }\tau\\
-			\t \t \t \pcelse \pcif c(v_i) = (1,1) \pcthen \pccomment{Vertex $v_j$ is obscure and query it to $\O_{vrf}.\alg{Gen}{VRF}$}\\
-			\t \t \t \t \pcfor (\sk, \pk), k \in \SK \times \PK \pcdo\\ 
-			\t \t \t \t \t \sigma' \gets \sigma + |\SK \times \PK|\\
-			\t \t \t \t \sigma \gets \sigma \times |\SK \times \PK|\\ 
-			\t \t \t \pcelse \pcif c(v_i) = (1,2) \pcthen \pccomment{Vertex $v_j$ is obscure and query is to $\O_{vrf}.\alg{Eval}{VRF}$}\\
-			\t \t \t \pcelse \pcif c(v_i) = (1,3) \pcthen \pccomment{Vertex $v_j$ is obscure and query is to $\O_{vrf}.\alg{Vfy}{VRF}$}\\
+			\t \t \t \pcelse \pcif \ell(v_i) = (1,\_) \pcthen \pccomment{Obscure query to $\O_{vrf}$}\\
+			\t \t \t \t \pcfor \mathbf s \in \mathcal S_{v_i} \pcdo\\ 
+			\t \t \t \t \t \x_{v_i}^{(j)} \gets \mathbf s\\ 
+			\t \t \t \t \t j \gets j + 1\\
+			\t \t \t c_{v_i} \gets j\\
+			\pclinecomment{Check if all evaluation branches result in $y$}\\
+			\t \t \Sigma \gets \varnothing\\
+			\t \t \pcfor w \in \mathcal N^-_{\G_{eval}}(t_{eval}) \pcdo\\ 
+			\t \t \t \Sigma \gets \Brace{\Sigma \cup \{(w,\x_w^{(j)})\} : j \in [c_{w}]}\\
+			\t \t \pcfor \sigma \in \Sigma \pcdo\\
+			\t \t \t \y_{t_{eval}} \gets f_{eval}^{t_{eval}}(\sigma)\\ 
+			\t \t \t \pcif \y_{t_{eval}} \neq y \pcthen\\ 
+			\t \t \t \t \pcreturn \bot\\ 
+			\pcreturn \top
 		}
 	\end{pchstack}
-	\caption{Pseudocode of the algorithm $\alg{EvalSim}{VRF}$.}
+	\caption{Pseudocode of the algorithm $\alg{EvalSim}{VRF}$. We use $c_v$ to denote the number of possible branches at vertex $v$, $\smash{\x_v^{def}}$ for the default value of the oracle of $\O_{uppc}$ at vertex $v$ (e.g. if $c(v) = (2,2)$ then $(y_{def}, \pi_{def})$) and with $\mathcal S_v$ the corresponding co-domain of the oracle at $v$ (e.g. if $c(v) = (1,2)$ then $\Y \times \P$).}
 	\label{fig:eval_sim}
 \end{figure}
 
 \newpage
-\todo{maybe remove}
 
 \begin{claim}\label{claim:eval_sim}
 	Let $\alg{EvalSim}{VRF}$ be the algorithm as described above and in \Cref{fig:eval_sim}
@@ -749,7 +750,7 @@ secret key $\sk^*$ will always result in $\top$ due to the second property.
 \end{proof}
 
 Using this simulator $\alg{EvalSim}{VRF}$ we can describe the set of iteratively filtered candidate secret keys as follows.
-Let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + 2\lambda]}}$ be a set of $s(\lambda) + 2\lambda$ tuples containing a uniformly random 
+Let $\smash{\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + \lambda]}}$ be a set of $s(\lambda) + \lambda$ tuples containing a uniformly random 
 evaluation point $x_i \in \bin^\lambda$, the evaluation of $x_i$ resulting in the tuple $(y_i, \pi_i)$ 
 and the trace of the combiners verification algorithm on $(x_i, y_i, \pi_i)$. The set of candidate keys is defined as:
 \[
@@ -819,9 +820,18 @@ For $p$ a polynomial in $\lambda$.
 	\todo{this section is gruesome}
 	Define the following events:
 	\begin{align}
-		\mathcal F := \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*)\\ 
-		\E := \abs*{\SK_{unfav} \cap \bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1
+		\mathcal F &:= 
+		\Brace*{\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*)}\\ 
+		\mathcal E &:=
+		\Brace*{\abs*{\SK_{unfav} \cap \textstyle\bigcap_{i \in [s(\lambda) + 2\lambda]} \SK_{card}(x_i,y_i,\pi_i,\tau_i)} \ge 1}
 	\end{align}
+	Then we have:
+	\begin{align}
+		\Prob*{\mathcal F} &= \Prob*{\mathcal F \mid \lnot\mathcal E}\Prob*{\lnot\mathcal E} +
+		\Prob*{\mathcal F \mid \mathcal E} \Prob*{\mathcal E}\\ 
+		&\ge  \Prob*{\mathcal F \mid \lnot\mathcal E} \Prob*{\lnot\mathcal E}
+	\end{align}
+	\begin{comment}
 	To bound the final probability simply condition on the event that no bad key survives.
 	Let $\E$ be the event that $|\SK_{unfav} \cap \bigcap_{i \in [2s(\lambda)]} \SK_{cand}(x_i, y_i,\pi_i,\tau_i)| = 0$
 	and let $\mathcal F$ be the event that $\BBComb{VRF}[\O_1,\O_2].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_1,\O_2].\alg{Eval}{VRF}^y(\sk,x^*)$. 
@@ -834,6 +844,7 @@ For $p$ a polynomial in $\lambda$.
 		\ge &\Prob*{\BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk^*,x^*) = \BBComb{VRF}[\O_{vrf},\O_{uppc}].\alg{Eval}{VRF}^y(\sk,x^*) \mid \lnot\E} \Prob*{\lnot\E} \\
 		\ge &\frac{1}{2}  - \frac{1}{2^{\lambda}+1}
 	\end{align*}
+\end{comment}
 	Which concludes this proof.
 \end{proof}
 
@@ -918,21 +929,31 @@ We illustrate the distinguisher in \Cref{fig:distinguisher}.
 	\centering 
 	\begin{pcvstack}[center, space=1em]
 		\procedure[linenumbering]
-		{Distinguisher $\mathcal D^{\PSPACE, \O_{eval},\O_1,\O_2}_1(\pk)$}
+		{Adversary $\mathcal A^{\PSPACE, \O_{eval},\O_{vrf},\O_{uppc}}_1(\pk)$}
 		{
-			\pclinecomment{Obtain $\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [2s(\lambda)]}$:}\\ 
+			\pclinecomment{Obtain $\{(x_i, y_i, \pi_i, \tau_i)\}_{i \in [s(\lambda) + \lambda]}$:}\\ 
 			\mathcal X \gets \varnothing\\
-			\pcfor i \in [2s(\lambda)] \pcdo\\ 
+			\pcfor i \in [s(\lambda) + \lambda] \pcdo\\ 
 			\t x_i \sample \bin^\lambda\\ 
 			\t \mathcal X \gets \mathcal X \cup \{x_i\}\\ 
 			\t (y_i, \pi_i) \gets \O_{eval}(x_i)\\ 
 			\t \tau_i \gets \trace{\BBComb{VRF}[\O_1, \O_2].\alg{Vfy}{VRF}(\pk, x_i, y_i, \pi_i)}\\ 
-			\pclinecomment{Obtain $|\SK_{cand}|$ using binary search:}\\ 
+			\pclinecomment{Obtain $|\textstyle\bigcap_{i \in [s(\lambda) + \lambda]}\SK_{cand}(x_i,y_i,\pi_i, \tau_i)|$ using binary search:}\\ 
+			\ell \gets 0 \\
+			u \gets 2^{s(\lambda)} \\
+			\pcwhile \ell < u \pcdo \\
+			\t m \gets \lfloor (\ell + u) / 2 \rfloor \\
+			\t b \gets \PSPACE\bigl((m, \{x_i, y_i, \pi_i, \tau_i\}_{i \in [s(\lambda) + \lambda]}) \in \mathcal{L}_{size}\bigr) \\
+			\t \pcif b = \top \pcthen \\
+			\t\t u \gets m \\
+			\t \pcelse \\
+			\t\t \ell \gets m + 1 \\
+			k \gets \ell\\
 			\rho \sample [k]\\
 			\pclinecomment{Obtain $\sk_{cand} \in \SK_{cand}$:}\\
 			\sk_{cand} \gets \eps\\
 			\pcfor i \in [s(\lambda)] \pcdo\\ 
-			\t b \gets \PSPACE((0, \rho, i, \{x_i,y_i,\pi_i,\tau_i\}_{i \in [2s(\lambda)]}) \in \mathcal L_{cand})\\ 
+			\t b \gets \PSPACE\bigl((0, \rho, i, \{x_i,y_i,\pi_i,\tau_i\}_{i \in [s(\lambda) + \lambda]}) \in \mathcal L_{cand}\bigr)\\ 
 			\t \pcif b = \top \pcthen\\ 
 			\t \t \sk_{cand} \gets \sk_{cand} \| 0\\ 
 			\t \pcelse \pcif b = \bot \pcthen \\ 
@@ -941,13 +962,14 @@ We illustrate the distinguisher in \Cref{fig:distinguisher}.
 			\pcreturn (\sk_{cand}, x^*)
 		}
 		\procedure[linenumbering]
-		{Distringuisher $\mathcal D^{\PSPACE, \O_{eval},\O_1,\O_2}_2(\pk, \sk_{cand}, x^*, y^*)$}
+		{Adversary $\mathcal A^{\PSPACE, \O_{eval},\O_{vrf},\O_{uppc}}_2(\pk, \sk_{cand}, x^*, y^*)$}
 		{
 			y' \gets \BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk_{cand}, x^*)\\ 
 			\pcreturn y' = y^*
 		}
 	\end{pcvstack}
-	\caption{Distinguisher.}
+	\caption{Adversary $\A = (\A_1, \A_2)$ against $\BBComb{VRF}[\O_{vrf}, \O_{uppc}]$. Besides the candidate schemes $\O_{vrf}$ and $\O_{uppc}$ the oracle $\O_{eval}$ is the evaluation oracle from 
+	the pseudorandoness security experiment and $\PSPACE$ is a PSPACE complete oracle. We use $\|$ to denote concatenation.}
 	\label{fig:distinguisher}
 \end{figure}
 
@@ -959,7 +981,7 @@ We illustrate the distinguisher in \Cref{fig:distinguisher}.
 
 	\[
 		\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\mathcal A, \lambda} \ge \frac{1}{2} - \frac{1}{2^{\lambda + 1}}
-	\]
+	\]\todo{...}
 \end{claim}
 
 \begin{proof}[\Cref{claim:advantage_distinguisher}]
@@ -987,7 +1009,7 @@ We illustrate the distinguisher in \Cref{fig:distinguisher}.
 		\Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
 		&= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
 		&= \abs*{\Prob*{\A = 1 \mid b = 0}}
-	\end{align}
+	\end{align}\todo{...}
 \end{proof}
 
 Using \Cref{claim:advantage_distinguisher} we can now finally prove the \Cref{thm:impossibility_21_comb}.
