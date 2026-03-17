@@ -57,7 +57,8 @@ such as pseudorandomness and unpredictability seperately.
 \end{definition}
 
 \todo{can evaluation or verification be randomized, probably vfy can be probabilistic}
-
+We use the notation $\alg{Eval}{VF}^y$ and $\alg{Eval}{VF}^\pi$ to denote the 
+algorithm $\alg{Eval}{VF}$ to projected on the respective output.
 Note that a VF is a purely syntactical concept. For a VF we define various properties to arrive to arrive 
 at specific cryptographic primitives, e.g. VRFs. First of all we define $\err$-correctness, 
 a property that guarantes that over random key-pairs and evaluation points, the 
