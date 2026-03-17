@@ -9,9 +9,9 @@ We present the proof of the difference lemma, formally:
 
 \begin{restatable}[Difference Lemma]{lemma}{difflemma}\label{lemma:difference_lemma}
     Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events with
-    \[
-        \Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E} 
-    \]
+    \begin{align}
+        \Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E} \label{eq:dif}
+    \end{align}
     Then we can bound the difference in probability of $\mathcal W_0$ and $\mathcal W_1$ with
     \[
         \abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}} \le \Prob{\mathcal E}
@@ -19,12 +19,12 @@ We present the proof of the difference lemma, formally:
 \end{restatable}
 
 \paragraph{Proof of \Cref{lemma:difference_lemma}.}
-Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events and assume $\Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E}$.
-Then we can deduce the following:
+Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events satisfying \eqref{eq:dif}. Then:
 \begin{align}
-    &\abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}}\\
+    \abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}}
     =& 
-    \abs*{\Prob{\mathcal W_0 \land \mathcal E} + \Prob{\mathcal W_0 \land \lnot \mathcal E} - \Prob{\mathcal W_1 \land \mathcal E} - \Prob{\mathcal W_1 \land \lnot \mathcal E}}\\ 
+    \big|\Prob{\mathcal W_0 \land \mathcal E} + \Prob{\mathcal W_0 \land \lnot \mathcal E} \\ 
+    &\quad - \Prob{\mathcal W_1 \land \mathcal E} - \Prob{\mathcal W_1 \land \lnot \mathcal E}\big|\\ 
     =& \abs*{\Prob{\mathcal W_0 \land \mathcal E} - \Prob{\mathcal W_1 \land \mathcal E}}\\ 
     =& \abs*{\Prob{\mathcal W_0 \mid \mathcal E} \Prob{\mathcal E} - \Prob{\mathcal W_1 \mid \mathcal E} \Prob{\mathcal E}}\\ 
     =& \abs*{\Prob{\mathcal W_0 \mid \mathcal E} - \Prob{\mathcal W_1 \mid \mathcal E}} \Prob{\mathcal E}\\
@@ -32,19 +32,41 @@ Then we can deduce the following:
 \end{align}
 
 
+\newpage
+
 \subsection{Proof of \Cref{claim:sk_iff_pk}}
 \label{sec:sk_iff_pk}
 
 \skiffpk*
 
-We show $\sk \in \closure_\SK(\tildeSK, \tildePK) \implies \pk \in \closure_\PK(\tildeSK, \tildePK)$, the 
-converse follows analogously. Assume the left-hand side, i.e. $\sk \in \closure_\SK(\tildeSK,\tildePK)$ and distinguish 
-two cases based on the definition of $\closure_\SK(\tildeSK, \tildePK)$.
-If $\sk \in \closure_\SK(\tildeSK)$ then since $\pk \in R_\SK(\sk)$ we obtain 
-$\pk \in \bigcup_{\widetilde\sk \in \closure_\SK(\tildeSK)} R_\SK(\widetilde\sk)$ and hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$.
-On the other hand, if $\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\tildePK)} R_\PK(\widetilde\pk)$ 
-then $\sk \in R_\PK(\widetilde\pk)$ for some $\widetilde\pk \in \closure_\PK(\tildePK)$. By definition of the closure we have 
-$\pk \sim_\PK^* \widetilde\pk$, hence $\pk \in \closure_\PK(\tildePK)$ and thus $\pk \in \closure_\PK(\tildeSK, \tildePK)$.\todo{more details}
+\begin{proof}[\Cref{claim:sk_iff_pk}]
+    We show $\sk \in \closure_\SK(\tildeSK, \tildePK) \implies \pk \in \closure_\PK(\tildeSK, \tildePK)$:
+
+    By definition of the closure, we have:
+    \[
+    \sk \in \closure_\SK(\widetilde\SK) \lor \sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\SK(\widetilde\pk)
+    \]
+    We distinguish two cases: First, assume $\sk \in \closure_\SK(\tildeSK)$, then:
+    \[
+        \pk \in R_\PK(\sk)
+    \]
+    Combining this with $\sk \in \closure_\SK(\tildeSK)$, we get:
+    \[
+        \pk \in \bigcup_{\widetilde\sk \in \tildeSK} R_\PK(\widetilde\sk)
+    \]
+    And hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$. 
+    
+    On the other hand, if $\sk \notin \closure_\SK(\tildeSK)$, then:
+    \[
+        \sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\tildePK)} R_\SK(\widetilde\pk)
+    \]
+    In particular, we have $\sk \in R_\SK(\widetilde\pk)$ for some $\widetilde\pk$. By definition of $\sim_\PK$, we have
+    $\widetilde\pk \sim_\PK \pk$. Therefore $\widetilde\pk \sim_\PK^* \pk$ which means that $\pk \in [\widetilde\pk]_{\sim_\PK^*}$
+    for some $\widetilde\pk \in \tildePK$. In the end we obtain $\pk \in \tildePK$.
+    The proof for the converse works analogously.
+\end{proof}
+
+\newpage
 
 \subsection{Proof of \Cref{claim:adv_rewriting_1}}
 
@@ -52,65 +74,55 @@ $\pk \sim_\PK^* \widetilde\pk$, hence $\pk \in \closure_\PK(\tildePK)$ and thus 
 
 The proof is by equivalence transformations.
 
-\begin{align}
-    \Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
-    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
-    &= 2 \cdot \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
-    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
-    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
-    &= \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_2^{\lambda, \A} = 1}}\\ 
-    &\ge\abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
-\end{align}\todo{...}
-
 \begin{align*}
-    &2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} \\ 
-    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} \Prob*{b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} \Prob*{b' = 1} - \frac{1}{2}} \\ 
-    &= 2 \cdot \abs*{\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0}  + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} - \frac{1}{2}} \\ 
-    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}  - 1} \\ 
-    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Paren*{1 - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}}} \\ 
-    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 0 \mid b' = 1}} \\ 
-    &= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} 
+    \Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A} 
+    &= 2 \cdot \abs*{\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+    &= 2 \cdot \Big|\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
+    & \quad + \Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
+    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \frac{1}{2}\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
+    &= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}
 \end{align*}
+
+The last step holds by definition of $H_2^{\lambda, A} = 1$ and $H_3^{\lambda, \A}$.
+
+\newpage
 
 \subsection{Proof of \Cref{claim:adv_rewriting_2}}
 
 \advrewritingtwo*
 
-The proof is by equivalence transformations.
+We consider the advantage of an arbitrary adversary $\A$ against $\O_{vrf}$ in the pseudorandomness game. We follow 
+derivations analogously to \Cref{claim:adv_rewriting_2}.
 
-\begin{align}
-    \Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
-    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
-    &= 2 \cdot \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
-    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
-    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
-    &= \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_2^{\lambda, \A} = 1}}\\ 
-    &\ge\abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
-\end{align}\todo{...}
-
+ 
 \begin{align*}
-    &2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} \\ 
-    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} \Prob*{b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} \Prob*{b' = 1} - \frac{1}{2}} \\ 
-    &= 2 \cdot \abs*{\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0}  + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1} - \frac{1}{2}} \\ 
-    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}  - 1} \\ 
-    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Paren*{1 - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 1}}} \\ 
-    &= \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b' = 0} - \Prob*{\Exp{VF}{prf}(\lambda, \A) = 0 \mid b' = 1}} \\ 
-    &= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} 
+    \Adv*{\O_{vrf}}{prf}{\lambda, \A} 
+    &= 2 \cdot \abs*{\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+    &= 2 \cdot \Big|\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
+    & \quad + \Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
+    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \frac{1}{2}\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp*{\O_{vrf}}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
+    &= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}}
 \end{align*}
+
+The last step holds by definition of $H_2^{\lambda, A} = 1$ and $H_1^{\lambda, \A}$.
+
+The bound follows from $\Adv*{\O_{vrf}}{prf}{\lambda, \A} \le \err[prf][vrf]$.
+
+\newpage
 
 \subsection{Proof of \Cref{claim:adv_rewriting_3}}
 
@@ -141,6 +153,8 @@ yielding the correct image with probability at least the product of two non-negl
 a non-negligible function. Since we however know that $\O_{vrf}$ is pseudorandom this cannot be the case, we conclude 
 that the probabilities must be negligible each.
 
+\newpage
+
 \subsection{Proof of \Cref{claim:adv_bound}}
 
 \advbound*
@@ -150,51 +164,42 @@ We define the following games:
 We define games $H_1, H_2$ as follows. 
 \begin{itemize}
     \item $H_1$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 0}$
-against the oracle $\O_{vrf}$,
-i.e. the adversary is playing against the prf security game where he is given a challenge image $y^*$ computed from 
-the challenge pre-image $x^*$ using $\O_{vrf}.\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$ is the hidden 
+against the combiner $\BBComb{VRF}[\O_{vrf}, \O_{up}]$ instantiated with $\O_{vrf}$ and $\O_{up}$,
+i.e., the adversary is playing against the prf security game where he is given a challenge image $y^*$ computed from 
+the challenge pre-image $x^*$ using $\BBComb{VRF}[\O_{vrf}, \O_{up}].\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$ is the hidden 
 secret key sampled by the challenger.
     \item $H_2$ is the simple pseudorandomness experiment for the hidden bit $\highlight{b = 1}$
-against the oracle $\O_{uppc}$, 
-i.e. the adversary is playing the prf security game where he is given a challenge image $y^*$ computed from 
-the challenge pre-image $x^*$ using $\widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$
+against the oracle $\BBComb{VRF}[\O_{vrf}, \O_{up}]$ instantiated with $\O_{vrf}$ and $\O_{up}$,
+i.e., the adversary is playing the prf security game where he is given a challenge image $y^*$ computed from 
+the challenge pre-image $x^*$ using $\BBComb{VRF}[\O_{vrf}, \O_{up}].\alg{Eval}{VRF}(\sk^*, x^*)$ where $\sk^*$
 is the hidden secret key sampled by the challenger.
 \end{itemize}
 
-\begin{align}
+\begin{align*}
     \Adv{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}{\lambda, \A} 
-    &= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
-    &= 2 \cdot \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
-    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
-    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad + \frac{1}{2}\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad + \Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
-    &= \Big|\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 0} \\
-    & \quad - \Paren*{1-\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
+    &= 2 \cdot \abs*{\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+    &= 2 \cdot \Big|\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 0} \Prob{b = 0} \\
+    & \quad + \Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 1} \Prob{b = 1} - \frac{1}{2}\Big|\\ 
+    &= 2 \cdot \Big|\frac{1}{2}\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \frac{1}{2}\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 1} - \frac{1}{2}\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad + \Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 1} - 1\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\ 
+    &= \Big|\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 0} \\
+    & \quad - \Paren*{1-\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
     &= \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_2^{\lambda, \A} = 1}}\\ 
     &\ge\abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
-\end{align}\todo{...}
+\end{align*}
+
+\newpage
 
 \subsection{Conjecture}
 
-We quickly want to make a few remarks towards the idea of extending the proof of \Cref{lemma:warmup}
-to the more general case of \Cref{conjecture}. The direct proof fails because of the subtle reason that 
-the hidden oracle queries need to be candidate-wide irrelevant but not jointly irrelevant over queries to 
-many distinct candidate schemes. In the proof of \Cref{lemma:warmup} we argue that for oracle $\O_2$
-all hidden oracle queries, i.e. all oracle queries not contained in the transcript of the combiners
-verification algorithm are exactly the queries that would influence the combiner output if changes.
-On the other hand, for any arbitrary assignment of the hidden queries, the output of the combiner 
-stays constant as long as the non-hidden queries and the queries to $\O_1$ are honestly answered.
-
-This idea gives rise to the attack of iteratively filtering the secret key space on a polynomial number 
-of points by keeping in every round $(1.)$ at least the true secret key, $(2.)$ only secret keys 
-for which the output of the combiner is the same as for the true secret key. We argue that after a sufficient 
-number of filtering steps, any remaining candidate has sufficiently high chance of evaluating to the same output 
-as the combiner does with the true secret key on a uniformly random evaluation point.
-
-However, since the hidden queries must not necessarily be jointly-irrelevant this argument cannot be applied if 
-we have more candidates, of which still $n-1$ need to be secure for the combiner to be required to 
-implement unique provability and pseudorandomness.
+We briefly remark on the difficulty of extending the proof of \Cref{thm:impossibility_21_comb}
+to the more general case stated in the conjecture. The direct approach fails due to a subtlety:
+While we show that the obscure queries are irrelevant per candidate, that does not imply that over multiple candidates 
+the obscure queries are jointly irrelevant.
+Since joint irrelevance spanning multiple candidate doesn't necessarily need to hold, we 
+guarantee that the algorithm $\alg{EvalSim}{VRF}$ returns $\top$ if the candidate key $\sk_{cand}$
+is the game's secret key $\sk^*$. 

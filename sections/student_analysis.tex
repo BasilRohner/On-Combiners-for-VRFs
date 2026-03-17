@@ -547,7 +547,7 @@ if and only if $\pk$ is in the closure of $\tildePK$. Since the claim is intuiti
 	Where
 	
 	\[
-		\err[prf][vrf] = \mu + \err[prf][uppc] \quad \text{ and } \quad \runtime[prf][vrf] = \runtime[prf][uppc]
+		\err[prf][uppc] \le \err[prf][vrf] + \mu  \quad \text{ and } \quad \runtime[prf][vrf] = \runtime[prf][uppc]
 	\]
 
 	for $\mu \in \negl$. Therefore, if $\O_{vrf}$ is pseudorandom, then $\widetilde\O_{uppc}$ is pseudorandom.
@@ -587,7 +587,7 @@ in $\err[prf][vrf]$.
 	\begin{restatable}{claim}{advrewritingone}\label{claim:adv_rewriting_1}
 		Let the games $H_1,H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
 		\[
-			2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} = \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}
+			2 \cdot \abs*{\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1} - \frac{1}{2}} = \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}
 		\]
 	\end{restatable}
 	\begin{restatable}{claim}{advrewritingtwo}\label{claim:adv_rewriting_2}
@@ -612,7 +612,7 @@ in $\err[prf][vrf]$.
 	\eqref{eq:triangle} is the result of subtracting and adding $\Prob{H_1^{\lambda, \A} = 1}$ and then applying the triangle inequality.
 	\begin{align}
 		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}
-		&= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\label{eq:halt_0}\\ 
+		&= 2 \cdot \abs*{\Prob*{\Exp*{\widetilde\O_{uppc}}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\label{eq:halt_0}\\ 
 		&= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \label{eq:halt_1}\\ 
 		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} \label{eq:triangle}\\ 
 		&\quad + \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}\\ 
@@ -1165,8 +1165,6 @@ verify under the verification algorithm of the respective candidate. Secondly, i
 	are accepted by the verification algorithm, by construction of the combiner, there must exist $\pi_{11}$ and $\pi_{21}$ such that the verification algorithm of $\O_1$
 	both accepts $(y_{11}, \pi_{11})$ and $(y_{21}, \pi_{21})$. This is a contradiction with the assumed unique provability of $\O_1$.
 \end{proof}
-
-\todo{from here}
 
 \begin{claim}\label{claim:prf_vrf_comb}
 	Consider a combiner $\BBComb{VRF}$ as defined in \Cref{fig:vrf_comb} instantiated with candidates $\O_1, \O_2$.
