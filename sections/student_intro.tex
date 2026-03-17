@@ -5,78 +5,70 @@
 
 \paragraph{Pseudorandom Functions.}
 A pseudorandom function (PRF) \cite{GolGolMic86} is a deterministic algorithm that takes as input 
-a secret key $k$ and a point $x$ to produce an output $y$ that looks random in the sense that 
-no efficient adversary, modeled by a probabilistic polynomial time (ppt.) Turing machine 
-can distringuish the output $y$ from a random bitstring $r$ of the same length.
-This must hold even if the adversary has access to a polynoial number of point evaluations 
-$(x,y)$ before distinguishing the output. 
-PRFs are fundamental to modern cryptography and used to construct, among other, 
+a secret key $k$ and a point $x$ to produce an output $y$ that is indistinguishable from 
+a uniformly random bitstring of the same length. More precisely, no efficient adversary,
+modeled by a probabilistic polynomial time Turing machine, can distinguish the outputs of a PRF from those 
+of a truly random function, even after observing a polynomial number of input-output pairs.
+PRFs are fundamental in modern cryptography and are used to construct, among other, 
 symmetric encryption schemes \cite{KatLin14}, message authentication codes \cite{C:BelCanKra96}, key derivation functions \cite{C:Krawczyk10}.
 
-
-\paragraph{Verifiable Functions.} 
+\paragraph{Verifiable Random Functions.} 
 A verifiable function (VF) is a public-key primitive that allows the holder of a secret key $\sk$
-to evaluate points $x$ to obtain image-proof pairs $(y,\pi)$ such that any party holding the public key
-$\pk$ can verify that $y$ was indeed computed correctly from $x$ if given the proof $\pi$.
-We require correctness and unique provability from the verification which state that 
-correctly generated image-proof pairs $(y,\pi)$ always (or except with negligible probability) is accepted by the 
-verification algorithm and that at most one image can be proven respectively.
+to evaluate an input $x$ and obtain an image-proof pair $(y,\pi)$, such that any party holding the corresponding public key
+$\pk$ can verify that $y$ was correctly computed from $x$, if given the proof $\pi$.
+We require two properties of the verification algorithm: \textit{correctness}, 
+stating that honestly generated images are accepted by the verification algorithm (always, or except with negligible probability) and 
+\textit{unique provability}, ensuring that for each input at most one image $y$ there exists a proof $\pi$ such that the 
+verification algorithm accepts $(y,\pi)$.
 
-In this work we primarily study extensions of VRs, primarily the verifiable random function (VRF) introduced by 
-Micali, Rabin and Vadhan in \cite{FOCS:MicRabVad99} that additionally requires the outputs $y$ to be 
-pseudorandom to efficient adversaries without access to the corresponding proof.
-Similar to the pseudorandomness definition for PRFs we require that no efficient adversary 
-can distinguish the images $y$ from random outputs $r$, even if the adversary gets to see 
-polynomially many evaluations of $x$ with their corresponding proof.
+In this work we study extensions of VFs, primarily the verifiable random function (VRF) introduced by 
+Micali, Rabin and Vadhan \cite{FOCS:MicRabVad99}, which additionally require the images $y$ to be 
+\textit{pseudorandom} to any efficient adversary without access to the corresponding proof $\pi$.
+Analogously to the pseudorandomness definition for PRFs, we require that no efficient adversary 
+can distinguish the images $y$ from images $y$ sampled uniformly at random from the image co-domain, 
+even after observing polynomially many input-proof pairs for other evaluation points. 
 VRFs can be seen as a public-key analogoue of PRFs with verifiability requirements.
 
-In practice VRFs are used to implement signatures with strong verifiability guarantees \cite{},
-resettable zero-knowledge proofs \cite{}, lottery and e-cash systems \cite{} and they play a big 
-role in distributed leader election protocols that runs many Proof-of-Stake blockchain systems \cite{}.
+In practice VRFs are used to implement signatures with strong verifiability guarantees \cite{C:GolOst92},
+resettable zero-knowledge proofs \cite{C:MicRey01}, lottery systems \cite{RSA:MicRiv02a,cryptography4040037}, e-cash systems \cite{ACISP:AuSusMu07,PAIRING:BCKL09},
+updatable zero-knowledge databases \cite{AC:Liskov05}, transaction escrow schemes \cite{EC:JarShm04} and they play a big 
+role in Proof-of-Stake blockchains \cite{C:KRDO17,EC:DGKR18}, specifically in distributed leader election protocols \cite{EPRINT:BASV23b}.
 
 Additionally we study VFs satisfying weaker notions of pseudorandomness such as 
 weak pseudorandomness and unpredictability which give rise to verifiable unpredictable functions 
-(VUFs) \cite{} and weak verifiable random functions (wVRFs) \cite{} respectively. VUFs additionally require that 
+(VUFs) \cite{FOCS:MicRabVad99} and weak verifiable random functions (WVRFs) \cite{TCC:BGRV09} respectively. VUFs additionally require that 
 the evaluation of the VF on a fresh evaluation point cannot be predicted by efficient adversaries 
-except with negligible probability and wVRFs require that pseudorandomness holds, but only on 
+except with negligible probability and WVRFs require that pseudorandomness holds, but only on 
 uniformly random evaluation points $x$, instead of a point chosen by the adversary.
 
-\todo{add stronger notions cVRF, khVRF, aggVRF, unbiasVRF if time}
-
 \paragraph{Robust Combiners.} 
-In cryptography we often take a reductionist approach when constructing new cryptographic primitives,
-in general constructions satisfying computational security properties rely on cryptographic hardness assumptions.
-To hedge against the breakdown of cryptographic hardness assumptions, and thus the subsequence failure of the construction 
-we may want to base the security of systems on multiple hardness assumptions.
-Robust combiners \cite{} are constructions that combine $n$ candidate schemes, concrete instances of 
-the same primitive, and implement a secure instance of that primitive if a large enough subset of those candidate is secure.
-The notion of combiners has gained traction with the rise of post-quantum and hybrid-cryptography areas
+In general, constructions staitsfying computational security properties rely on cryptographic hardness assumptions.
+To hedge against the breakdown of such assumptions, and the subsequent failure of the constructions built on top of them,
+it is desirable to base the security of a system on multiple hardness assumptions, such that security is compromised only if several assumptions fail simultaneously.
+Robust $(n;k)$ combiners \cite{EC:HKNRR05} are constructions that combine $n$ candidate schemes, each a concrete instance of a given primitive,
+to implement a secure instance of that same primitive provided that $k$ candidates remain secure.
+The notion of combiners has gained traction with the rise of post-quantum and hybrid cryptography, where the goal is to build 
+constructions based on both emerging quantum-resistant assumptions and well-tested classical ones, ensuring that security is preserved 
+even if one class of assumptions proves vulnerable.
+ 
+A more restricted notion are robust $(n;k)$ black-box combiners \cite{EC:HKNRR05},
+which are only given oracle access to the $n$ candicates, i.e. they may query the candidates 
+on inputs to obtain the output but cannot inspect their underlying code. 
+The motivation behind robust black-box combiners is to ensure that the combiner derives its security soley
+from evaluations of the underlying candidates, rather than by modifying them or independently implementing a secure instance of te primitive
+from scratch. 
 
-Stronger version of robust combiners are robust black-box combiners \cite{} which are only given query access to the candidate
-schemes as oracles, i.e. cannot inspect the Turing machine of the candidate scheme.
-The motivation of a robust black-box combiner is to have a combiner that can implement a secure scheme 
-only with access to sub-schemes with the underlying code of the candidate schemes are not accessible to the combiner.
-We wish for the combiner to derive its security from the evaluation of the secure subset of oracles, 
-not by making any modifications to the candidates or simply implementing a secure instance of the primitive himself.
-For that reason we additionally require robust black-box combiners to implement the secure instance relative to a 
-PSPACE complete oracle, that is guarantee the security against adversaries with access to a PSPACE oracle.
-
-Robust black-box combiners have been considered for a variety of cryptographic primitives such as 
-oblivious transfer \cite{}, non-interactive zero-knowledge proofs (NIZK) \cite{},
-non-interactive witness-indistinguishable arguments (NIWI) \cite{}, indistinguishability obvuscation (iO) \cite{}
-and signature schemes \cite{}. Additionally many folklore constructions exist for PRF, key exchange protocols \todo{add some}.
-While there exist VRF constructions rely on PRFs and NIWIs, for both of which combiners have been studied,
-black-box combiners for VRFs have, to the best of our knowledge, not been studied.
+Robust black-box combiners have been considered for a variety of cryptographic primitives, such as 
+oblivious transfer \cite{EC:HKNRR05}, non-interactive zero-knowledge proofs \cite{EPRINT:CMVX25},
+indistinguishability obfuscation and witness encryption \cite{C:AJNSY16}. 
+Additionally, folklore constructions exist for PRF, one-way functions and key agreement \cite{EC:HKNRR05}, symmetric encryption and public-key encryption.
+Black-box combiners for VRFs have, to the best of our knowledge, not been studied.
 
 \section{PRF Combiners}\label{sec:intro_prf_combiners}
-VRF can be considered as an extension of PRFs to the public-key setting with the additional requirements
-of verifiability. Simple robust black-box PRF combiners exist. One combiner works by evaluating the evaluation point 
-$x$ with every candidate scheme to obtain images $y_1, y_2$ and returning the XOR of the two images $y = y_1 \xor y_2$. 
-Pseudorandomness of the combined scheme can be shown with a reductionist approach. Specifically we show that given an adversary 
-against the combined scheme, we can construct an adversary against every candidate scheme running in the same time with the same advantage.
-By contraposition, assuming that at least one candidate scheme is pseudorandom and there exists no efficient combiner with non-negligible 
-advantage against the candidate we show that there exists no efficient adversary against the combined scheme with non-negligible advantage. 
-We illustrate the construction of a robuts $(2;1)$ black-box PRF-combiner in \Cref{fig:prf_comb}.
+VRFs can be viewed as a public-key version of PRFs with an additional verifiability requirement.
+Simple robust black-box PRF combiners are known for PRFs. One such combiner evaluates the input 
+$x$ under each candidate scheme to obtain images $y_1, y_2$ and returns their XOR $y = y_1 \xor y_2$.
+We illustrate the construction in \Cref{fig:prf_comb}.
 
 \begin{figure}[hptb]
     \begin{pchstack}[center, space=1em]
@@ -89,37 +81,46 @@ We illustrate the construction of a robuts $(2;1)$ black-box PRF-combiner in \Cr
         }
     \end{pchstack}
     \label{fig:prf_comb}
-    \caption{Robust $(2;1)$ Black-Box PRF-combiner.}
+    \caption{Robust $(2;1)$ Black-Box PRF-combiner initialized with candidate schemes $\O_1, \O_2$.}
 \end{figure}
+Pseudorandomness of the combined scheme follows from a standard reductionist argument:
+given an adversary $\A$ against the combiner, we construct an adversary $\mathcal B$ against each individual candidate that runs in the same 
+time as $\A$ and breaks the candidates pseudorandomness if $\A$ breaks the combiners pseudorandomness.
+By contraposition, if at least one candidate is pseudorandom then the combiner is pseudorandom. 
+We outline the reduction and refer to the \Cref{sec:app_robust_prf_comb} for a formal proof.
 
-We outline the reduction and refer to the appendix for the formal proof. The reduction against candidate scheme $\O_i$
-relies on the pseudorandomness oracle $\O_{eval}$ and simulates the other candidate $\O_{2-i}$ himself to answer 
-queries of the combiners adversary with $\O_{eval}(x) \oplus \O_{2-i}(k,x)$. The adversary against the combined scheme then 
-guesses the hidden bit $b$, trying to distinguish the random world from the real world which the reduction then uses to 
-guess its own hidden bit $b'$. If the hidden bit $b' = 0$ then the adversary $\A$ is simulated perfectly in the sense that 
-the reduction wins the security experiment with the same advantage of $\A$ while for bit $b' = 1$ the answers to the queries 
-of the adversary are still uniformly random bitstrings and therefore the reduction also wins with the same probability.
+The reduction against candidate scheme $\O_i$ has access to the pseudorandomness oracle 
+$\O_{eval}$ of the pseudorandomness security experiment against $\O_i$ and internally simulates the 
+other candidate $\O_{2-i}$, answering queries from $\A$ with $\O_{eval}(x) \xor \O_{2-i}(k,x)$.
+Note that the $\mathcal B$ makes exactly as many queries to $\O_{eval}$ as $\A$ does during its simulation, 
+so $\mathcal B$ is efficient whenever $\A$ is.
+The adversary $\A$ against the combined scheme outputs a guess $b'$ for the hidden bit $b$ sampled by the challenger u.a.r., attempting to distinguish 
+the real world from the random world. The reduction simply forwards this guess to its own challenger.
+If $b = 0$, the adversary $\A$ is simulated perfectly, as it receives images computed exactly as they would be in the 
+pseudorandomness security experiment against the combiner. If $b = 1$ then $\O_{eval}(x)$ returns images sampled u.a.r. 
+from the set of bitstrings with appropriate length. Since $\O_{eval}(x)$ is uniformly distributed, $\O_{eval}(x) \xor \O_{2-i}(k,x)$
+is uniformly distributed as well. Since $\A$ is perfectly simulated in both worlds
+$\mathcal B$ wins the pseudorandomness experiment with the same advantage as $\A$. 
 
-Note that the existance of a robust $(2;1)$ black-box PRF-combiner naturally leads to a robust $(n;1)$ black-box VRF-combiner 
-for any natural number $n$ by iteratively applying the construction on the construction and a new candidate.
-Since there exists a robust $(n;1)$ black-box PRF-combiner one could hope for a similar construction to work for VRFs. 
-This is however not the case, as we will show in \Cref{thm:main} there exist no robust $(n; \lfloor n/2\rfloor)$ black-box combiner for VRFs.
+The existence of a robust $(2;1)$ black-box PRF-combiner naturally leads to a robust $(n;1)$ black-box PRF combiner
+for any $n \in \N^+$, by iteratively applying the pairwise construction with a fresh candidate at each step. 
+Since there exist simple robust $(n;1)$ black-box PRF-combiner one might hope that an analogous approach extends to VRFs. This turns out 
+not to be the case as we show in \Cref{thm:impossibility_21_comb} that there exists no robust $(2;1)$ black-box VRF-combiner. 
 
 \section{Our Contribution}
 
 \paragraph{Robust Black-Box DAG Combiner.}
 We introduce the notion of robust black-box DAG combiners, formally defined in 
-\Cref{def:robust_blackbox_dag_combiner}, DAG combiners for short.
-DAG combiners are black-box combiners which are defined by directed acyclic graphs (DAGs) for every 
-implemented algorithm. The implemented algorithms are specified through computation that runs along the DAG 
-starting from a designated source vertex and ending in a target vertex.
-In the execution vertices correspond to queries to implementation functions of candidate oracles 
-on an input computed from all preceding vertices by a ppt. Turing machine (without oracle access to the candidates).
+\Cref{def:robust_blackbox_dag_combiner}. A robust black-box DAG combiner is a black-box combiner whose implemented 
+algorithms are each specified by a directed acyclic graph (DAG) $\G$. Execution of the algorithm proceeds along the DAG starting 
+from a designated source vertex $s$ and ending in a designated sink vertex $t$.
+At each intermediate vertex $v \in V(\G)$, a ppt. Turing machine, without access to any oracles, computes an a query input 
+$\q_v$ from the outputs of all preceding vertices, which is subsequently queried to an oracle algorithm of a candidate specified 
+by a vertex labeling $\ell(v)$ to obtain an output $\x_v$.
 DAG combiners make the structure of the black-box combiner more explicit 
-by structuring it into interleaved oracle queries to the candidats and intermediate computation,
-that we model with Turing machines without oracle access to the candidates. 
-We illustrate this concept in \Cref{fig:prf_dag_comb} on the example of the simple robust black-box PRF-combiner in 
-\Cref{fig:prf_comb}.
+by decomposing it into interleaved oracle queries to the candidates and intermediate (oracle independent)
+computation steps.
+We illustrate the concept of a robust black-box DAG combiner in \Cref{fig:prf_dag_comb} using the robust black-box PRF combiner from \Cref{fig:prf_comb} as an example.
 
 \begin{figure}[htbp]
     \centering
@@ -150,7 +151,7 @@ We illustrate this concept in \Cref{fig:prf_dag_comb} on the example of the simp
                             \pcreturn \x_s
                         }}
                         \end{subprocedure}\\ 
-                        \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf q_{v_1})\\ 
+                        \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\ 
                         \pcreturn \x_{v_1}
                     }
                 \end{pcvstack}
@@ -169,7 +170,7 @@ We illustrate this concept in \Cref{fig:prf_dag_comb} on the example of the simp
                             \pcreturn \x_s
                         }}
                         \end{subprocedure}\\ 
-                        \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf q_{v_2})\\ 
+                        \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\ 
                         \pcreturn \x_{v_2}
                     }
                 \end{pcvstack}
@@ -198,121 +199,29 @@ We illustrate this concept in \Cref{fig:prf_dag_comb} on the example of the simp
         \draw[-latex] (x) -> (v2);
         \draw[-latex] (v2) -> (t);
     \end{tikzpicture}
-    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner. Note that for every node we first combine the output of all predecessors using a ppt. Turing machine $f_{\text{Eval}}^{v}$. The output $\mathbf w_v$ of $f_{\text{Eval}}^{v}$ is then queried to the corresponding oracle $\O_{\ell(v)}$. The source vertex doesn't compute anything but simply outputs the inputs while the sink $t$ doesn't query any oracle and simply combines its inputs.
-    In the formal definition the intermediate Turing machines $f_{\text{Eval}}^v$ would take as input sets of tuples with a labling of the vertex and the corresponding output, e.g. $(v, \x_v)$, 
-    for the sake of simplicity we simply list the outputs in the arguments.}
+    \caption{Robust $(2;1)$ Black-Box DAG PRF-combiner. For every vertex $v$, we first combine the outputs of all predecessors using a ppt. Turing machine $f_{\text{Eval}}^{v}$. The resulting value $\q_v$ is then queried to the corresponding oracle algorithm $\O_{\ell(v)}$. The auxilary source vertex simply outputs the input $\x_s$, while the sink vertex $t$ doesn't query any oracle but only computes the final output $\y$.
+    In the formal definition, each intermediate Turing machine $f_{\text{Eval}}^v$ takes as input a set of labeled tuples $(v, \x_v)$, pairing each predecessor vertex with its corresponding output.
+    For the sake or readability, we simply list the outputs as arguments.}
     \label{fig:prf_dag_comb}
 \end{figure}
 
-To connect DAG combiners and general black-box combiners we show that the notions are indeed equivalent,
-that is, that for every general black-box combiner we can construct a DAG combiner 
-that behaves identically in the sense that the algorithms defined by the combiners are equivalent.
-We state this result formally in \Cref{thm:generality_dag_comb}.
-The concept of a robust black-box DAG combiner allows us to reason over a more structured 
-representation of robust black-box combiners, more similar to a circuit in structure
-simplifying the proofs later on.  
+We relate robust black-box DAG combiners with general robust black-box combiners by showing that the two notions are 
+equivalent in the sense that for every general robust black-box combiner there exists 
+a robust black-box DAG combiner whose algorithms behave identically (the converse holds definitionally).
+We state this result formally in \Cref{thm:generality_dag_comb}. The robust black-box DAG combiner 
+framrwork provides a more structured representation of robust black-box combiners which simplifies our proof for 
+\Cref{thm:impossibility_21_comb}.
 
-\paragraph{Robust Black-Box VRF-Combiner.}
-Following the introduction of a robust black-box DAG combiner, we study the simplest robust black-box VRF-combiner,
-robust $(2;1)$ black-box VRF-combiners. We answer the question on whether there is a construction that 
-combines two candidates, of which only at least one is secure, negatively. Specifically we show impossibility of 
-robust $(2;1)$ black-box VRF-combiners in \Cref{lemma:warmup}.
+\paragraph{Robust Black-Box VRF-Combiners.}
+With the robust black-box DAG combiner framework in place, we consider the simplest robust black-box VRF-combiner.
+Namely, the robust $(2;1)$ black-box VRF-combiner, where only two candidates are combined and security of the combined 
+scheme is required to hold if at least one of the candidates is secure. We prove that no such combiner exists in 
+\Cref{thm:impossibility_21_comb}.
+As we can use a robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner to construct a robust $(2;1)$ black-box combiner 
+we extend the impossibility of a robust $(2;1)$ black-box VRF-combiner in \Cref{thm:impossibility_21_comb} to the impossibility of an infinite family of robust $(n;\lfloor n/2\rfloor)$ black-box combiners
+for all $n \in \N$ in \Cref{lemma:nhalf}. 
 
-Since we can naturally use a robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner to construct a $(2;1)$ combiner
-by simply initializing half the candidates with $\O_1$ and the other half with $\O_2$ we 
-get an impossibility result for robust $(n; \lfloor n/2\rfloor)$ black-box VRF-combiner by contraposition.
-Next we inspect robust black-box combiners with additional assumptions on the 
-candidate schemes and relaxed requirements on the construction in the hopes of finding combiner constructions.
-We show that even if we only require unpredictability, statistical correctness and statistical unique provability
-from the construction, the impossibility holds \Cref{thm:main}, this gives two corollaries excluding the possibility of 
-robust $(n; \lfloor n/2\rfloor)$ black-box combiners for wVRF and VUF in \Cref{cor:impossibility_vrf_comb} and \Cref{cor:impossibility_vuf_comb}. 
-By strengthening the assumptions on the candidates for all candidates to implement pseudorandomness is also insufficient to 
-find constructions \Cref{thm:main}\todo{unclear}. 
-
-We show that if we assume all candidates to be uniquely provable and perfectly correct, 
-the combination of the candidates works in a very similar fashion to the combiner on the PRF primitive.
-Note that since unique provability and perfect correctness are generally information theoretic properties,
-this means that for most VRF constructions, e.g. LatticeVRF \cite{} and ECVRF \cite{}, those properties 
-are typically proven mathematically. Arguable combiners are only interesting for combining computational security 
-properties that rely on hardness assumptions. 
-
-Having strengthened the assumptions on the candidates we can now consider more advanced notions of VRFs.
-We'll show that with simple extensions we can construct combiners for constrainable VRFs, key-homomorphic VRFs and 
-aggregable VRFs if all candidates are guaranteed to be uniquely provable and perfectly correct. 
-Finally we consider unbiasable VRFs for which we provide a combiner that relies on collision resistant hash functions 
-and deterministic $2$-source randomness extractors.
-
-\begin{comment}
-Following the introduction of a robust black-box DAG combiner, we use the concept to prove the impossibility of 
-robust $(2;1)$ black-box VRF-combiners
-When we look for robust black-box combiner constructions we typically consider 
-$(2;1)$ combiners first because they naturally give rise to $(n;1)$ combiners by 
-iteratively applying them. We prove that there exists no robust $(2;1)$ black-box combiner for the 
-VRF primitive by showing that against any ppt. Turing machine with access to two 
-candidate schemes, one of which implements a secure VRF, that implements a 
-uniquely provable and perfectly correct verifiable function there exists an adversary with access
-to a PSPACE complete oracle that wins the PRF security experiment against this construction 
-with high advantage.
-The impossibility of a robust $(2;1)$ black-box VRF-combiner implies that there exists no robust
-$(n;\lfloor n/2\rfloor)$ black-box combiner for VRFs. Given $n$ oracles, this means that there is no 
-way to combine them a way such that the construction guarantees VRF security without the assumption 
-that more than half the candidates are secure.
-
-Given the impossibility of $(n;\lfloor n/2\rfloor)$ black-box VRF combiners we ask whether such combiners 
-exist if we strengten the assumptions on the candidate schemes or weaken the requirements on the combiner.
-One idea is that the information theoretic properties on the combiner post too strong a requirement such
-that the constructions are not possible, that is however not the case. We show that the impossibility 
-holds even if we lower the requirements to statistical and computational notions of correctness and unique provability.
-Further we show that even pseudorandomness can be relaxed, not changing the feasibility.
-Statistical notions of unique provability and perfect correctness are rarely considered in literature,
-the impossibility of a combiner under those assumptions implies that we have to strengthen the assumptions 
-on the combiners. Finally we show that even if we require all candidates to be pseudorandom, that there exists no 
-combiner construction. 
-
-On the other hand if require all candidates to be unqiuely provable and perfectly correct then very 
-simple constructions are possible that are based on the XOR PRF-combiner. Such a combiner implements 
-its key generation algorithm by independently sampling a key pair for every candidate and then 
-combining all secret keys and all public keys in a tuple, forming the combiner keys.
-The evaluation algorithm evaluates a point $x$ on all candidate schemes under their respective 
-secret key to obtain image-proof pairs $(y_i,\pi_i)$ for every candidate. The final combiner output 
-is given by the xor of the candidates outputs $y = y_1 \oplus y_2$ while the proof is given by all 
-computed intermediate results $\pi = (y_1, y_2, \pi_1, \pi_2)$. The verification algorithm works by 
-querying both candidates to check that $(y_1, \pi_1)$ and $(y_2, \pi_2)$ are accepted by the individual oracles,
-then it checks that $y = y_1 \oplus y_2$ and accepts iff both hold. The resulting $(2;1)$ weak black-box combiner 
-for VRFs can be used to construct a $(n;1)$ weak black-box combiner for VRFs.
-
-Having shown that weak $(n;1)$ black-box combiner exist we study weak combiners for more advanced VRF notions.
-Specifically we inspect the possibility of combining constrainable VRFs, key-homomorphic VRFs, aggregable VRFs 
-and unbiasable VRFs. \todo{expand if time}
-
-\begin{comment}
-We introduce a new definition of a robust black-box combiner, a robust black-box DAG combiner,
-which models the implemented algorithms of the combiner as computations that follows the structure 
-of a vertex-colored directed acyclic graph starting from a source and ending in a sink, where for each vertex 
-in the graph we query a specific oracle of a specific candidate on the output of a probabilistic polynomial 
-time Turing machine of all predecessors. We show that the notion of a robust black-box DAG combiner 
-is sufficiently strong to capture all ppt. robust black-box combiners. We use this new model to show 
-the impossibility of combining multiple instances of wVRFs which extends to the impossibility of combining 
-VUFs and VRFs without additional assumptions. We argue that the combination of the unique provability property 
-is however less important since it is of information theoretic or statistical nature and therefore 
-doesn't rely on any computational hardness assumption. In fact, good VRF constructions such as ECVRF \cite{},
-lattice VRF \cite{} and \cite{} mathematically prove unique provability mathematically, rendering 
-combination less important. We consider the possibility to combine more advanced security properties 
-on VRFs such as unbiasability for which we construct a combiner for uniform constructions which relies on collision resistant
-hash functions and randomness extractors to combine unbiasable VRFs under the additional assumption that 
-all candidate schemnes are uniquely provable. We also investigate combiners for secret-key aggregability and public-key 
-aggregability. Secret-key aggregability is a publicly verifiable property due to an efficient algorithm by 
-Blum, Luby and Rubinfeld \cite{} which allows checks for the homomorphism property of a function 
-in time independent of the size of the underlying groups. Combiners for publiy-key aggregability 
-\todo[]. Finally we investigate additional properties such as constrainability \cite{} \todo[] and which all admit the 
-simple pseudorandomness combiner construction.
-\end{comment}
-
-
-% \section*{Thesis Outline}
-% 
-% \begin{itemize}
-%     \item \textbf{\Cref{ch:notation} (Notation and Preliminaries):}
-%     \item \textbf{\Cref{ch:analysis} (Algorithm and Analysis):} 
-%     \item \textbf{\Cref{ch:conclusion} (Conclusion):} 
-% \end{itemize}
+Finally, we investigate robust black-box combiners under strengthened assumptions on the candidate schemes or relaxed requirements on the combiner 
+construction. We show that if all candidate schemes are assumed to be uniquely provable and perfectly correct, then 
+a simple robust $(n;1)$ black-box VRF-combiner exists.
+This construction extends the robust $(n;1)$ black-box PRF-combiner presented in \Cref{fig:prf_comb}.
