@@ -985,16 +985,8 @@ We illustrate the adversary in \Cref{fig:distinguisher}.
 	can also be done in polynomial time due to the efficiency requirement on the robust black-box DAG combiners.
 	Overall, the adversary runs in time polynomial in $\lambda$ and $n$.
 
-	\textit{Advantage}: During its execution, $\A$ will correctly compute the size of the candidate key set,
-	then obtain a uniformly random candidate secret key. We invoke \Cref{claim:candidate_likely_good}
-	which yields that with probability at least $\tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}$ the candidate secret key 
-	will evaluate to the same image on the challenge pre-image $x^*$ as the games internal secret key would.
-	Therefore, with probability at least $\tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}$ $\A$ wins the game.
-	Otherwise, with probability at most $\frac{1}{2} + \tfrac{1}{2^{\lambda + 1}}$ the adversary will not obtain the correct 
-	image $y^*$. If the hidden bit $b = 0$ then the adversary loses since he will guess $b = 1$, if the hidden bit 
-	is $b = 1$ then he will win except if the output $y' = y^*$ by chance. Since $y$ is in that case sampled u.a.r. 
-	we can bound the probability of that happening with $1-\tfrac{1}{|\Y|}$. Since the proof of the advantage bound is lengthy, we defer it 
-	to the appendix.
+	\textit{Advantage}: Since the proof of the advantage bound is lengthy, we defer it 
+	to the appendix. We state the result as a claim in \Cref{claim:adv_bound}.
 
 	\begin{restatable}{claim}{advbound}\label{claim:adv_bound}
 		Let $\A$ be the adversary as in \Cref{fig:distinguisher}. Then
@@ -1004,7 +996,7 @@ We illustrate the adversary in \Cref{fig:distinguisher}.
 	\end{restatable}
 
 	Using \Cref{claim:adv_bound} concludes this proof.
-	Note that if $|\Y| \in \poly$ then the scheme would trivially admit efficient adversaries against the pseudorandomness security experiment.
+	Note, that if $|\Y| \in \poly$ then the scheme would trivially admit efficient adversaries against the pseudorandomness security experiment.
 	Therefore, we can assume that $1/|\Y| \in \negl$ which then results a non-negligible advantage bound for $\A$.
 \end{proof}
 

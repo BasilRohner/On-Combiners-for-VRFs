@@ -3,6 +3,7 @@
 
 \section{Deferred Proofs}
 
+\begin{comment}
 \subsection{Proof of \Cref{lemma:difference_lemma}}
 
 We present the proof of the difference lemma, formally:
@@ -31,8 +32,8 @@ Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events satisfying \eqref{eq:dif}
     \le&\Prob{\mathcal E} 
 \end{align}
 
-
 \newpage
+\end{comment}
 
 \subsection{Proof of \Cref{claim:sk_iff_pk}}
 \label{sec:sk_iff_pk}
@@ -52,7 +53,7 @@ Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events satisfying \eqref{eq:dif}
     \]
     Combining this with $\sk \in \closure_\SK(\tildeSK)$, we get:
     \[
-        \pk \in \bigcup_{\widetilde\sk \in \tildeSK} R_\PK(\widetilde\sk)
+        \pk \in \bigcup_{\widetilde\sk \in \closure_\SK(\tildeSK)} R_\PK(\widetilde\sk)
     \]
     And hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$. 
     
@@ -61,8 +62,8 @@ Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events satisfying \eqref{eq:dif}
         \sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\tildePK)} R_\SK(\widetilde\pk)
     \]
     In particular, we have $\sk \in R_\SK(\widetilde\pk)$ for some $\widetilde\pk$. By definition of $\sim_\PK$, we have
-    $\widetilde\pk \sim_\PK \pk$. Therefore $\widetilde\pk \sim_\PK^* \pk$ which means that $\pk \in [\widetilde\pk]_{\sim_\PK^*}$
-    for some $\widetilde\pk \in \tildePK$. In the end we obtain $\pk \in \tildePK$.
+    $\widetilde\pk \sim_\PK \pk$ since $\sk$ is a secret key which can be sampled together with both $\pk$ and $\widetilde \pk$. Therefore, $\widetilde\pk \sim_\PK^* \pk$ which means that $\pk \in [\widetilde\pk]_{\sim_\PK^*}$
+    for some $\widetilde\pk \in \tildePK$. In the end we obtain $\pk \in \closure_\PK(\tildeSK, \tildePK)$.
     The proof for the converse works analogously.
 \end{proof}
 
@@ -128,22 +129,46 @@ The bound follows from $\Adv*{\O_{vrf}}{prf}{\lambda, \A} \le \err[prf][vrf]$.
 
 \advrewritingthree*
 
-For this result we rely on the difference lemma which stated that \Cref{lemma:difference_lemma}.
-For that we note that the events $H_1^{\lambda, \A}$ and $H_3^{\lambda, \A}$ are equivalent conditioned on 
-the event that the secret key $\sk^*$ sampled by the challenger in the pseudorandomness security experiment is 
-not in the closure of $\closure_\SK(\tildeSK, \tildePK)$. Since the events are the same conditioned on that event we have in particular that
-\[
-    \Prob*{H_1^{\lambda, \A} = 1 \mid \sk^* \notin \closure_\SK(\widetilde{\SK}, \widetilde\PK)}
-    = 
-    \Prob*{H_3^{\lambda, \A} = 1 \mid \sk^* \notin \closure_\SK(\widetilde{\SK}, \widetilde\PK)}
-\]
-Applying \Cref{lemma:difference_lemma} we obtain the bound:
+For this result we rely on the difference lemma which we state as follows.
+
+\begin{restatable}[Difference Lemma]{lemma}{difflemma}\label{lemma:difference_lemma}
+    Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events with
+    \begin{align}
+        \Prob{\mathcal W_0 \land \lnot \mathcal E} = \Prob{\mathcal W_1 \land \lnot \mathcal E} \label{eq:dif}
+    \end{align}
+    Then we can bound the difference in probability of $\mathcal W_0$ and $\mathcal W_1$ with
+    \[
+        \abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}} \le \Prob{\mathcal E}
+    \]
+\end{restatable}
+
+\begin{proof}[\Cref{lemma:difference_lemma}]
+Let $\mathcal W_0, \mathcal W_1, \mathcal E$ be events satisfying \eqref{eq:dif}. Then:
+\begin{align*}
+    \abs*{\Prob{\mathcal W_0} - \Prob{\mathcal W_1}}
+    =& 
+    \big|\Prob{\mathcal W_0 \land \mathcal E} + \Prob{\mathcal W_0 \land \lnot \mathcal E} \\ 
+    &\quad - \Prob{\mathcal W_1 \land \mathcal E} - \Prob{\mathcal W_1 \land \lnot \mathcal E}\big|\\ 
+    =& \abs*{\Prob{\mathcal W_0 \land \mathcal E} - \Prob{\mathcal W_1 \land \mathcal E}}\\ 
+    =& \abs*{\Prob{\mathcal W_0 \mid \mathcal E} \Prob{\mathcal E} - \Prob{\mathcal W_1 \mid \mathcal E} \Prob{\mathcal E}}\\ 
+    =& \abs*{\Prob{\mathcal W_0 \mid \mathcal E} - \Prob{\mathcal W_1 \mid \mathcal E}} \Prob{\mathcal E}\\
+    \le&\Prob{\mathcal E} 
+\end{align*}
+\end{proof}
+
+Note that if the secret key sampled by the challenger in the games $H_1$ and $H_3$ satisfies
+$\sk^* \notin \closure_\SK(\tildeSK, \tildePK)$, then the games are identical.
+This is because $\widetilde\O_{uppc}$ evaluates to the same images as $\O_{vrf}$ on all $\sk^* \notin \closure_\SK(\tildeSK, \tildePK)$.
+We can now use \Cref{lemma:difference_lemma} to bound the difference in probabilities:
 \begin{align}
     \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} &\le \Prob*{\sk^* \in \closure_\SK(\widetilde\SK, \widetilde\PK)}
 \end{align}
-Applying the definition of $\closure_\SK(\tildeSK, \tildePK)$ and subsequently a union bound we obtain:
+Applying the definition of $\closure_\SK(\tildeSK, \tildePK)$ and subsequently apply the union bound we obtain after further simplifications:
 \begin{align}
-    \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \le \Prob*{\sk^* \in \closure_\SK(\widetilde\SK)} + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)}
+    \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} &\le \Prob*{\sk^* \in \closure_\SK(\widetilde\SK)} \\ 
+    &\quad + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)}\\
+    &\le \Prob*{\sk^* \bigcup_{\widetilde\sk \in \widetilde\SK} [\widetilde\sk]_{\sim^*_\SK}} \\ 
+    &\quad + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)}\\
 \end{align}
 We bound the two terms seperately. Specifically we show that in every set on the RHS of the events 
 the number of images corresponding to the secret keys is bounded by $|\tildeSK|$ and $|\tildePK|$
@@ -189,17 +214,28 @@ is the hidden secret key sampled by the challenger.
     &= \Big|\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 0} \\
     & \quad - \Paren*{1-\Prob*{\Exp*{\BBComb{VRF}[\O_{vrf}, \O_{up}]}{prf}(\lambda, \A) = 1 \mid b = 1}}\Big|\\
     &= \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_2^{\lambda, \A} = 1}}\\ 
-    &\ge\abs*{\frac{1}{|\Y|} - \frac{1}{2} + \frac{1}{2^{\lambda + 1}}}
+    &\ge\abs*{\frac{1}{2} + \frac{1}{2^{\lambda + 1}} - \frac{1}{|\Y|}}
 \end{align*}
 
-\newpage
+To justify the last step:
+During its execution, $\A$ will correctly compute the size of the candidate key set,
+then obtain a uniformly random candidate secret key. We invoke \Cref{claim:candidate_likely_good}
+which yields that with probability at least $\tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}$ the candidate secret key 
+will evaluate to the same image on the challenge pre-image $x^*$ as the game's internal secret key would.
+In the game $H_1$, the adversary plays against the pseudorandomness game of the combiner with the hidden bit $b = 0$.
+In that case, $\A$ wins if and only if the candidate key and the game's secret key evaluate $x^*$ to the same image $y^*$.
+Using \Cref{claim:candidate_likely_good}, this happens with probability at least $\tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}}$.
+If the hidden bit is $b = 1$, then the adversary will guess bit $b' = 1$, except, if the uniformly random image $y^* \sample \Y$ is (by chance)
+equal to the image that the candidate key produces on $x^*$. This happens with probability $1/|\Y|$.
 
 \subsection{Conjecture}
 
 We briefly remark on the difficulty of extending the proof of \Cref{thm:impossibility_21_comb}
 to the more general case stated in the conjecture. The direct approach fails due to a subtlety:
-While we show that the obscure queries are irrelevant per candidate, that does not imply that over multiple candidates 
-the obscure queries are jointly irrelevant.
-Since joint irrelevance spanning multiple candidate doesn't necessarily need to hold, we 
-guarantee that the algorithm $\alg{EvalSim}{VRF}$ returns $\top$ if the candidate key $\sk_{cand}$
-is the game's secret key $\sk^*$. 
+While we show that the obscure queries are irrelevant on a per-candidate basis, that does not imply the obscure queries 
+are jointly irrelevant over multiple candidates.
+
+In the $(2;1)$ case, we can guarantee that the algorithm $\alg{EvalSim}{VRF}$ returns $\top$
+if the candidate key $\sk_{cand}$ is identical to the game's secret key $\sk^*$,
+precisely because the obscure queries to a single candidate are irrelevant.
+For $n > 2$ candidates this might, however, not be the case anymore.
