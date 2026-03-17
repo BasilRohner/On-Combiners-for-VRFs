@@ -1169,64 +1169,66 @@ Let $\A = (\A_1, \A_2)$ be an adversary against the combiner $\BBComb{VRF}[\O_1,
 $\runtime$. We construct an adversary $\mathcal B = (\mathcal B_1, \mathcal B_2)$ that uses $\A$ to break the pseudorandomness of 
 $\O_1$ with the same advantage. The adversary $\mathcal B$ is shown in \Cref{fig:reduction}.
 
-$\mathcal B$ samples its own key-pair $(\sk, \pk)$ for the candidate $\O_2$ and uses $\O_{\text{Eval}}$ to simulate the combiner $\BBComb{VRF}[\O_1, \O_2]$
-in the pseudorandomness security game of $\A$. Whenever $\A$ queries an input $x$ to its evaluation oracle, 
-$\mathcal B$ queries $x$ to its own evaluation oracle to obtain $(y,\pi)$ then computes the output
-
-Assume, towards a contradiction, that there exists an adversary $\A$ running in time $\runtime$ that breaks the
-pseudorandomness of the combiner $\BBComb{VRF}[\O_1, \O_2]$ with advantage $\err$, we show that 
-we can construct an adversary $\mathcal R_i$ running in time $t_i$ that wins the prf security experiment 
-of the $i$'th candidate $\O_i$ with advantage $\err_i$ for $i \in [2]$. The reduction $\mathcal R_i$ samples its own 
-secret key for candidate $\O_{2-i}$ and uses $\O_{eval}$ for candidate $\O_{i}$ simulate the combiner 
-in the prf security experiment for the adversary $\A$. $\A$ then makes a prediction for the hidden bit. 
-If the hidden bit of the challenger is $0$ then $\A$ is simulated perfectly in the sense that the queries are answered exactly 
-as they would have been answered in the combiners prf security experiment. In that case $\mathcal R_i$ wins the experiment if and only if 
-$\A$ wins. If $b = 1$ the output of $\O_{eval}$ is a uniformly random element in the image codomain and therefore the queries made by $\A$
-are also answered with a uniformly random element in the codomain.
-Also in this case $\A$ is simulated perfectly. 
-and uses adversary $\A$ to break that one candidate. We show the reduction $\mathcal R_i$
-in \Cref{fig:reduction}.
+$\mathcal B_1$ samples its own key-pair $(\sk, \pk)$ for the candidate $\O_2$ and uses $\O_{\text{Eval}}$ to simulate the combiner $\BBComb{VRF}[\O_1, \O_2]$
+in the pseudorandomness security game of $\A$. Whenever $\A_1$ queries an input $x$ to its evaluation oracle, 
+$\mathcal B_1$ queries $x$ to its own evaluation oracle to obtain $(y_1,\pi_1)$ then computes the output $(y_2,\pi_2) \gets \BBComb{VRF}[\O_1,\O_2].\alg{Eval}{VRF}(\sk, x)$
+and finally returns the image $y = y_1 \xor y_2$ and the proof $\pi = (y_1,\pi_1,y_2,\pi_2)$. To simulate $\A_2$, we use $\B_2$.
+Given the challenge $(x^*, y^*)$, the adversary $\mathcal B_2$ computes $y' \gets \O_2.\alg{Eval}{VRF}(\sk_2, x^*)$ and
+forwards the challenge $(x^*, y^* \xor y')$ to $\A_2$. In the end, $\mathcal B_2$ forwards the prediction of $\A$ to its own challenger.
 
 \begin{figure}[htbp]
 	\centering 
+	\begin{pcvstack}[center]
 	\begin{pchstack}[space=1em]
 		\procedure[linenumbering]
-		{Reduction $\mathcal R_i^{{\O_{i_{eval}}}}(\pk_{i})$}
+		{Reduction $\mathcal B_1^{{\O_{\text{Eval}}}}(\pk)$}
 		{
-			b \sample \bin\\
-			(\sk_{2-i}, \pk_{2-i}) \sample \O_{eval,2-i}.\alg{Gen}{VRF}(1^\lambda)\\
-			\sk \gets (\sk_1, \sk_2)\\ 
+			(\sk_{2}, \pk_{2}) \sample \O_{\text{Eval}}.\alg{Gen}{VRF}(1^\lambda)\\
 			\pk \gets (\pk_1, \pk_2)\\ 
-			S \gets \varnothing\\ 
-			(\sigma, x^*) \sample \A^{\O_{comb_{eval}}}(\pk_1, \pk_2)\\ 
-			y_1 \sample \Y\\
-			b' \sample \A(1^\lambda, x^*, \sigma, y_b)\\
-			\pcreturn b = b' \land x^* \notin S
+			\smash{(\sigma, x^*) \sample \A_1^{\BBComb{VRF}[\O_1,\O_2]}(\pk)}\\ 
+			\sigma^* \gets (\sigma, \sk_2)\\
+			\pcreturn (\sigma^*, x^*)
 		}
 		\procedure[linenumbering]
-		{Oracle ${\O_{comb_{eval}}}(x)$}
+		{Oracle $\BBComb{VRF}[\O_1,\O_2](x)$}
 		{
-			S \gets S \cup \{x\}\\ 
-			(y_i, \pi_i) \gets \O_{i_{eval}}(x)\\ 
-			(y_{2-i}, \pi_{2-i}) \gets \O_{{2-i}}.\alg{Eval}{VRF}(\sk_{2-i}, x)\\ 
+			(y_1, \pi_1) \gets \O_{\text{Eval}}(x)\\ 
+			(y_{2}, \pi_{2}) \gets \O_{{2}}.\alg{Eval}{VRF}(\sk_{2}, x)\\ 
 			y \gets y_1 \xor y_2\\ 
 			\pi \gets (y_1, \pi_1, y_2, \pi_2)\\ 
 			\pcreturn (y,\pi)
 		}
 	\end{pchstack}
+	\procedure[linenumbering]
+	{Reduction $\mathcal B_2(\pk, \sigma^*, x^*, y^*)$}
+	{
+		(\sigma, \sk) \gets \sigma^*\\
+		y' \gets \O_2.\alg{Eval}{VRF}(\sk, x^*)\\ 
+		b \sample \A_2(\pk,\sigma, x^*, y^* \xor y')\\ 
+		\pcreturn b
+	}
+	\end{pcvstack}
 	\caption{Reduction.}
 	\label{fig:reduction}
 \end{figure}
 
-The reduction $\mathcal R_i$ makes as many queries to its evaluation oracle $\O_{i_{eval}}$ as $\A$ does to its evaluation oracle $\O_{comb_{eval}}$
-and makes additionally as many queries to the oracle $\O_{2-i}$. Besides the oracle queries every computation performed by $\mathcal R_i$
-is efficiently computable. Since we assume $\A$ to be efficient (ppt.) the reduction $\mathcal R_i$ must also be efficient (ppt.).
+Let $b$ denote the hidden bit in the pseudorandomness security experiment against $\O_1$.
+If $b = 0$, then $y_1^* = \O_1.\alg{Eval}{VRF}^y(\sk_1^*, x^*)$ where $\sk_1^*$ is the secret key corresponding to $\pk_1$.
+Therefore, $y^* = y_1^* \xor y_2^*$ is exactly the image that the combiner would produce on input $x^*$ with secret key $(\sk_1^*, \sk_2)$.
+The same holds for all evaluation queries. Thus, $\A$ is simulated perfectly in the real world of the combiner's pseudorandomness experiment.
 
-The advantage of the reduction $\mathcal R_i$ in the prf security experiment against candidate $\O_i$ can be bounded from below as follows.
-\begin{align}
-	\Adv{i}{prf}{\lambda, \mathcal R_i} = \Adv{comb}{prf}{\lambda, \A}
-\end{align}
+If $b = 1$, then $y_1^* \sample \Y$ is uniformly random. Since $y_1^*$ is uniform and independent of $y_2^*$, the value $y^* = y_1^* \xor y_2^*$ is also uniformly distributed over $\Y$.
+Thus, $\A$ is simulated perfectly in the random world of the combiner's pseudorandomness experiment.
+
+In both cases, the view of $\A$ when interacting with $\mathcal B$ is identically distributed to its view in the pseudorandomness experiment against the combiner with the corresponding hidden bit. Therefore:
+\[
+	\Adv*{\O_1}{prf}{\lambda, \mathcal B} = \Adv{\BBComb{VRF}[\O_1, \O_2]}{prf}{\lambda, \A}
+\]
+The reduction $\mathcal B$ makes as many queries to its evaluation oracle $\O_{\text{Eval}}$ as $\A$ does to its evaluation oracle
+and makes additionally as many queries to the oracle $\O_{2}$'s evaluation algorithm. Besides the oracle queries, every computation performed by $\mathcal B$
+is efficiently computable. Since we assume $\A$ to be efficient (ppt.) the adversary $\mathcal B$ must also be efficient (ppt.).
+This implies the claim.
 
 \begin{proof}[\Cref{lemma:strong_robust_black_box_combiners}]
-	Follows directly from \Cref{claim:pc_up_vrf_comb} and \Cref{claim:prf_vrf_comb} and 
+	Follows directly from \Cref{claim:pc_up_vrf_comb} and \Cref{claim:prf_vrf_comb}.
 \end{proof}
