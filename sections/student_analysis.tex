@@ -327,7 +327,6 @@ the oracle $\O_2$ remapped on the obscure queries to the two assignments that pr
 Third, we turn $\O_1$ into a full VRF by remapping all but a small subset of evaluation points to agree with the secure VRF $\O_2$ (\Cref{lemma:vrfification}).
 Since $\widehat\O_2, \widetilde\O_2$ produce different images but only differ on obscure queries not contained in the verification trace 
 they are indistinguishable for the combiners verification algorithm. This forces the combiner to violate either unique provability or perfect correctness.
-
 We show the description of the full adversary $\A$ in \Cref{fig:distinguisher}.
 
 \paragraph{Formal Treatment.}
@@ -344,27 +343,27 @@ for the VRF primitive, during the execution of its evaluation algorithm on arbit
 queries every oracle algorithm on any given input at most once.
 
 \begin{claim}\label{claim:unique_queries}
-	Let $\BBComb{VRF}$ be a robust $(n;k)$ black-box DAG VRF-combiner in the sense of \Cref{def:robust_blackbox_dag_combiner}. 
-	There exists a robust $(n;k)$ black-box DAG VRF-combiner $\DAGComb{VRF}$ such that in the execution of the evaluation algorithm 
-	it queries any oracle algorithm on any given input at most once.
+	Let $\BBComb{VRF}$ be a robust $(n;k)$ black-box DAG VRF-combiner (\Cref{def:robust_blackbox_dag_combiner}). 
+	There exists a robust $(n;k)$ black-box DAG VRF-combiner $\DAGComb{VRF}$ such that in the execution of the evaluation algorithm, 
+	any oracle algorithm is queried on any given input at most once.
 \end{claim}
 
 \begin{proof}[\Cref{claim:unique_queries}]
 	Let $\BBComb{VRF}$ be a robust $(n;k)$ black-box DAG VRF-combiner. We obtain $\DAGComb{VRF}$ by modifying $\BBComb{VRF}$
-	in the following way: At every vertex $v \in V(\G_{eval})$ the Turing machine $\tilde f_{eval}^v$ that maintains a table $T_v$
-	of mappings from previous oracle queries $\mathbf q_w$ for $w \in \mathcal N^-_{\G_{eval}}(v)$ to oracle responses $\mathbf x_w$ of the same oracle algorithm $\ell_{eval}(v)$. $\widetilde f_{eval}^v$ 
-	then simulates the Turing machine $f_{eval}^v$ until it returns the query $\mathbf q_v$. Then $\widetilde f_{eval}^v$ checks whether 
-	$\mathbf q_w$ is contained in the table $T_v$. If that is not the case we issue the query $\mathbf q_w$ 
-	to $\O_{\ell_{eval}}(\mathbf q_w)$, otherwise we issue a fresh query $\widetilde \q_w$ not in the table.
-	If the oracle is queried on $\widetilde\q_w$ subsequent Turing machines $f_{eval}^u$ with $(v,u) \in E(\G_{eval})$,
-	will then simply find the first query to the oracle $c(v)$ with the same input if they are also incident to $u$.
-	To ensure this we will again simply draw an edge from the source to every other vertex, from every vertex $(d,i,j)$
+	in the following way: At every vertex $v \in V(\G_{\text{Eval}})$ the Turing machine $\tilde f_{\text{Eval}}^v$ maintains a table $T_v$
+	of mappings from previous oracle queries $\q_w$ for $\smash{w \in \mathcal N^-_{\G_{\text{Eval}}}(v)}$ to oracle responses $\mathbf x_w$ of the same oracle algorithm $\ell_{eval}(v)$. $\widetilde f_{eval}^v$ 
+	then simulates the Turing machine $f_{\text{Eval}}^v$ until it returns the query $\mathbf q_v$. Then $\widetilde f_{\text{Eval}}^v$ checks whether 
+	$\q_w$ is contained in the table $T_v$. If that is not the case we issue the query $\q_w$ 
+	to $\O_{\ell_{\text{Eval}}}(\mathbf q_w)$, otherwise we issue a fresh query $\widetilde \q_w$ not in the table.
+	If the oracle is queried on $\widetilde\q_w$ subsequent Turing machines $f_{\text{Eval}}^u$ with $(v,u) \in E(\G_{\text{Eval}})$,
+	will then simply find the first query to the oracle $\ell_{\text{Eval}}(v)$ with the same input if they are also incident to $u$.
+	To ensure this, we will again simply draw an edge from the source to every other vertex, from every vertex $(d,i,j)$
 	to any vertex $(d',i',j')$ if $d < d'$ and from every vertex to the sink.
 
 	To show that $\DAGComb{VRF}$ is indeed a valid robust $(n;k)$ black-box DAG VRF-combiner it is sufficient to show that
 	for any tuple of $n$ candidate schemes $\O_1, \ldots, \O_n$ of which at least $k$ implement a secure VRF. 
 	The algorithms implemented by $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_n]$
-	are equivalent. Since we dont modify the algorithms $\alg{Gen}{VRF}$ and $\alg{Vfy}{VRF}$ we only need to show that 
+	have equivalent output distributions. Since we dont modify the algorithms $\alg{Gen}{VRF}$ and $\alg{Vfy}{VRF}$ we only need to show that 
 	equivalence holds for $\alg{Eval}{VRF}$.
 
 	Assume towards a contradiction that this is not the case, i.e. that there exists an input $(\sk, x) \in \SK \times \bin^\lambda$
@@ -376,26 +375,30 @@ queries every oracle algorithm on any given input at most once.
 	We conclude that therefore the algorithm $\alg{Eval}{VRF}$ of $\BBComb{VRF}[\O_1, \ldots, \O_n]$ and $\DAGComb{VRF}[\O_1, \ldots, \O_2]$
 	are functionally equivalent.
 
-	To show a polynomial runtime bound on $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ we\todo{...}
+	It remains to show that $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ runs in polynomial time. Observer that the number of vertices in $\G_{\text{Eval}}$
+	remains unchanged from $\BBComb{VRF}[\O_1, \ldots, \O_n]$. Therefore, $|V(G_{\text{Eval}})| \in \poly[n, \lambda]$. At each vertex $v$,
+	the Turing machine $\widetilde f_{\text{Eval}}^v$ performs the same computation as $f_{\text{Eval}}^v$ plus a table lookup in $T_v$.
+	Since the size of the table is bounded from above by the number of vertices $|V(G_{\text{Eval}})|$ the lookup is efficiently computable.
+	Hence, the overall running time of $\DAGComb{VRF}[\O_1, \ldots, \O_n]$ is bounded by a polynomial in $n$ and $\lambda$.
 \end{proof}
 
 From now on we will assume that for every input to the combiners evaluation algorithm, 
 and oracle is queried on any given input at most once. That is, if we remap the output of an oracle on a single point, 
 then at most one oracle query differs in the execution of the evaluation algorithm for every input.
 
-Next, let $\widetilde\SK \subseteq \SK$ and $\widetilde\PK \subseteq \PK$ be sets
-with size bounded by a polynomial, i.e. $\abs{\widetilde\SK}, \abs{\widetilde\PK} \in \poly$.
+Next, let $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$ be sets
+with size bounded by a polynomial, i.e. $\abs{\tildeSK}, \abs{\tildePK} \in \poly$.
 We can construct an oracle $\widetilde\O_{uppc}$ from $\O_{vrf}$ and $\O_{uppc}$ such that 
 $\widetilde\O_{uppc}$ implements a secure VRF and $\widetilde\O_{uppc}$ agrees with $\O_{uppc}$
-on the outputs of the evaluation algorithm on all points $\widetilde\sk \in \widetilde\SK$
-and on the verification algorithm on all points $\widetilde\pk \in \widetilde\PK$.
+on the outputs of the evaluation algorithm on all points $\widetilde\sk \in \tildeSK$
+and on the verification algorithm on all points $\widetilde\pk \in \tildePK$.
 Formally stated in the following lemma.
 
 \begin{lemma}\label{lemma:vrfification}
-	Let $\O_{vrf}$ be a VRF oracle in the sense of \Cref{def:vrf} and $\O_{uppc}$ a VF oracle that is 
-	perfectly correct in the sense of \Cref{def:correctness} and uniquely provable in the sense of \Cref{def:unique_provability}.
-	Let $\widetilde\SK \subseteq \SK$ and $\widetilde\PK \subseteq \PK$ be polynomially bounded sets, i.e. 
-	$|\widetilde\SK|, |\widetilde\PK| \in \poly$. There exists an oracle $\widetilde\O_{uppc}$
+	Let $\O_{vrf}$ be a VRF oracle (\Cref{def:vrf}) and $\O_{uppc}$ a VF oracle that is 
+	perfectly correct (\Cref{def:correctness}) and uniquely provable (\Cref{def:unique_provability}).
+	Let $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$ be polynomially bounded sets, i.e. 
+	$|\tildeSK|, |\tildePK| \in \poly$. There exists an oracle $\widetilde\O_{uppc}$
 	satisfying the following properties.
 	\begin{enumerate}
 		\item The evaluation algorithm of $\widetilde\O_{uppc}$ agrees with the evaluation algorithm of $\O_{uppc}$
@@ -408,19 +411,18 @@ Formally stated in the following lemma.
 			\[
 				\forall \widetilde\pk \in \widetilde\PK, \widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot) = \O_{uppc}.\alg{Vfy}{VRF}(\pk, \cdot, \cdot, \cdot)
 			\]
-		\item The oracle $\widetilde\O_{uppc}$ implements a secure VRF in the sense of \Cref{def:vrf}.
+		\item The oracle $\widetilde\O_{uppc}$ implements a secure VRF (\Cref{def:vrf}).
 	\end{enumerate}
 \end{lemma}
 
 A too simple idea would be to replace the mapping of $\O_{vrf}.\alg{Eval}{VRF}$ on all inputs $(\sk, x)$
-with $\sk \in \widetilde\SK$ and similarly modify the mapping of $\O_{vrf}.\alg{Vfy}{VRF}$ on all inputs $(\pk, x, y, \pi)$
-with $\pk \in \widetilde\PK$. However, the resulting oracle doesn't necessarily need to be uniquely provable or perfectly correct anymore.
-For instance, imagine the scenario where a secret key $\widetilde\sk \in \widetilde\SK$ is remapped but the corresponding 
-public key $\pk$ does not itself belong to $\widetilde\PK$. In that case the verification algorithm on $\pk$ is left unchanged while the 
+with $\sk \in \tildeSK$ and similarly modify the mapping of $\O_{vrf}.\alg{Vfy}{VRF}$ on all inputs $(\pk, x, y, \pi)$
+with $\pk \in \tildePK$. However, the resulting oracle doesn't necessarily need to be uniquely provable or perfectly correct anymore.
+For instance, imagine the scenario where a secret key $\widetilde\sk \in \tildeSK$ is remapped but the corresponding 
+public key $\pk$ does not itself belong to $\tildePK$. In that case the verification algorithm on $\pk$ is left unchanged while the 
 evaluation algortihm on $\widetilde\sk$ is modified. This can result in correctly computed image-proof pairs to be rejected by the verification 
 algorithm, violating perfect correctness.
 
-\begin{proof}[\Cref{lemma:vrfification}]
 We begin by introducing a two relations $\sim_\SK \subseteq \SK^2$ and 
 $\sim_\PK \subseteq \PK^2$. Intuitively, these relations capture
 whether two secret or public keys have a counterpart which could have been 
@@ -459,12 +461,12 @@ of all keys in the subsets. We formally define the functions as follows:
 	\closure_\SK(\widetilde\SK) &= \bigcup_{\widetilde \sk \in \widetilde\SK} [\widetilde\sk]_{\sim_\SK^*}\\ 
 	\closure_\PK(\widetilde\PK) &= \bigcup_{\widetilde \pk \in \widetilde\PK} [\widetilde\pk]_{\sim_\PK^*} 
 \end{align}
-Observe that the secret key closure $\closure_\SK(\widetilde\SK)$ for a subset $\widetilde\SK \subseteq \SK$
+Observe that the secret key closure $\closure_\SK(\tildeSK)$ for a subset $\tildeSK \subseteq \SK$
 is the set of secret keys that need to be remapped if we want to remap all of the evaluations on the 
-secret keys $\widetilde\SK$ to preserve unique provability and correctness. The same holds for the public key closure.
-Now we define the closure for subsets $\widetilde\SK \subseteq \SK$ and $\widetilde\PK \subseteq \PK$
+secret keys $\tildeSK$ to preserve unique provability and correctness. The same holds for the public key closure.
+Now we define the closure for subsets $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$
 at the same time. They correspond to the minimal set of secret or public keys that need to be remapped to preserved 
-unique provability and perfect correctness of $\O_{uppc}$ if we want to remap all keys in $\widetilde\SK$ and $\widetilde\PK$.
+unique provability and perfect correctness of $\O_{uppc}$ if we want to remap all keys in $\tildeSK$ and $\tildePK$.
 \begin{align}
 	\closure_\SK(\widetilde\SK,\widetilde\PK) &= \closure_\SK(\widetilde\SK) \cup \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk) \label{eq:closure_sk}\\ 
 	\closure_\PK(\widetilde\SK, \widetilde\PK) &= \closure_\PK(\widetilde\PK) \cup \bigcup_{\widetilde\sk \in \closure_\SK(\widetilde\SK)} R_\SK(\widetilde\sk) 
@@ -472,7 +474,7 @@ unique provability and perfect correctness of $\O_{uppc}$ if we want to remap al
 Finally, we constuct an oracle $\widetilde\O_{uppc}$ that interpolates between $\O_{uppc}$ and $\O_{vrf}$.
 The key generation algorithm is defined to be the function for key generation of 
 $\O_{vrf}$, the evaluation and the verification algorithm of $\widetilde\O_{uppc}$ are defined as follow,
-they evaluate to the output of $\O_{uppc}$ on all keys in $\widetilde\SK$ and $\widetilde\PK$
+they evaluate to the output of $\O_{uppc}$ on all keys in $\tildeSK$ and $\tildePK$
 and they evaluate to the output of $\O_{vrf}$ otherwise.
 \begin{align}
 	\widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk, x) &= \begin{cases}
@@ -485,44 +487,43 @@ and they evaluate to the output of $\O_{vrf}$ otherwise.
 	\end{cases}\label{eq:uppc_vfy}
 \end{align}
 The properties $1.$ and $2.$ of \Cref{lemma:vrfification} hold by definition of $\widetilde\O_{uppc}$
-since $\widetilde\SK \subseteq \closure_\SK(\widetilde\SK) \subseteq \closure_\SK(\widetilde\SK, \widetilde\PK)$
-and $\widetilde\PK \subseteq  \closure_\PK(\widetilde\PK) \subseteq \closure_\PK(\widetilde\SK, \widetilde\PK)$
+since $\tildeSK \subseteq \closure_\SK(\tildeSK) \subseteq \closure_\SK(\tildeSK, \tildePK)$
+and $\tildePK \subseteq  \closure_\PK(\tildePK) \subseteq \closure_\PK(\tildeSK, \tildePK)$
 which hold by reflexivity of $\sim_\SK^*$ and $\sim_\PK^*$ respectively.
 We show that $3.$ holds by showing the $\widetilde\O_{uppc}$ is uniquely provable, perfectly correct 
 and pseudorandom.
 
 \begin{claim}\label{claim:vrfification_pc_up}
-	Let $\O_{uppc}$ be a VF oracle that is uniquely provable in the sense of \Cref{def:unique_provability}
-	and perfectly correct in the sense of \Cref{def:correctness} and let $\O_{vrf}$
-	be a VF oracle that implements a secure VRF in the sense of \Cref{def:vrf}.
+	Let $\O_{uppc}$ be a VF oracle that is uniquely provable (\Cref{def:unique_provability})
+	and perfectly correct (\Cref{def:correctness}) and let $\O_{vrf}$
+	be a VF oracle that implements a secure VRF (\Cref{def:vrf}).
 	The oracle $\widetilde\O_{uppc}$ constructed from 
 	$\O_{up}$ and $\O_{vrf}$ for given subsets $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$
 	as in \eqref{eq:uppc_eval} and \eqref{eq:uppc_vfy}
-	is perfectly correct in the sense of \Cref{def:correctness}
-	and uniquely provable in the sense of \Cref{def:unique_provability}.
+	is perfectly correct (\Cref{def:correctness})
+	and uniquely provable (\Cref{def:unique_provability}).
+\end{claim}
+
+Before we prove \Cref{claim:vrfification_pc_up} we claim that if a secret key $\sk$ can be sampled together with a public key $\pk$,
+for any subset of secret keys $\tildeSK$ and any subset of public keys $\tildePK$, $\sk$ is in the closure of $\tildeSK$
+if and only if $\pk$ is in the closure of $\tildePK$. Since the claim is intuitive and the proof is long we defer the proof to the appendix in \Cref{sec:sk_iff_pk}.
+
+\begin{claim}\label{claim:sk_iff_pk}
+	Let $(\sk, \pk) \sample \widetilde\O_{uppc}.\alg{Gen}{VRF}(1^\lambda)$ and $\tildeSK\subseteq \SK$ and $\tildePK \subseteq \PK$ be arbitrary subsets. Then
+	the following holds:
+	\[
+		\sk \in \closure_\SK(\tildeSK,\tildePK) \iff \pk \in \closure_\PK(\tildeSK, \tildePK)
+	\]	
 \end{claim}
 
 \begin{proof}[\Cref{claim:vrfification_pc_up}]
 	Let $\lambda \in \N$ be arbitrary but fixed.
-	We show unique provability and perfect correctness seperately.
 
 	\textit{Correctness}: Let $(\sk, \pk) \sample \widetilde\O_{uppc}.\alg{Gen}{VRF}(1^\lambda)$,
 	let $x \in \bin^\lambda$ be arbitrary and let $(y,\pi) \gets \widetilde\O_{uppc}.\alg{Eval}{VRF}(\sk, x)$.
-	To show that $\widetilde\O_{uppc}.\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1$ with probability $1$
-	it suffices to show that $\sk \in \closure_\SK(\tildeSK, \tildePK)$ if and only if 
-	$\pk \in \closure_\PK(\tildeSK, \tildePK)$, since if $\sk \in \closure_\SK(\tildeSK, \tildePK)$
-	and hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$ verifies by perfect correctness of 
-	$\O_{uppc}$ while if $\sk \notin_\SK(\tildeSK, \tildePK)$ and hence $\pk \notin \closure_\PK(\tildeSK, \tildePK)$
-	verifies by perfect correctness of $\O_{vrf}$.
-
-	We show $\sk \in \closure_\SK(\tildeSK, \tildePK) \implies \pk \in \closure_\PK(\tildeSK, \tildePK)$, the 
-	converse follows analogously. Assume the left-hand side, i.e. $\sk \in \closure_\SK(\tildeSK,\tildePK)$ and distinguish 
-	two cases based on the definition of $\closure_\SK(\tildeSK, \tildePK)$.
-	If $\sk \in \closure_\SK(\tildeSK)$ then since $\pk \in R_\SK(\sk)$ we obtain 
-	$\pk \in \bigcup_{\widetilde\sk \in \closure_\SK(\tildeSK)} R_\SK(\widetilde\sk)$ and hence $\pk \in \closure_\PK(\tildeSK, \tildePK)$.
-	On the other hand, if $\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\tildePK)} R_\PK(\widetilde\pk)$ 
-	then $\sk \in R_\PK(\widetilde\pk)$ for some $\widetilde\pk \in \closure_\PK(\tildePK)$. By definition of the closure we have 
-	$\pk \sim_\PK^* \widetilde\pk$, hence $\pk \in \closure_\PK(\tildePK)$ and thus $\pk \in \closure_\PK(\tildeSK, \tildePK)$.\todo{more details}
+	If $\sk \in \tildeSK$ then by \Cref{claim:sk_iff_pk} $\pk \in \tildePK$ and correctness holds by 
+	the correctness of $\O_{uppc}$. Otherwise, if $\sk \notin \tildeSK$ then by \Cref{claim:sk_iff_pk} $\pk \notin \tildePK$
+	and correctness holds by the correctness of $\O_{vrf}$.
 
 	\textit{Unique Provability}: Assume towards a contradiction that there exist two image-proof pairs 
 	$(y_1,\pi_1)$ and $(y_2, \pi_2)$ with distinct images $y_1 \neq y_2$ such that 
@@ -531,31 +532,32 @@ and pseudorandom.
 	with the unique provability of $\O_{uppc}$. If $\pk \notin \closure_\PK(\tildeSK, \tildePK)$ then verification is defined by 
 	$\O_{vrf}$ and therefore we arrive at a contradiction with the assumed unique provability of $\O_{vrf}$.
 	In either case we reach a contradiction, hence there cannot exist such image-proof pairs.
-
-	We conclude that $\widetilde\O_{uppc}$ is perfectly correct and uniquely provable.
 \end{proof}
 
 \begin{claim}\label{claim:vrfification_prf}
-	Let $\O_{uppc}$ be a VF oracle that is uniquely provable in the sense of \Cref{def:unique_provability}
-	and perfectly correct in the sense of \Cref{def:correctness} and let $\O_{vrf}$
-	be a VF oracle that implements a secure VRF in the sense of \Cref{def:vrf}
-	that is $\errtime[prf][vrf]$-pseudorandom.
+	Let $\O_{uppc}$ be a VF oracle that is uniquely provable (\Cref{def:unique_provability})
+	and perfectly correct (\Cref{def:correctness}) and let $\O_{vrf}$
+	be a VF oracle that implements a secure VRF (\Cref{def:vrf})
+	that is $\errtime[prf][vrf]$-pseudorandom (\Cref{def:pseudorandomness}).
 	The oracle $\widetilde\O_{uppc}$ constructed from 
 	$\O_{up}$ and $\O_{vrf}$ for given subsets $\tildeSK \subseteq \SK$ and $\tildePK \subseteq \PK$
 	as in \eqref{eq:uppc_eval} and \eqref{eq:uppc_vfy}
-	is $\errtime[prf][uppc]$-pseudorandom in the sense of \Cref{def:pseudorandomness}.
+	is $\errtime[prf][uppc]$-pseudorandom (\Cref{def:pseudorandomness}).
 	Where
 	\[
 		\err[prf][vrf] = \Paren*{1 + \abs*{\widetilde \SK} + \abs*{\widetilde \PK}}\err[prf][uppc] \quad \text{ and } \quad
 	\]
 \end{claim}
 
-Use a hybrid argument for the proof. Intuitively the proof works by bounding the probability that a bad event $\E$, that the 
+We prove the claim with a hybrid argument. Intuitively the proof works by bounding the probability that a bad event $\E$, that the 
 secret key $\sk^*$ sampled in the pseudorandomness security experiment is in the set $\closure_\SK(\tildeSK, \tildePK)$.
 If $\E$ doesn't occur, then the security game is identical to the security game against $\O_{vrf}$ which no adversary running in time
 $\runtime[prf][vrf]$ wins with advantage greater than $\err[prf][vrf]$. Using the difference lemma we can then bound the advantage 
 of any adversary playing the pseudorandomness game against $\widetilde\O_{uppc}$ from above by an expression 
-in $\err[prf][vrf]$. Before we formally prove \Cref{claim:vrfification_prf} we state the difference lemma, we defer the proof 
+in $\err[prf][vrf]$.
+
+\begin{comment}
+Before we formally prove \Cref{claim:vrfification_prf} we state the difference lemma, we defer the proof 
 of it to the appendix since its a known result.
 
 \begin{lemma}[Difference Lemma]\label{lemma:difference_lemma}
@@ -568,6 +570,7 @@ of it to the appendix since its a known result.
 		\abs*{\Prob*{W_0} - \Prob*{W_1}} \le \Prob*{B}
 	\]	
 \end{lemma}
+\end{comment}
 
 \begin{proof}[\Cref{claim:vrfification_prf}]
 	We define games $H_1, H_2, H_3$ as follows. 
@@ -589,15 +592,41 @@ of it to the appendix since its a known result.
 	\end{itemize}
 	We write $H_i^{\lambda,\A} = 1$ to denote the event that adversary $\A$ wins the 
 	game $H_i$ for all $i \in [3]$, we can now bound the advantage of any adversary $\A$ against $\smash{\widetilde\O_{uppc}}$
-	in the pseudorandomness security experiment as follows.
+	in the pseudorandomness security experiment as follows. We make the following three claims whose proof we move to the appendix:
+
+	\begin{claim}\label{claim:adv_rewriting_1}
+		Let the games $H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
+		\[
+			2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} = \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}
+		\]
+	\end{claim}
+	\begin{claim}\label{claim:adv_rewriting_2}
+		Let the games $H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
+		\[
+			\abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} \le \err[prf][vrf]
+		\]
+	\end{claim}
+	\begin{claim}\label{claim:adv_rewriting_3}
+		Let the games $H_2, H_3$ be defined as above, the candidates $\O_{vrf}$ and $\widetilde\O_{uppc}$ be defined as above. Then for all adversaries $\A$ we have:
+		\[
+			\abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \le \abs*{\widetilde\SK}\err[prf][vrf] + \abs*{\widetilde\PK}\err[prf][vrf]
+		\]
+	\end{claim}
+	Using the results from \Cref{claim:adv_rewriting_1} in  \eqref{eq:halt_1}, \Cref{claim:adv_rewriting_2} in  \eqref{eq:halt_2} and \Cref{claim:adv_rewriting_3} in \eqref{eq:halt_3} we can now, by simply rewriting obtain the following upper bound 
+	on the advantage of any efficient adversary $\A$ against the pseudorandomness security experiment of $\widetilde\O_{uppc}$. Establishing the claim.
+	\begin{comment}
 	\begin{align}
 		\Adv*{\widetilde\O_{uppc}}{prf}{\lambda, \A}
-		&= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}\\ 
+		&= 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}}\\ 
+		&= \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} \label{eq:halt_1}\\ 
 		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}}\\ 
 		&\quad +\abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}}\\ 
-		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \Adv*{\O_{vrf}}{prf}{\lambda, \A}\\ 
-		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \err[prf][vrf]\label{eq:halt_1}
-	\end{align}\todo{maybe arrive here seperately}
+		&\le \abs*{\Prob*{H_2^{\lambda, \A} = 1} - \Prob*{H_1^{\lambda, \A} = 1}} + \err[prf][vrf] \label{eq:halt_2}\\ 
+		&\le \abs*{\widetilde\SK}\err[prf][vrf] + \abs*{\widetilde\PK}\err[prf][vrf] + \err[prf][vrf] \label{eq:halt_3}
+	\end{align}
+	\end{comment}
+
+	\begin{comment}
 	Consider the event that the challenger in the pseudorandomness security experiment samples 
 	a secret key $\sk^* \in \closure_\SK(\tildeSK, \tildePK)$. If $\sk^* \notin \closure_\SK(\tildeSK, \tildePK)$ then in $H_2$
 	we are playing the prf security game against $\smash{\widetilde\O_{uppc}}$ which is evaluates to the same 
@@ -635,6 +664,9 @@ For the bound on $\Prob{\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\widetil
 the mappings also correspond to elements of $\widetilde\PK$. Again, following this line of argument we condition on the event that 
 $\sk \in \bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)$ and find an adversary with advantage bounded from below by 
 $1/|\widetilde\PK|$. We obtain the bound on the probability of $\err_{\VRF}^{prf}|\widetilde\PK|$.
+\end{comment}
+
+\begin{proof}[\Cref{lemma:vrfification}]
 \end{proof}
 
 Equipped with \Cref{lemma:vrfification}, we now consider the combiner $\BBComb{VRF}[\O_{vrf}, \O_{up}]$ initialized with the oracles
