@@ -166,17 +166,41 @@ We can now use \Cref{lemma:difference_lemma} to bound the difference in probabil
 Applying the definition of $\closure_\SK(\tildeSK, \tildePK)$ and subsequently apply the union bound we obtain after further simplifications:
 \begin{align}
     \abs*{\Prob*{H_1^{\lambda, \A} = 1} - \Prob*{H_3^{\lambda, \A} = 1}} &\le \Prob*{\sk^* \in \closure_\SK(\widetilde\SK)} \\ 
-    &\quad + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)}\\
+    &\quad + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\SK(\widetilde\pk)}\\
     &\le \Prob*{\sk^* \bigcup_{\widetilde\sk \in \widetilde\SK} [\widetilde\sk]_{\sim^*_\SK}} \\ 
-    &\quad + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\PK(\widetilde\pk)}\\
+    &\quad + \Prob*{\bigcup_{\widetilde\pk \in \closure_\PK(\widetilde\PK)} R_\SK(\widetilde\pk)}\\
+    &\le  \sum_{\widetilde\sk \in \widetilde\SK}\Prob*{\sk^* \in [\widetilde\sk]_{\sim^*_\SK}} \\ 
+    &\quad +  \sum_{\widetilde\pk \in \closure_\PK(\widetilde\PK)}\Prob*{R_\SK(\widetilde\pk)}\\
+    &\le  \sum_{\widetilde\sk \in \widetilde\SK}\Prob*{\sk^* \in [\widetilde\sk]_{\sim^*_\SK}} \\ 
+    &\quad +  \sum_{\widetilde\pk \in \closure_\PK(\widetilde\PK)}\Prob*{R_\SK(\widetilde\pk)}\\
 \end{align}
-We bound the two terms seperately. Specifically we show that in every set on the RHS of the events 
-the number of images corresponding to the secret keys is bounded by $|\tildeSK|$ and $|\tildePK|$
-respectively. Now assuming that one of those probabilities is non-negligible then the adversary 
-could just assume that this case happens and guess the corresponding image with non-negligible probability 
-yielding the correct image with probability at least the product of two non-negligible functions which is itself 
-a non-negligible function. Since we however know that $\O_{vrf}$ is pseudorandom this cannot be the case, we conclude 
-that the probabilities must be negligible each.
+
+We bound the two terms separately. For each term, we show that if the corresponding probability were non-negligible,
+we could construct an adversary that breaks pseudorandomness of $\O_{vrf}$.
+
+Consider the first sum. For each $\widetilde\sk \in \widetilde\SK$, the equivalence class $[\widetilde\sk]_{\sim^*_\SK}$ 
+contains secret keys that are related via the transitive closure of $\sim_\SK$. By definition of $\sim_\SK$, 
+two secret keys are related if they can be sampled with the same public key. Since $\O_{vrf}$ is uniquely provable, 
+for any public key $\pk$ there is at most one valid image per input $x$. Therefore, all secret keys in 
+$[\widetilde\sk]_{\sim^*_\SK}$ that could be sampled with the same public key must produce the same image on any input.
+This means that the number of distinct images produced by secret keys in $[\widetilde\sk]_{\sim^*_\SK}$ is bounded 
+by the number of equivalence classes under the relation induced by sharing a public key.
+
+Suppose $\Prob{\sk^* \in [\widetilde\sk]_{\sim^*_\SK}} \ge \epsilon(\lambda)$ for some non-negligible $\epsilon$.
+We construct an adversary $\mathcal B$ against the pseudorandomness of $\O_{vrf}$ as follows: 
+$\mathcal B$ receives a public key $\pk^*$ and a challenge $(x^*, y^*)$ where $y^*$ is either 
+$\O_{vrf}.\alg{Eval}{VRF}^y(\sk^*, x^*)$ or uniformly random. Since $|\tildeSK| \in \poly$, 
+the adversary $\mathcal B$ can simply guess the secret key $\sk_{cand} \in \tildeSK$ and verify whether $\O_{vrf}.\alg{Eval}{VRF}^y(\sk_{cand}, x^*) = y^*$.
+With non-negligible probability $\mathcal B$ samples a secret key that is in the same equivalence class as $\sk^*$, the game's secret key.
+In that case, the adversary always wins. Hence, $\mathcal B$ has non-negligible advantage in the pseudorandomness security experiment 
+against $\O_{up}$, contradicting the assumed pseudorandomness of $\O_{vrf}$.
+
+The argument for the second sum proceeds analogously. For every $\widetilde\pk \in \closure_\PK(\widetilde\pk)$
+the set $R_\SK(\widetilde\pk)$ contains all secret keys that can be sampled together with $\widetilde\pk$.
+By unique provability and perfect correctness of $\O_{vrf}$, all such secret keys must produce the same image on any input $x$.
+If $\Prob{\sk^* \in R_\PK(\widetilde\pk)} \ge \eps(\lambda)$ for a non-negligible function $\eps$,
+we can again construct an adversary that wins the pesudorandomness security experiment against $\O_{vrf}$,
+resulting in a contradiction. Since the sum of two negligible functions is negligible the claim is established.
 
 \newpage
 
