@@ -2,42 +2,41 @@
 \label{ch:analysis}
 
 \section{Robust Black-Box DAG Combiner}
-Intuitively, a robust black-box combiner operates on $n$ candidate schemes by 
-adaptively interleaving calls to the candidates oracles with ppt. processing
-to combine the candidates outputs in a way such that security properties of the secure 
-subset of oracles are preserved if there are sufficiently many of them.
-For certain arguments it can be helpful to model the combiners structure more explicitly,
-we do so by modeling every algorithm implemented by the combiner with a directed acyclic graph (DAG) reflecting the computation.
+Intuitively, a robust black-box combiner for a primitive $\prim{P}$ that implements algorithms
+$(\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^p)$ operates on $n$ candidate schemes by 
+adaptively interleaving calls to the candidate oracles with ppt. processing, combining the candidate
+outputs in a way that preserves the security properties of the secure subset of oracles,
+provided there are sufficiently many. For certain arguments, it is helpful to model the combiner's
+structure more explicitly. We do so by representing each algorithm implemented 
+by the combiner as a directed acyclic graph (DAG) $\G$ that reflects the computation.
 
-In addition to the DAG we specify dedicate source and sink vertices $s$ and $t$,
-a vertex labling $\ell : V(\G) \setminus \{s,t\} \to [n] \times [|\prim{P}|]$ mapping every non-source and non-sink vertex to a tuple $(i,j)$
-indicating which candidate is queried on which oracle and ppt. Turing machines $f^v$ for every vertex $v \in V(\G)$
-that compute the query input to the candidate and oracle $\ell(v)$ given the oracle response of the predecessors $\mathcal N^-_\G(v)$.
-The source vertex $s$ simply corresponds to the input $\x$ to the algorithm while the target
-is associated with a single ppt. Turing machine $f^t$ that computes the final output of the combiner $\y$.
+In addition to the DAG, we specify dedicated source and sink vertices $s$ and $t$, a vertex 
+labeling $\ell: V(\G) \setminus \{s,t\} \to [n] \times [|\prim{P}|]$ that maps every non-source and non-sink
+vertex to a tuple $(i,j)$ indicating which candidate is queried on which oracle, and a ppt. Turing machine 
+$f^v$ for every vertex $v \in V(\G) \setminus \{s,t\}$ that computes the query input to the candidate and oracle
+$\ell(v)$ given the oracle responses of the predecessors $\mathcal N_\G^-(v)$.
+The source vertex $s$ corresponds to the input $\x$ to the algorithm, while the sink vertex $t$
+is associated with a ppt. Turing machine $f^t$ that computes the final output $\y$ of the combiner.
 
-A robust black-box DAG combiner algorithm, is then executed by tracing the computation through the corresponding DAG $\G$. 
-The input to every oracle query is computed from the response of the oracles at the preceding vertices
-using the Turing machine $f^v$ associated with the respective vertex $v \in V(\G)$.
-The output of the algorithm is given by the output of $f^t$ on the respective inputs.
-We assume that the random tape of the intermediate Turing machines are initialized identically to the random tape 
-of the combiner Turing machine \todo{argue}.
-A robust black-box DAG combiner has to satisfy that the algorithm induced by the DAG description 
-needs to be a robust black-box combiner. We formally define robust black-box DAG combiners as follows,
-we use $|\prim{P}|$ for primitive $\prim{P}$ to denote the number of implemented algorithms 
-and generically name them $(\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{p})$ if $|\prim{P}| = p$.
+A robust black-box DAG combiner algorithm is executed by tracing the computation through the corresponding DAG $\G$.
+The input to each oracle query is computed from the responses of the oracles at preceeding vertices using the Turing machine $f^v$ associated
+with the respective vertex $v \in V(\G)$. The output of the algorithm is given by the output of $f^t$ on the collected inputs. We assume 
+that the random tapes of the intermediate Turing machines are initialized identically to the random tape of the combiner Turing machine.
 
-\begin{definition}[Robust $(n;k)$ Black-Box DAG $\prim{P}$-Combiner]\label{def:robust_blackbox_dag_combiner}
-	A roubst $(n;k)$ black-box DAG combiner for primitive $\prim{P}$ is a robust $(n;k)$ black-box algorithm $\BBComb{P}$ in the sense of \Cref{def:robust_blackbox_combiner}, i.e. a tuple algorithms $\Paren{\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^p}$
-	where every algorithm $\alg{Alg}{P}^i$ is specified by a tuple of the following shape
+A robust black-box DAG combiner has to satisfy the requirements that the algorithm specified by the DAG description 
+is a robust black-box combiner. We formally define robust black-box DAG combiners below. 
+
+\begin{definition}[Robust $(n;k)$ Black-Box DAG P-Combiner]\label{def:robust_blackbox_dag_combiner}
+	A robust $(n;k)$ black-box DAG combiner for a primitive P is a robust $(n;k)$ black-box combiner $\BBComb{P}$ in the sense of \Cref{def:robust_blackbox_combiner}, i.e,. a tuple algorithms $\Paren{\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{p}}$
+	where every algorithm $\alg{Alg}{P}$ is specified by a tuple of the following form
 	\[
-		\Paren*{\G_p, s_p, t_p, \ell_p, \Brace{f_p^{v}}_{v \in V(\G_p) \setminus \{s_p\}}}
+		\Paren*{\G, s, t, \ell, \Brace{f^{v}}_{v \in V(\G) \setminus \{s\}}}
 	\]
-	Such that for all $p \in \prim{P}$, $\G_p$ is a DAG, $s_p$ and $t_p$ are vertices in $V(\G_p)$
-	such that $s_p$ has no ingoing edges and $t_p$ has no outgoing edges,
-	$\ell_p : V(\G_p) \to [n] \times \prim{P}$ is a vertex labling and $\Brace{f_p^v}_{v \in V(\G_p) \setminus \{s_p\}}$
-	are pt. Turing machines. Where, given the tuple,
-	the algorithm $\alg{Alg}{P}^p$ is defined as shown in \Cref{fig:dag_combiner}.
+	Here, $\G$ is a DAG, $s$ and $t$ are vertices in $V(\G)$
+	such that $s$ has no incoming edges and $t$ has no outgoing edges,
+	$\ell : V(\G) \to [n] \times [|\prim{P}|]$ is a vertex labeling and $\Brace{f^v}_{v \in V(\G) \setminus \{s\}}$
+	are polynomial time Turing machines. Given this tuple,
+	the algorithm $\alg{Alg}{P}$ is defined as shown in \Cref{fig:dag_combiner}.
 
 
 	\begin{figure}[htbp]
@@ -46,47 +45,51 @@ and generically name them $(\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{p})$ if $|\pri
 			\procedure[linenumbering]
 			{Algorithm $\alg{Alg}{P}^{\O_1, \ldots, \O_n}(\x)$}
 			{
+				v_1, \ldots, v_m \gets \text{topological ordering of }V(\G) \setminus \{s,t\}\\
 				\x_s \gets \x\\
-				\pcfor v \in \textsf{topo}(V(\G_p) \setminus \{s_p,t_p\}) \pcdo\\ 
-				\t \pclinecomment{Compute the query $\mathbf q_v$ to the oracle}\\
-				\t \mathbf q_v \gets f^v_{p}(\{(w, \x_w)\}_{w \in \mathcal N^-_{\G_p}(v)})\\ 
-				\t \pclinecomment{Evaluate the oracle on $\mathbf q_v$}\\
-				\t \x_v \gets \O_{\ell(v)}(\mathbf q_v)\\ 
-				\pcreturn f^t_p(\{w,\x_w\}_{w \in \mathcal N^-_{\G_p}(t)})
+				\pcfor i = 1 \text{ to }m \pcdo\\ 
+				\t \pclinecomment{Compute the query $\mathbf q_{v_i}$ to the oracle}\\
+				\t \mathbf q_{v_i} \gets f^{v_i}(\{(w, \x_w)\}_{w \in \mathcal N^-_{\G}(v_i)})\\ 
+				\t \pclinecomment{Evaluate the oracle on $\mathbf q_{v_i}$}\\
+				\t \x_{v_i} \gets \O_{\ell(v_i)}(\mathbf q_{v_i})\\ 
+				\pcreturn f^t(\{w,\x_w\}_{w \in \mathcal N^-_{\G}(t)})
 			}
 		\end{pchstack}
-		\caption{Definition of the robust black-box DAG combiner algorithm $\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}$ initialized with candidates $\O_1, \ldots, \O_n$.
-		We use $\textsf{topo}$ to denote an algorithm returning the vertices in $V(\G_p)$ in a fixed topological ordering. We use the notation $\O_{c(v)}$ for $c(v) = (i,j)$ to denote the oracle $j$ or the $i$'th candidate $\O_i$, i.e. $\O_i.\alg{Alg}{P,j}$.}
+		\caption{Definition of the robust black-box DAG combiner algorithm $\BBComb{P}[\O_1, \ldots, \O_n].\alg{Alg}{P}$ instantiated with candidates $\O_1, \ldots, \O_n$.
+		We use the notation $\O_{\ell(v)}$ for $\ell(v) = (i,j)$ to denote the oracle algorithm $j$ or the $i$-th candidate $\O_i$, i.e., $\smash{\O_i.\alg{Alg}{P}^j}$.}
 		\label{fig:dag_combiner}
 	\end{figure}
 \end{definition}
 
-By definition, a robust black-box DAG combiner corresponds to a robust black-box combiner.
-We also show that for every robust black-box combiner there exists a canonical robust black-box DAG combiner
-which is \textit{computationally equivalent} in the sense that the algorithms implemented 
-realize equivalent functions. We state this result in the following theorem, 
-which we will be using to lead our impossibility proofs over robust black-box DAG combiners instead of robust black-box combiners.\todo{computational equivalence more def?}
+By definition, every robust black-box DAG combiner is a robust black-box combiner.
+We also show that for every robust black-box combiner there exists a canonical robust black-box DAG combiner that is 
+\textit{computationally equivalent}, in the sense that the implemented algorithms realize equivalent functions. 
+We state this result formally in the following theorem, which allows us to conduct our impossibility proof for \Cref{thm:impossibility_21_comb}
+over robust black-box DAG combiners rather than robust black-box combiners. 
 
 \begin{restatable}[Robust $(n;k)$ Black-Box DAG Combiners]{theorem}{dagEquiv}\label{thm:generality_dag_comb}
-	For every robust $(n;k)$ black-box combiner in the sense of \Cref{def:robust_blackbox_combiner} there exists a computationally equivalent 
-	robust $(n;k)$ black-box DAG combiner in the sense of \Cref{def:robust_blackbox_dag_combiner}.
+	For every robust $(n;k)$ black-box combiner (\Cref{def:robust_blackbox_combiner}) there exists a computationally equivalent 
+	robust $(n;k)$ black-box DAG combiner (\Cref{def:robust_blackbox_dag_combiner}).
 \end{restatable}
 
 \paragraph{Intuition.}
 The idea behind the proof is to take an arbitrary robust $(n;k)$ black-box combiner $\BBComb{P}$
-and unroll its computation in a graph consisting of $T(n,\lambda)$ layers
-where each vertex on a layer $k$ is connected to all vertices of the preceding layers $i < k$. Each layer $k$ consisting of 
-$n|\prim{P}|$ vertices corresponding to the different oracles which can be queried as the $k$'th query.
-At every layer $k$ for every vertex the combiner then simulates the Turing machine of $\BBComb{P}$ until 
-the $k+1$'the oracle query. Since the Turing machine $f^v$ can however not make any oracle query itself 
-it relies on the previous connected vertices to obtain the answer to those oracle queries. 
-For the $i$'th query the Turing machine simply uses the output of the correct vertex on layer $i$
-to simulate the oracle query. Once we reach the $k$'th query and the query would be to oracle $\O_{(i,j)}$
-then we distinguish the case when we are at the correct vertex or not. If the current vertex satisfies 
-$c(v) = (i,j)$ then we simply return the query $\mathbf q_v$ resulting in the correct query being made,
-otherwise if $c(v) \neq (i,j)$ then we simply return an arbitrary query that meets the expected input format of 
-$\O_{c(v)}$. An important nuance is that we need to fix the random tape of the Turing machines $\rho$
-since otherwise between simulating the oracle queries at a later point the executions may diverge.\todo{maybe cover more explicitly}
+and unroll its computation into a graph consisting of $T(n,\lambda)$ layers, wheree each vertex on layer $k$ is connected 
+to all vertices of the preceding layers $i < k$. Each layer $k$ consists of $n|\prim{P}|$ vertices corresponding to the different oracles that 
+can be queried as the $k$-th query. At every layer $k$, for every vertex, the combiner simulates the Turing machine 
+of $\BBComb{P}$ until the $k$-th oracle query. Since the Turing machine $f^v$ cannot make any oracle queries itself, it relies on the preceeding connected 
+vertices to obtain the answer to those queries. For the $i$-th query, the Turing machine 
+simply uses the output of the correct vertex on layer $i$ to simulate the oracle query. 
+Once we reach the $k$-th query and we would make a query to oracle $\O_{(i,j)}$ then we distinguish two cases 
+depending on whether we are at the vertex $v$ with $\ell(v) = (i,j)$.
+
+If the current vertex satisfies $\ell(v) = (i,j)$, we return the query $\q_v$, resulting in the correct query being made.
+Otherwise, if $\ell(v) \neq (i,j)$, we return an arbitrary query that meets the expected input format of $\O_{\ell(v)}$.
+An important detail is that we must fix the random tape $\rho$ of the Turing machines $f^v$ for all $v \in V(\G) \setminus \{s\}$, 
+since otherwise the executions may diverge when simulating oracle queris at later points. To address this, we can simply treat the Turing machines 
+$f^v$ as deterministic with an additional input $\rho$ for the randomness. For notational simplicity, we leave this implicit in what follows.
+
+\paragraph{Formal Treatment.}
 
 \begin{proof}[\Cref{thm:generality_dag_comb}]
 	Let $\BBComb{P}$ be a fixed robust $(n;k)$ black-box combiner for primitive $\prim{P}$
@@ -119,8 +122,6 @@ since otherwise between simulating the oracle queries at a later point the execu
 	specified by $(\G_{\alg{Alg}{P}}, s_{\alg{Alg}{P}}, t_{\alg{Alg}{P}}, \ell_{\alg{Alg}{P}}, \{f_{\alg{Alg}{P}}^v\}_{v \in V(\G_{\alg{Alg}{P}})})$ 
 	is computationally equivalent to $\BBComb{P}.\alg{Alg}{P}$ and runs in time polynomial in $\lambda, n$.
 	We first show that the algorithm is computationally equivalent, for that consider the following claim.
-
-\newpage
 
 	\begin{claim}\label{claim:correctness_dag_comb}
 		Let $\BBComb{P}$ be a robust $(n;k)$ black-box combiner for primitive in the sense of \Cref{def:robust_blackbox_combiner}
