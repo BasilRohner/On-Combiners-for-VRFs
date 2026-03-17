@@ -146,12 +146,13 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 		is equal to the output at the correct vertex on layer $d$ of $\DAGComb{P}[\O_1, \ldots, \O_n]$.
 		We proceed by strong induction over $d$:
 
-		\textit{Base case}: If $d = 1$, the robust black-box DAG combiner $\DAGComb{P}[\O_1, \ldots, \O_n]$
-			simulates $\smash{\BBComb{P}[\O_1, \ldots, \O_n]}$ until the first oracle qurey and then makes the same query to the same oracle at the correct vertex.
-			Under the coupled randomness, the oracle responses are identical, so the base case holds.
+		\textit{Base case}: Let $d = 1$. The robust black-box DAG combiner $\DAGComb{P}[\O_1, \ldots, \O_n]$
+			simulates $\smash{\BBComb{P}[\O_1, \ldots, \O_n]}$ until it reaches the first oracle query. Subsequently, it
+			makes the same query $\q_v$ to the same oracle $\O_{\ell(v)}$ at the correct vertex $v$.
+			Under the coupled randomness, the oracle responses are identical.
 
-		\textit{Inductive step}: Assume that for all $d' < d$, the output at the correct vertex on layer 
-		$d'$ equals the output of the $d'$-th oracle query in $\BBComb{P}[\O_1, \ldots, \O_n]$.
+		\textit{Inductive step}: Assume that for all $d' < d$ the output of the correct vertex on layer 
+		$d'$ is identical to the output of the $d'$-th oracle query in $\BBComb{P}[\O_1, \ldots, \O_n]$.
 		Let $v$ be the correct vertex in layer $d$. The Turing machine $f^v$ simulates $\BBComb{P}.\alg{Alg}{P}$
 		using the outputs of correct vertices on preceding layers to answer oracle queries. 
 		By the induction hypothesis, these outputs match those of $\BBComb{P}[\O_1, \ldots, \O_n]$
@@ -167,24 +168,28 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 	\end{claim}
 
 	\begin{proof}[\Cref{claim:time_dag_comb}]
-		By construction, the DAG $\G$ has $2 + n|\prim{P}|Q(n,\lambda) \in \poly[n, \lambda]$ vertices (where we assume that $\prim{P}$ is constant).
-		At each vertex $v \in V(\G)$, the Turing machine $f^v$ simulates $\BBComb{P}.\alg{Alg}{P}$, 
-		where every oracle query is answered with a constant-time lookup of predecessor outputs except for the last query 
-		which is answered in constant-time by a query to the corresponding candidate oracle.
-		The runtime of the simulation of $\BBComb{P}.\alg{Alg}{P}$ is bounded from above by a polynomial $T(n,\lambda) \in \poly[n,\lambda]$ since $\BBComb{P}$ is a robust black-box combiner.
-		Hence the overall running time is bounded by
+		By construction, the DAG $\G$ has at most $2 + n \cdot |\prim{P}| \cdot Q(n,\lambda)$ vertices.
+		Where $Q(n,\lambda)$ is a polynomial upper bound on the number of queries of $\BBComb{P}.\alg{Alg}{P}$ and 
+		where we assume that $\prim{P}$ is constant.
+		For every vertex $v \in V(\G)$, the Turing machine $f^v$ simulates $\BBComb{P}.\alg{Alg}{P}$.
+		In this simulation every oracle query except the last one is answered with a constant-time lookup of the query response 
+		in the predecessor outputs. The last query is made to a candidate oracle, also in constant-time.
+		Thus, the computation done at each vertex is therefore bounded by $T(n,\lambda)$, where $T$
+		is a polynomial bounding the runtime of $\BBComb{P}.\alg{Alg}{P}$ from above.
+		The overall running time is bounded by the following expression.
 		\[
-			|V(\G_{\alg{Alg}{P}})| T(\lambda, n) \in \poly[\lambda, n]
+			\bigl(2 + n\cdot|\prim{P}| \cdot Q(n,\lambda)\bigr) \cdot T(\lambda, n) \in \poly[\lambda, n]
 		\]
 	\end{proof}
 
-	It remains to show that $\DAGComb{P}$ is indeed a robust $(n;k)$ black-box combiner.
-	By \Cref{claim:correctness_dag_comb} the algorithms implemented by $\BBComb{\prim{P}}[\O_1, \ldots, \O_n]$
-	and $\BBComb{P}[\O_1, \ldots, \O_n]$ are equivalent. In particular, any adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$
+	It remains to show that $\DAGComb{P}$ is a robust $(n;k)$ black-box combiner.
+	By \Cref{claim:correctness_dag_comb}, the algorithms implemented by $\BBComb{\prim{P}}[\O_1, \ldots, \O_n]$
+	and $\BBComb{P}[\O_1, \ldots, \O_n]$ have equivalent output distributions. In particular, any adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$
 	against $\DAGComb{P}[\O_1, \ldots, \O_n]$ is also an adversary against $\BBComb{P}[\O_1, \ldots, \O_n]$
-	with the same advantage. By \Cref{def:robust_blackbox_combiner} this means that there exist
-	$n-k+1$ ppt. adversaries $\smash{\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
-	and an injective function $\ell: [n-k+1] \to [n]$ such that for any $i \in [n-k+1]$ the adversary $\smash{\B_i^{\O_{\ell(i)}}}$ breaks the security of the candidate $\O_{\ell(i)}$.
+	with the same advantage. 
+	Since $\BBComb{P}$ is a robust black-box combiner, by \Cref{def:robust_blackbox_combiner},
+	there exist $n-k+1$ ppt. adversaries ${\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
+	and an injective function $\ell: [n-k+1] \to [n]$ such that for any $i \in [n-k+1]$ the adversary ${\B_i^{\O_{\ell(i)}}}$ breaks the security of the candidate $\O_{\ell(i)}$.
 	Hence $\DAGComb{P}$ is a robust $(n;k)$ black-box combiner.
 \end{proof}
 
