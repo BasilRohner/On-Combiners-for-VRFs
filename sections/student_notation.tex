@@ -9,21 +9,22 @@ in the sense of \Cref{def:polynomial} and $\negl$ to denote the set of functions
 negligible in $\lambda$ in the sense of \Cref{def:negligible}.
 We call a function $f$ \textit{overwhelming} if $1 - f(\lambda) \in \negl$.
 We use $\gets$ for simple assignment.
-For a set $S$ we write $s \sample S$ to indicate that the value $s$ is sampled uniformly at random from 
-set $S$ and for a probabilistic algorithm $\A$ we write $y \sample \A(x)$ to denote assigning to 
-$y$ the output of $\A$ on input $x$. We use ppt. to abbreviate probabilistic polynomial time in the context of 
-Turing machines. Finally, we use bold letters, e.g. $\x$, to indicate that $\x$ consists of multiple values such as tuples or vectors\todo{maybe change}.
+For a set $S$, we write $s \sample S$ to indicate that $s$ is sampled uniformly at random (u.a.r.) from 
+set $S$. For a probabilistic algorithm $\A$, we write $y \sample \A(x)$ to denote assigning to 
+$y$ the output of $\A$ on input $x$. We use ppt. to abbreviate \textit{probabilistic polynomial time} in the context of 
+Turing machines. Finally, we use bold letters (e.g. $\x$) to indicate that a symbol represents 
+multiple values, such as tuples or vectors.
 
 \begin{definition}[Polynomial Functions]\label{def:polynomial}
-	We say that a function $p: \N \to \R$ is polynomial if the folowing holds
+	A function $p: \N \to \R$ is polynomial if
 
 	\[
-		\exists d \in \N, \exists n_0 \in \N, \forall n > n_0, p(n) \le n^d
+		\exists c,d \in \N, \exists n_0 \in \N, \forall n > n_0, p(n) \le c \cdot n^d
 	\]
 \end{definition}
 
 \begin{definition}[Negligible Functions]\label{def:negligible}
-	We say that a function $\eps: \N \to \R$ is negligible if the following holds
+	A function $\eps: \N \to \R$ is negligible if
 
 	\[
 		\forall p \in \poly, \exists n_0 \in \N, \forall n > n_0, |\eps(n)| < \frac{1}{p(n)}
@@ -34,151 +35,110 @@ Turing machines. Finally, we use bold letters, e.g. $\x$, to indicate that $\x$ 
 
 \section{Verifiable Functions}
 A verifiable function (VF) $\prim{VF}$ is a cryptographic primitive that implements algorithms 
-$\alg{Gen}{VF}, \alg{Eval}{VF}$ and $\alg{Vfy}{VF}$. A user can generate key-pairs $(\sk, \pk)$
-using $\alg{Gen}{VF}$ consisting of a secret key $\sk$ and a public key $\pk$, use the secret key $\sk$
-to make evaluate arbitrary points $x \in \bin^\lambda$ using $\alg{Eval}{VRF}$ and use the public key $\pk$ to 
+$\alg{Gen}{VF}, \alg{Eval}{VF}$ and $\alg{Vfy}{VF}$. A user can generate a key pair $(\sk, \pk)$
+using $\alg{Gen}{VF}$, consisting of a secret key $\sk$ and a public key $\pk$. Subsequently, the user can use the secret key $\sk$
+to evaluate arbitrary points $x \in \bin^\lambda$ using $\alg{Eval}{VRF}$ and use the public key $\pk$ to 
 verify a triple $(x,y,\pi)$ using $\alg{Vfy}{VRF}$.
-We give a formal definition in \Cref{def:vf}, the definition takes inspiration of the definition of a 
-VRF in \cite{}. To reduce redundancy we define additional security properties 
+We give a formal definition in \Cref{def:vf}. The definition is heavily inspired by the definition of a VRF in 
+\cite{TCC:HofJag16}. To reduce redundancy, we define additional security properties 
 such as pseudorandomness and unpredictability seperately.
 
 \begin{definition}[Verifiable Function]\label{def:vf}
 	A verifiable function (VF) $\prim{VF}$ is a triple of efficient (ppt.) algorithms
-	$\Paren{\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF}}$ with the syntax\todo{this is less elegant now}
+	$\Paren{\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF}}$ with the syntax:
 
 	\begin{itemize}
-		\item $\alg{Gen}{VF}$: The key-generation algorithm takes as input the unary encoding of the security parameter
-			and produces a pair $(\sk, \pk) \in \SK \times \PK$ containing a secret and a public key respectivley.
-		\item $\alg{Eval}{VF}$: The evaluation algorithm takes as input a tuple $(\sk, x)$ containing a secret key $\sk \in \SK$ and an evaluation point $x \in \bin^\lambda$
-			and produces an tuple $(y, \pi)$ containing an image $y \in \Y$ and a proof $\pi \in \P$. 
-		\item $\alg{Vfy}{VF}$: The verification algorithm takes as input a tuple $(\pk, x, y, \pi)$ containing a public key $\pk \in \PK$, an evaluation
-			point $x \in \bin^\lambda$, an image $y \in \Y$ and a proof $\pi \in \P$ and returns a bit $b$ denoting acceptance or rejection.
+		\item $\alg{Gen}{VF}$: The key generation algorithm takes as input the unary encoding of the security parameter
+			and produces a pair $(\sk, \pk) \in \SK \times \PK$ consisting of a a secret key and a public key.
+		\item $\alg{Eval}{VF}$: The evaluation algorithm takes as input a secret key $\sk \in \SK$ and an evaluation point $x \in \bin^\lambda$
+			and outputs a pair $(y,\pi)$ consisting of an image $y \in \Y$ and a proof $\pi \in \P$.
+		\item $\alg{Vfy}{VF}$: The verification algorithm takes as input a public key $\pk \in \PK$,
+			an evaluation point $x \in \bin^\lambda$, an image $y \in \Y$ and a proof $\pi \in \P$ and returns a bit $b$ indicating 
+			acceptance or rejection.
 	\end{itemize}
 \end{definition}
 
-\todo{can evaluation or verification be randomized, probably vfy can be probabilistic}
 We use the notation $\alg{Eval}{VF}^y$ and $\alg{Eval}{VF}^\pi$ to denote the 
-algorithm $\alg{Eval}{VF}$ to projected on the respective output.
-Note that a VF is a purely syntactical concept. For a VF we define various properties to arrive to arrive 
-at specific cryptographic primitives, e.g. VRFs. First of all we define $\err$-correctness, 
-a property that guarantes that over random key-pairs and evaluation points, the 
-verification algorithm accepts a correctly computed image-proof pair with probability at least $\err$.
+algorithm $\alg{Eval}{VF}$ projected on the respective output component.
+Note that a VF is a purely syntactic concept. 
+We define various semantic properties for a VF to arrive at specific cryptographic primitives, e.g. VRFs.
+First, we define $\err$-correctness, a property that guarantees that over random key pairs 
+and evaluation points, the verification algorithm 
+accepts a correctly computed image-proof pair with probability at least $\err$.
 
-
-\begin{definition}[$\err$-Correctness, \cite{}]\label{def:correctness}
+\begin{definition}[$\err$-Correctness]\label{def:correctness}
 	A verifiable function $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is 
-	$\err$-correct, if for all security parameters $\lambda \in \N$ we have that
+	$\err$-correct if for all security parameters $\lambda \in \N$ we have
 
 	\[
 		\Prob*{
-			\alg{Vfy}{VF}(\pk, x, y, \pi) = 1 : 
 			\begin{aligned}
 				(\sk, \pk) &\sample \alg{Gen}{VF}(1^\lambda)\\ 
 				x &\sample \bin^\lambda\\
 				(y, \pi) &\gets \alg{Eval}{VF}(\sk, x)
-			\end{aligned}
+			\end{aligned} :
+			\alg{Vfy}{VF}(\pk, x, y, \pi) = 1 
 		} \ge \err(\lambda)
 	\]
 
-	We define a VF $\prim{VF}$ to be perfectly correct, or just correct, if it is $1$-correct and statistically correct if 
-	$\err$ is an overwhelming function.
+	We say a VF $\prim{VF}$ is perfectly correct, or simply correct, if it is $1$-correct, and statistically correct if $\err$
+	is an overwhelming function.
 \end{definition}
 
-Intuitively a correct VF states that honestly generated image-proof pairs are accepted by the 
-verification algorithm. Next we define unique provability. A VF is uniquely provable if 
-not more than one image can be proven, even for maliciously crafted public keys.
+\newpage
 
-\begin{definition}[Unique Provability, \cite{}]\label{def:unique_provability}
-	A verifiable function $\prim{VF}$, with algorithms $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$,
-	is defined to be uniquely provable if for all evaluation points $x \in \bin^\lambda$, all public-keys $\pk \in \PK$
-	and any two images-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$ we have:
+Next, we define unique provability. A VF is uniquely provable if no more than one image can be proven for any input.
 
+\begin{definition}[Unique Provability, \cite{EPRINT:Brandt25}]\label{def:unique_provability}
+	A VF $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$
+	is uniquely provable if for all evaluation points $x \in \bin^\lambda$, all public-keys $\pk \in \PK$
+	and any two images-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$, we have
 	\[
 		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_1, \pi_1) = 1 \implies y_0 = y_1
 	\]
 \end{definition}
 
-\begin{comment}
-\begin{definition}[$\err$-Unique Provability]\label{def:unique_provability}
-	A verifiable function $\prim{VF}$, with algorithms $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$,
-	defined to be $\err$-uniquely provable if over 
-	the randomness of the key generation algorithm and for all evaluation points $x \in \bin^\lambda$, the probability of there existing $(y_0, \pi_0), (y_1, \pi_1) \in \Y \times \P$
-	with $y_0 \neq y_1$ such that both verify is at most $\err$, i.e. if
-	\[
-		\Prob*{
-			\begin{aligned}
-				&\exists (y_0, \pi_0), (y_1, \pi_1) \in \Y \times \P, y_0 \neq y_1 \\
-				&\land \alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1\\ 
-				&\land \alg{Vfy}{VF}(\pk, x, y_1, \pi_1) = 1
-			\end{aligned}
-			:
-			\begin{aligned}
-				x  &\in \bin^\lambda\\ 
-				(\sk, \pk) &\sample \alg{Gen}{VRF}(1^\lambda)
-			\end{aligned} 
-		} \le \err
-	\]
-	key-pairs sampled according to the key generation algokorithm 
-	the  for all evaluation points $x \in \bin^\lambda$, a public-keys $\pk \in \PK$
-	(even maliciously crafted ones) and any two images-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$:
+We define pseudorandomness of a VVF, a computational property stating that no efficient adversary 
+$\A$ can distinguish an image $y$ corresponding to the evaluation of an input $x^*$, chosen by $\A$,
+from a uniformly random element $y \sample \Y$. This must hold even if the adversary is given evaluations at polynomially many points $x \neq x^*$.
+The definition is inspired by \cite{EPRINT:Brandt25}.
 
-	\[
-		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \implies y_0 = y_1
-	\]
-\end{definition}
-\end{comment}
-
-\todo{maybe comment why no statistical notion}
-
-Correctness and unique provability are information theoretic. We define pseudorandomness of a VF
-which is a computational property, stating that no efficient adversary $\A$ can distinguish images $y$ 
-corresponding to evaluation of $x$, chosen by $\A$, from a uniformly random output $y^* \sample \Y$.
-This needs to hold even if the adversary gets to see the evaluation of a polynoial number of points $x \neq x^*$.
-
-\begin{definition}[$\errtime$-Pseudorandomness, \cite{}]\label{def:pseudorandomness}
-	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is defined to be $\errtime$-pseudorandom if for all security parameters $\lambda \in \N$, 
-	for all stateful adversaries $\A$, running in time at most $\runtime(\lambda)$, the advantage of $\A$ in the prf security experiment outlined in \Cref{fig:prf_wprf_up_experiment} 
-	is at most $\err(\lambda)$, i.e. if 
-
+\begin{definition}[$\errtime$-Pseudorandomness]\label{def:pseudorandomness}
+	A VF $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is $\errtime$-pseudorandom if for all security parameters $\lambda \in \N$
+	and all adversaries $\A = (\A_1, \A_2)$ running in time at most $\runtime(\lambda)$, the advantage of $\A$
+	in the pseudorandomness security experiment in \Cref{fig:prf_wprf_up_experiment} is at most $\err(\lambda)$, i.e.
 	\[
 		\Adv{VF}{prf}{\lambda, \A} := 2 \cdot \abs*{\Prob*{\Exp{VF}{prf}(\lambda, \A) = 1} - \frac{1}{2}} \le \err(\lambda)
 	\]
-
-	We say that a VF is pseudorandom, if it is $\errtime$-pseudorandom with $\err$ being a negligible function and $\runtime$ being a polynomial, i.e. $\err \in \negl, \runtime \in \poly$.
+	We say that a verifiable function $\prim{VF}$ is pseudorandom if it is $\errtime$-pseudorandom with $\err \in \negl$ and $\runtime \in \poly$.
 \end{definition}
 
-Next we define two weaker notions of pseudorandomness. While (strong) pseudorandomness required the evaluation of adverserially chosen points 
-to be indistinguishable from uniformly random elements $y^* \in \Y$ we can relax this requirement by requiring computational indistinguishability
-for uniformly random challenges $x^* \sample \bin^\lambda$. We call this notion weak pseudorandomness.
+Next, we define two weaker notions of pseudorandomness. While (strong) pseudorandomness requires the evaluation at adversarially chosen points to be indistinguishable 
+from uniformly random elements of $\Y$, weak pseudorandomness relaxes this by requiring indistinguishability only for uniformly random challenges $x^* \sample \bin^\lambda$.
 
-\begin{definition}[$\errtime$-Weak Pseudorandomness, \cite{}]\label{def:weak_pseudorandomness}
-	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is defined to be $\errtime$-weakly pseudorandom if for all security parameters $\lambda \in \N$, 
-	for all stateful adversaries $\A$, running in time at most $\runtime(\lambda)$, the advantage of $\A$ in the wprf security experiment outlined in \Cref{fig:prf_wprf_up_experiment} 
-	is at most $\err(\lambda)$, i.e. if 
-
+\begin{definition}[$\errtime$-Weak Pseudorandomness]\label{def:weak_pseudorandomness}
+	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is $\errtime$-weak pseudorandom if for all security parameters $\lambda \in \N$
+	and all adversaries $\A = (\A_1, \A_2)$ running in time at most $\runtime(\lambda)$, the advantage of $\A$
+	in the weak pseudorandomness security experiment in \Cref{fig:prf_wprf_up_experiment} is at most $\err(\lambda)$, i.e.
 	\[
 		\Adv{VF}{wprf}{\lambda, \A} := 2 \cdot \abs*{\Prob*{\Exp{VF}{wprf}(\lambda, \A) = 1} - \frac{1}{2}} \le \err(\lambda)
 	\]
-
-	We say that a VF is weakly pseudorandom, if it is $\errtime$-weakly pseudorandom with $\err$ being a negligible function and $\runtime$ being a polynomial, i.e. $\err \in \negl, \runtime \in \poly$.
+	We say that a verifiable function $\prim{VF}$ is weak pseudorandom if it is $\errtime$-weak pseudorandom with $\err \in \negl$ and $\runtime \in \poly$.
 \end{definition}
 
-Alternatively a VF can be unpredictable. A VF is unpredictable if no adversary 
-can predict the image $y$ of the evaluation of a challenge $x$ chosen by the adversary.
-This property needs to hold even if the adversary sees the evaluation of a polynomial number of points $x \neq x^*$.
-Note that if the adversary can predict the output of evaluation on $x^*$ he can also distinguish the output from a random output $y^* \sample \bin$
-with non-negligible probability making unpredictability is a weaker property than pseudorandomness.
+Alternatively, a VF can be unpredictable. A VF is unpredictable if no adversary can predict the image $y$ of the evaluation at a challenge $x^*$
+chosen by the adversary. This must hold even if the adversary sees evaluations at polynomially many points $x \neq x^*$.
+Note that if an adversary can predict the output at $x^*$, it can also distinguish the output from a random element $y \sample \Y$
+with non-negligible probability, making unpredictability a weaker property than pseudorandomness.
 
-\begin{definition}[$(\eps, t)$-Unpredictability, \cite{}]\label{def:unpredictability}
-	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is defined to be $\errtime$-unpredictable if for all security parameters $\lambda \in \N$, 
-	for all stateful adversaries $\A$, running in time at most $\runtime(\lambda)$, the advantage of $\A$ in the up security experiment outlined in \Cref{fig:prf_wprf_up_experiment} 
-	is at most $\err(\lambda)$, i.e. if 
-
+\begin{definition}[$(\eps, t)$-Unpredictability]\label{def:unpredictability}
+	A VF $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is $\errtime$-unpredictable if for all security parameters $\lambda \in \N$, 
+	for all adversaries $\A$ running in time at most $\runtime(\lambda)$, the advantage of $\A$
+	in the unpredictability security experiment in \Cref{fig:prf_wprf_up_experiment} is at most $\err(\lambda)$, i.e.
 	\[
 		\Adv{VF}{up}{\lambda, \A} := 2 \cdot \abs*{\Prob*{\Exp{VF}{up}(\lambda, \A) = 1} - \frac{1}{2}} \le \err(\lambda)
 	\]
-
-	We say that a VF is unpredictable, if it is $\errtime$-unpredictable with $\err$ being a negligible function and $\runtime$ being a polynomial, i.e. $\err \in \negl, \runtime \in \poly$.
+	We say that a verifiable function $\prim{VF}$ is unpredictable if it is $\errtime$-unpredictable with $\err \in \negl$ and $\runtime \in \poly$.
 \end{definition}
 
 \begin{figure}[htbp]
@@ -190,10 +150,10 @@ with non-negligible probability making unpredictability is a weaker property tha
 			b \sample \bin\\ 
 			(\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
 			S \gets \varnothing\\ 
-			\highlight{(x^*, \sigma) \sample \mathcal A^{\O_{\text{eval}}}(1^\lambda, \pk)}\\ 
+			\highlight{(x^*, \sigma) \sample \A_1^{\O_{\text{eval}}}(1^\lambda, \pk)}\\ 
 			(y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
 			y_1 \sample \Y\\ 
-			b' \sample \A(1^\lambda, x^*, \sigma, y_b) \\ 
+			b' \sample \A_2(1^\lambda, x^*, \sigma, y_b) \\ 
 			\pcreturn b = b' \land x^* \notin S
 		}
 		\procedure[linenumbering]%
@@ -202,11 +162,11 @@ with non-negligible probability making unpredictability is a weaker property tha
 			b \sample \bin\\ 
 			(\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
 			S \gets \varnothing\\ 
-			\sigma \sample \A^{\O_{\text{eval}}}(1^\lambda, \pk)\\ 
+			\sigma \sample \A_1^{\O_{\text{eval}}}(1^\lambda, \pk)\\ 
 			\highlight{x^* \sample \bin^\lambda}\\ 
 			(y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
 			y_1 \sample \Y\\ 
-			b' \sample \A^{\O_{\text{eval}}}(1^\lambda, x^*, \sigma, y_b) \\ 
+			b' \sample \A_2^{\O_{\text{eval}}}(1^\lambda, x^*, \sigma, y_b) \\ 
 			\pcreturn b = b' \land x^* \notin S
 		}
 	\end{pchstack}
@@ -229,237 +189,69 @@ with non-negligible probability making unpredictability is a weaker property tha
 		}
 	\end{pchstack}
 	\end{pcvstack}
-	\caption{The pseudorandomness security experiment $\Exp{VF}{prf}(\lambda, \A)$ used in \Cref{def:pseudorandomness}, 
-	the weak pseudorandomness security experiment $\smash{\Exp{VF}{wprf}(\lambda, \A)}$ used in \Cref{def:weak_pseudorandomness} and
-	the unpredictability security experiment $\Exp{VF}{up}(\lambda, \A)$ used in \Cref{def:unpredictability}.
-	The main changes between the pseudorandomness security experiment and the weak pseudorandomness 
+	\caption{The pseudorandomness security experiment $\Exp{VF}{prf}(\lambda, \A)$ from \Cref{def:pseudorandomness}, 
+	the weak pseudorandomness security experiment $\smash{\Exp{VF}{wprf}(\lambda, \A)}$ from \Cref{def:weak_pseudorandomness} and
+	the unpredictability security experiment $\Exp{VF}{up}(\lambda, \A)$ from \Cref{def:unpredictability}.
+	The oracle $\O_{\text{eval}}$ allows the adversary to evaluate arbitrary points $x \in \bin^*$
+	under the hidden secret key $\sk$.
+	Differences between the pseudorandomness security experiment and the weak pseudorandomness 
 	security experiment are highlighted in grey.}
 	\label{fig:prf_wprf_up_experiment}
 \end{figure}
 
-We now define the notions of a verifiable random function (VRF), verifiable unpredictable function (VUF)
-and weak verifiable random function (WVRF), which are correct, uniquely provable and 
-pseudorandom, unpredictable and weakly pseudorandom VFs respectivly.
-We formally define the primitives.
+We now define verifiable random functions (VRFs), weak verifiable random functions (WVRFs)
+and verifiable unpredictable functions (VUFs). These are VFs that are correct, uniquely provable and pseudorandom, 
+weak pseudorandom or unpredictable respectively.
 
 \begin{definition}[Verifiable Random Functions]\label{def:vrf}
 	A verifiable random function $\prim{VRF} = (\alg{Gen}{VRF}, \alg{Eval}{VRF}, \alg{Vfy}{VRF})$ is a VF that satisfies 
-	perfect correctness in the sense of \Cref{def:correctness}, unique provability in the sense of \Cref{def:unique_provability} and pseudorandomness
-	in the sense of \Cref{def:pseudorandomness}.
+	perfect correctness (\Cref{def:correctness}), unique provability (\Cref{def:unique_provability}) and pseudorandomness (\Cref{def:pseudorandomness}).
 \end{definition}
 
 \begin{definition}[Weak Verifiable Random Functions]\label{def:wvrf}
-	A weak verifiable unpredictable function $\prim{WVRF} = (\alg{Gen}{WVRF}, \alg{Eval}{WVRF}, \alg{Vfy}{WVRF})$ is a VF that satisfies 
-	perfect correctness in the sense of \Cref{def:correctness}, unique provability in the sense of \Cref{def:unique_provability} and weak pseudorandomness
-	in the sense of \Cref{def:weak_pseudorandomness}.
+	A weak verifiable random function $\prim{WVRF} = (\alg{Gen}{WVRF}, \alg{Eval}{WVRF}, \alg{Vfy}{WVRF})$ is a VF that satisfies 
+	perfect correctness (\Cref{def:correctness}), unique provability (\Cref{def:unique_provability}) and weak pseudorandomness (\Cref{def:weak_pseudorandomness}).
 \end{definition}
 
 \begin{definition}[Verifiable Unpredictable Functions]\label{def:vuf}
 	A verifiable unpredictable function $\prim{VUF} = (\alg{Gen}{VUF}, \alg{Eval}{VUF}, \alg{Vfy}{VUF})$ is a VF that satisfies 
-	perfect correctness in the sense of \Cref{def:correctness}, unique provability in the sense of \Cref{def:unique_provability} and unpredictability
-	in the sense of \Cref{def:unpredictability}.
+	perfect correctness (\Cref{def:correctness}), unique provability (\Cref{def:unique_provability}) and unpredictability (\Cref{def:unpredictability}).
 \end{definition}
-
-\begin{comment}
-Unbiasability, following the definition of \cite{EC:GiuSte24}, is a property for VRFs that 
-prevents adversaries from skewing the output distribution of the evaluation function on malleable keys. 
-To formally definine unbiasability we require the notion of monotone predicates.
-
-\begin{definition}[Monotone Predicates \cite{}]
-
-	A probabilistic predicate $\rho$ on the domain $(\Y \cup \{\bot\})^*$ is monotone, iff 
-	for all $y \in \Y^*$, all index sets $I \subseteq [|y|]$ and every bitstring of randomness $r \in \bin^\lambda$ we have
-
-	\[
-		\Prob*{\rho(\tilde y; r) = 1} \le \Prob*{\rho(y; r) = 1}
-	\]
-
-	where $\tilde y_i = y_i$ if $i \notin I$ and $\tilde y_i = \bot$ otherwise.
-\end{definition}
-
-\begin{definition}[Unbiasability \cite{}]
-	A VRF $\prim{VRF}$ is (fully) $\errtimelen$-unbiasable if for every stateful adversary $\A$ running in time 
-	at most $\runtime$ its advantage in the unbiasability security experiment in \Cref{fig:fub_experiment} is bounded by 
-
-	\[
-		\Adv{VRF}{fub}{\lambda, \A} := 2\cdot \Prob*{\Exp{VRF}{fub}(\lambda, \mathfrak{a}, \mathfrak{b}, \A) = 1} - 1 \le \err(\lambda)
-	\]
-
-	We say that a VRF is unbiasable if it is $\errtimelen$-unbiasable and $\err$ is a negligible function in the 
-	security parameter $\lambda$, i.e. $\err \in \negl$.
-\end{definition}
-
-\begin{figure}[hptb]
-	\begin{pchstack}[center, space=1em]
-		\procedure[linenumbering]%
-		{Experiment $\Exp{VF}{fub}(\lambda, \A)$}
-		{
-			b \sample \bin\\ 
-			(\rho, \pk_1, \ldots, \pk_{\mathfrak{a}(\lambda)}) \sample \A(1^\lambda)\\ 
-			\textbf{require }\rho \text{ is monotone}\\ 
-			x_1, \ldots, x_{\mathfrak{b}(\lambda)} \sample \bin^\lambda\\ 
-			(y_{1,1}^0, \pi_{1,1}^0), \ldots, (y_{\mathfrak{a}(\lambda), \mathfrak{b}(\lambda)}^0, \pi_{\mathfrak{a}(\lambda), \mathfrak{b}(\lambda)}^0) \sample \A(x_1, \ldots, x_{\mathfrak{b}(\lambda)})\\ 
-			\pcfor i \in [\mathfrak{a}(\lambda)], j \in [\mathfrak{b}(\lambda)] \pcdo\\ 
-			\t \beta_{i,j} \gets \alg{Vfy}{VRF}(\pk_i, x_j, y_{i,j}^0, \pi_{i,j}^0)\\ 
-			\t \pcif \beta_{i,j} = 1 \pcthen\\ 
-			\t \t z_{i,j} \gets y_{i,j}^b\\ 
-			\t \pcelse z_{i,j} \gets \bot\\ 
-			r \gets \bin^\lambda\\ 
-			\pcreturn \rho(z_{1,1}, \ldots, z_{\mathfrak{a}(\lambda), \mathfrak{b}(\lambda)}, r) \neq b
-		}
-	\end{pchstack}
-	\caption{Full unbiasability security experiment.}
-	\label{fig:fub}
-\end{figure}
-
-Key-homomorphism of VF requires that the secret-key space and the product space of the image and proof space admit group structures $(\SK, \odot)$ and $(\Y \times \P, \otimes)$ respectively.
-Intuitively a VF is key-homomorphic if for every evaluation point $x \in \bin^\lambda$ the evaluation algorithm on $x$ implements a grouphomomorphism in the secret key.
-
-\begin{definition}[Key-Homomorphism]
-	A VF $\prim{VF}$ is key-homomorphic if for every evaluation point $x \in \bin^\lambda$, secret key $\sk_1, \sk_2 \in \SK$ we have 
-
-	\[
-		\alg{Eval}{VF}(\sk_1 \odot \sk_2, x) = \alg{Eval}{VF}(\sk_1, x) \otimes \alg{Eval}{VF}(\sk_2, x) 
-	\]
-\end{definition}
-
-We also refer to key-homomorphism as secret-key aggregability. To define public-key aggregability we first define
-the cryptoraphic primitive of an aggregable verifiable function (AggVF) that additionally implements algorithms to combine 
-image-proof pairs into a single image-proof pair aggregate.
-
-\begin{comment}
-Aggregatability \cite{} is a property on VRFs that wllows the aggregation of either secret-keys for 
-secret-key aggregatability or image-proof pairs for public-key aggregatability. Secret-key aggregatability, also called key-homomorphism, 
-requires the evaluation function to consitute a group homomorphism from a group structure on the secret key space $\SK$ 
-to a group structure on the output codomain $\Y$. We follow \cite{} and formally define key-homomorphism.
-
-\begin{definition}[Key-Homomorphism, \cite{}]
-	A VRF $\prim{VRF}$ is key homomorphic if $(\Y \times \P, \otimes), (\SK, \odot)$ are groups and for all secret keys $(\sk_0, \sk_1) \in \SK$
-	and all evaluation points $x \in \bin^\lambda$ we have 
-
-	\[
-		\alg{Eval}{VRF}(\sk_0, x) \otimes \alg{Eval}{VRF}(\sk_1, x) = \alg{Eval}{VRF}(\sk_0 \odot \sk_1, x)
-	\]
-\end{definition}
-
-For public-key aggregatability we first define the syntax for a aggregatable VF. That is a VF with two additional 
-algorithms, one for combining image-proof pairs into a single image-proof pair and one for verifying whether 
-an aggregate image-proof pair was computed correctly.
-
-\begin{definition}[Aggregatable Verifiable Functions]
-	An aggregatable VF $\prim{AggVF}$ is a VF with an additional tuple of deterministic polynomial-time algorithms 
-	with the following syntactic specification.
-
-	\begin{itemize}
-		\item $\alg{Agg}{AggVF}(x, \{\pk_i, y_i, \pi_i\}_{i \in [n]})$: The aggregation algorithm takes as input an evaluation point $x \in \bin^\lambda$,
-			and $n$ public keys $\pk_1, \ldots, \pk_n \in \PK$ and $n$ image-proof pairs $(y_1, \pi_1), \ldots, (y_n, \pi_n)$, and 
-			outputs an aggregate key $\widetilde \pk$ as well as an aggregate image-proof pair $(\widetilde y, \widetilde \pi)$.
-		\item $\alg{AggVfy}{AggVF}(\{\pk_i\}_{i \in [n]}, x, \widetilde y, \widetilde y)$: The aggregate verification algorithm 
-			takes as input $n$ public keys $\pk_1, \ldots, \pk_n \in \PK$, an evaluation point $x \in \bin^\lambda$, and an aggregate image-proof pair 
-			$(\widetilde y, \widetilde \pi)$ and outputs a bit $b \in \bin$ indicating acceptance or rejection.
-	\end{itemize}
-\end{definition}
-
-We define several properties for aggregatable verifiable functions (AggVF), following \cite{}.
-
-\begin{definition}[$\err$-Aggregate Correctness,]
-	An AggVF $\prim{AggVF}$ is $\err$-aggregate correct, if for all security parameters $\lambda \in \N$, key-pairs $(\sk_i, \pk_i) \sample \alg{Gen}{AggVF}(1^\lambda)$, 
-	and evaluation points $x \in \bin^\lambda$ we have 
-	
-	\[
-		\Prob*{
-			\begin{aligned}
-				(\widetilde{y}, \widetilde \pi) \sample \alg{Agg}{AggVF}(x, \{\pk_i, \alg{Eval}{AggVF}(\sk_i, x)\}_{i \in [n]})\\ 
-				\alg{AggVfy}{AggVF}(\{\pk_i\}_{i \in [n]}, x, \widetilde y, \widetilde \pi) = 1
-			\end{aligned}
-		} \ge \err(\lambda)
-	\]
-\end{definition}
-	
-\begin{definition}[Aggregate Pseudorandomness]
-	
-\end{definition}
-
-\begin{definition}[Aggregate Binding]
-	
-\end{definition}
-
-\begin{definition}[Aggregate Uniqueness]
-	
-\end{definition}
-\end{comment}
 
 \newpage
 
 \section{Robust Combiners}
-For two natural numbers $n,k$ we define the robust $(n;k)$ black-box combiner, or robust black-box combiner for short.
-A robust $(n;k)$ black-box combiner for a primitive $\prim{P}$ is a construction $\BBComb{P}$, to be precise a ppt. oracle Turing machine,
-that is given query access to $n$ oracles, the candidate schemes $\O_1, \ldots, \O_n$. If at least $k$ candidate schemes implement 
-the primitive $\prim{P}$, then the combiner $\BBComb{P}[\O_1, \ldots, \O_n]$ securely implements $\prim{P}$.
-The idea behind a robust black-box combiner is that the construction extracts the security properties from the subset of 
-correct candidates, even if some candidate schemes are not secure instances. However now note the following problem in the 
-current definition:
+For two natural numbers $n,k$ we define the robust $(n;k)$ black-box combiner.
+A robust $(n;k)$ black-box combiner for a primitive $\prim{P}$ is a construction $\BBComb{P}$,
+modeled by a ppt. oracle Turing machine, that is given access to $n$ oracles, the candidate schemes $\O_1, \ldots, \O_n$.
+If at least $k$ candidate schemes securely implement the primitive $\prim{P}$, then the combiner $\BBComb{P}[\O_1, \ldots, \O_n]$
+also implements a secure instance of $\prim{P}$.
 
-If there exists a secure instance of $\prim{P}$ there always exists robust $(n;0)$ black-box combiner that simply 
-ignores its candidates and implements $\prim{P}$. This robust black-box combiner meets all the requirements of the definition.
-Showing that there exists no specific robust black-box combiner therefore requires to show that no secure instance 
-of the primitive $\prim{P}$ exists, which is often a difficult complexity theoretic statement.
+The intuition behind a robust black-box combiner is that the construction extracts security properties from the 
+subset of escure candidates, even if some candidate schemes are insecure. However, note the following issue with this definition:
+if there exists a secure instance of $\prim{P}$, then the combiner $\BBComb{P}[\O_1, \ldots, \O_n]$, then there always 
+exists a robust $(n;0)$ black-box P-combiner that simply ignores its candidates and implements $\prim{P}$ directly.
+Note that such a combiner trivially meets all requirements of the definition.
+Proving that there exists no robust black-box combiner would therefore require showing that no secure instance of 
+$\prim{P}$ exists. 
 
-To circumvent this problem we want to explicitly force the combiner to derive its security from the 
-subset of secure candidate schemes. To do this, we require the security properties of the combiner to hold 
-relative to a PSPACE complete oracle. Firstly we want to note that this means that the adversary against the 
-combiner can efficiently check whether an element is a member of a PSPACE complete language, enabling the adversary 
-to generally break computational hardness assumptions but limiting the adversary still to a polynomial number of 
-oracle queries. Secondly we want to note that this notion of a combiner still doesnt solve the issue 
-if the security of the cryptographic primitive are \textit{all} information theoretic.
+To circumvent this problem, we explicitly force the combiner to derive its security 
+from the subset of secure candidates. We achieve this, at least for computational security notions, by requiring the security properties 
+to hold relative to a PSPACE-complete oracle. This means that an adversary against the combiner can efficiently decide membership in a PSPACE-complete language,
+enabling the adversary to break computational hardness assumptions while still being limited to polynomially many oracle queries. 
+We note that this notion of a combiner does not resolve the issue when all security properties of the cryptographic primitive are information theoretic.
 
-\begin{comment}
-Given a cryptographic primitive $\prim{P}$ we define a robust $(n;k)$ $\prim{P}$-combiner
-
-\begin{definition}[Robust $(n;k)$ $\prim{P}$-combiner]
-	Given a cryptographic primitive $\prim{P}$ describing $p$ algorithms $({\alg{alg}{P}}^1, \ldots, {\alg{alg}{P}}^2)$,
-	a robust $(n;k)$ $\prim{P}$-combiner is a $p$-tuple of algorithms that take as input the description of $n$ Turing machines $\O_1, \ldots, \O_n$, 
-	the candidate schemes
-	
-	\[
-		\Comb{P}[\O_1, \ldots, \O_n] = \Paren*{\Comb{P}[\O_1, \ldots, \O_n].{\alg{alg}{P}}^1, \ldots, \Comb{P}[\O_1, \ldots, \O_n].{\alg{alg}{P}}^n}
-	\]
-
-	that run in time polynomial in $n$, and the size of their input, 
-	such that the combiner securely implements the primitive $\prim{P}$ if at least $k$ candidates schemes securely 
-	implement the primitive $\prim{P}$.
-\end{definition}
-\end{comment}
-
-% We write robust combiner for robust $(n;k)$ $\prim{P}$-combiner whenever $n,k$ and $\prim{P}$ are clear from the context. 
-% A robust combiner gets the candidate schemes as a description of their turing machine and can therefore be 
-% adaptive in the code of its candidates. Note that this definition allows the robust combiner to ignores its candidate schemes 
-% and implement a secure instance of the underlying primitive indepdently of its candidates. One can therefore always construct 
-% a robust combiner for primitives that admit secure instances, by contraposition this also means that any result 
-% that rules out the existence of a robust combiner for a specific primitive $\prim{P}$ also rules out the existence 
-% of the primitive itself. Intuitively we would like for the combiner to derive its security from the security of its 
-% secure candidate schemes, therefore we define robust black-box combiner. A robust black-box combiner is a robust combiner 
-% that, instead of getting access to the description of the Turing machines of the candidate schemes, only gets oracle access 
-% to the underlying candidate schemes. We define the notion of a robust black-box combiner closely following the definition 
-% by \cite{}. Note that we explicitly require a robust black-box combiner to derive its security from its candidates,
-% for that reason we require the security to hold relative to a PSPACE oracle $\PSPACE$.
-
-\todo{Very unhappy with this definition}
-
-TODO state contrapositive of the definition below here.
-
-\begin{definition}[Robust $(n;k)$ Black-Box $\prim{P}$-Combiner]\label{def:robust_blackbox_combiner}
-	A robust $(n;k)$ black-box combiner for primitive $\prim{P}$ with $k$ algorithms is a tuple
+\begin{definition}[Robust $(n;k)$ Black-Box P-Combiner]\label{def:robust_blackbox_combiner}
+	A robust $(n;k)$ black-box combiner for primitive P with $k$ algorithms is a tuple
 	of ppt. oracle Turing machines $\BBComb{P} = (\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{k})$
-	such that if there exists an ppt. adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$ that against 
-	$\BBComb{P}[\O_1, \ldots, \O_n]$ then there exist $n-k+1$ ppt. adversaries $\smash{\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
+	such that the following holds: if there exists an ppt. adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$ that breaks the security of 
+	$\BBComb{P}[\O_1, \ldots, \O_n]$, then there exist $n-k+1$ ppt. adversaries $\smash{\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
 	and an injective function $\ell: [n-k+1] \to [n]$ such that for any $i \in [n-k+1]$ the adversary $\smash{\B_i^{\O_{\ell(i)}}}$ breaks the security of the candidate $\O_{\ell(i)}$.
 \end{definition}
 
 \paragraph{Remark.}
-If $\prim{P}$ defines composite security properties, as is the case for VRFs for instance, 
-we say that an adversary breaks the security of $\prim{P}$ if it breaks one of the required security properties.
-For computational security properties such as pseudorandomness this typically means that the adversary 
-wins the corresponding security experiment with non-negligible advantage. For information theoretic 
-or statistical properties such as unique provability or correctness this means that the property doesn't hold
-(we can think of this as the adversary $\A$ being arbitrary, breaking the security).
+If primitive P has composite security properties, as is the case for VRFs, we say that an 
+adversary breaks the security of P if it breaks any of the required security properties.
+For computational properties such as pseudorandomness, this means winning the corresponding security 
+experiment with non-negligible advantage. For information-theoretic or statistical properties such as unique provability or correctness,
+this means the property doesn't hold.

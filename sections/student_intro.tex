@@ -90,15 +90,15 @@ By contraposition, if at least one candidate is pseudorandom then the combiner i
 We outline the reduction and refer to the \Cref{sec:app_robust_prf_comb} for a formal proof.
 
 The reduction against candidate scheme $\O_i$ has access to the pseudorandomness oracle 
-$\O_{eval}$ of the pseudorandomness security experiment against $\O_i$ and internally simulates the 
-other candidate $\O_{2-i}$, answering queries from $\A$ with $\O_{eval}(x) \xor \O_{2-i}(k,x)$.
-Note that the $\mathcal B$ makes exactly as many queries to $\O_{eval}$ as $\A$ does during its simulation, 
+$\O_{\text{eval}}$ of the pseudorandomness security experiment against $\O_i$ and internally simulates the 
+other candidate $\O_{2-i}$, answering queries from $\A$ with $\O_{\text{eval}}(x) \xor \O_{2-i}(k,x)$.
+Note that the $\mathcal B$ makes exactly as many queries to $\O_{\text{eval}}$ as $\A$ does during its simulation, 
 so $\mathcal B$ is efficient whenever $\A$ is.
 The adversary $\A$ against the combined scheme outputs a guess $b'$ for the hidden bit $b$ sampled by the challenger u.a.r., attempting to distinguish 
 the real world from the random world. The reduction simply forwards this guess to its own challenger.
 If $b = 0$, the adversary $\A$ is simulated perfectly, as it receives images computed exactly as they would be in the 
-pseudorandomness security experiment against the combiner. If $b = 1$ then $\O_{eval}(x)$ returns images sampled u.a.r. 
-from the set of bitstrings with appropriate length. Since $\O_{eval}(x)$ is uniformly distributed, $\O_{eval}(x) \xor \O_{2-i}(k,x)$
+pseudorandomness security experiment against the combiner. If $b = 1$ then $\O_{\text{eval}}(x)$ returns images sampled u.a.r. 
+from the set of bitstrings with appropriate length. Since $\O_{\text{eval}}(x)$ is uniformly distributed, $\O_{\text{eval}}(x) \xor \O_{2-i}(k,x)$
 is uniformly distributed as well. Since $\A$ is perfectly simulated in both worlds
 $\mathcal B$ wins the pseudorandomness experiment with the same advantage as $\A$. 
 
