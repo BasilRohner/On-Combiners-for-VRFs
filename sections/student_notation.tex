@@ -2,7 +2,7 @@
 \chapter{Notation and Preliminaries}\label{ch:notation}
 
 \section{Notation}
-For a positive integeger $n$ define $[n] = \Brace{1,\ldots,n}$.
+For a positive integer $n$ define $[n] = \Brace{1,\ldots,n}$.
 We use $\lambda \in \N$ exclusively to denote the security parameter.
 We use $\poly$ to denote the set of functions that are polynomial in $\lambda$
 in the sense of \Cref{def:polynomial} and $\negl$ to denote the set of functions that are 
@@ -37,11 +37,11 @@ multiple values, such as tuples or vectors.
 A verifiable function (VF) $\prim{VF}$ is a cryptographic primitive that implements algorithms 
 $\alg{Gen}{VF}, \alg{Eval}{VF}$ and $\alg{Vfy}{VF}$. A user can generate a key pair $(\sk, \pk)$
 using $\alg{Gen}{VF}$, consisting of a secret key $\sk$ and a public key $\pk$. Subsequently, the user can use the secret key $\sk$
-to evaluate arbitrary points $x \in \bin^\lambda$ using $\alg{Eval}{VRF}$ and use the public key $\pk$ to 
-verify a triple $(x,y,\pi)$ using $\alg{Vfy}{VRF}$.
+to evaluate arbitrary points $x \in \bin^\lambda$ using $\alg{Eval}{VF}$ and use the public key $\pk$ to 
+verify a triple $(x,y,\pi)$ using $\alg{Vfy}{VF}$.
 We give a formal definition in \Cref{def:vf}. The definition is heavily inspired by the definition of a VRF in 
 \cite{TCC:HofJag16}. To reduce redundancy, we define additional security properties 
-such as pseudorandomness and unpredictability seperately.
+such as pseudorandomness and unpredictability separately.
 
 \begin{definition}[Verifiable Function]\label{def:vf}
 	A verifiable function (VF) $\prim{VF}$ is a triple of efficient (ppt.) algorithms
@@ -49,7 +49,7 @@ such as pseudorandomness and unpredictability seperately.
 
 	\begin{itemize}
 		\item $\alg{Gen}{VF}$: The key generation algorithm takes as input the unary encoding of the security parameter
-			and produces a pair $(\sk, \pk) \in \SK \times \PK$ consisting of a a secret key and a public key.
+			and produces a pair $(\sk, \pk) \in \SK \times \PK$ consisting of a secret key and a public key.
 		\item $\alg{Eval}{VF}$: The evaluation algorithm takes as input a secret key $\sk \in \SK$ and an evaluation point $x \in \bin^\lambda$
 			and outputs a pair $(y,\pi)$ consisting of an image $y \in \Y$ and a proof $\pi \in \P$.
 		\item $\alg{Vfy}{VF}$: The verification algorithm takes as input a public key $\pk \in \PK$,
@@ -92,13 +92,13 @@ Next, we define unique provability. A VF is uniquely provable if no more than on
 \begin{definition}[Unique Provability, \cite{EPRINT:Brandt25}]\label{def:unique_provability}
 	A VF $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$
 	is uniquely provable if for all evaluation points $x \in \bin^\lambda$, all public-keys $\pk \in \PK$
-	and any two images-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$, we have
+	and any two image-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$, we have
 	\[
 		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_1, \pi_1) = 1 \implies y_0 = y_1
 	\]
 \end{definition}
 
-We define pseudorandomness of a VVF, a computational property stating that no efficient adversary 
+We define pseudorandomness of a VF, a computational property stating that no efficient adversary 
 $\A$ can distinguish an image $y$ corresponding to the evaluation of an input $x^*$, chosen by $\A$,
 from a uniformly random element $y \sample \Y$. This must hold even if the adversary is given evaluations at polynomially many points $x \neq x^*$.
 The definition is inspired by \cite{EPRINT:Brandt25}.
@@ -131,9 +131,9 @@ chosen by the adversary. This must hold even if the adversary sees evaluations a
 Note that if an adversary can predict the output at $x^*$, it can also distinguish the output from a random element $y \sample \Y$
 with non-negligible probability, making unpredictability a weaker property than pseudorandomness.
 
-\begin{definition}[$(\eps, t)$-Unpredictability]\label{def:unpredictability}
-	A VF $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is $\errtime$-unpredictable if for all security parameters $\lambda \in \N$, 
-	for all adversaries $\A$ running in time at most $\runtime(\lambda)$, the advantage of $\A$
+\begin{definition}[$\errtime$-Unpredictability]\label{def:unpredictability}
+	A VF $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is $\errtime$-unpredictable if for all security parameters $\lambda \in \N$ and
+	all adversaries $\A$ running in time at most $\runtime(\lambda)$, the advantage of $\A$
 	in the unpredictability security experiment in \Cref{fig:prf_wprf_up_experiment} is at most $\err(\lambda)$, i.e.
 	\[
 		\Adv{VF}{up}{\lambda, \A} := 2 \cdot \abs*{\Prob*{\Exp{VF}{up}(\lambda, \A) = 1} - \frac{1}{2}} \le \err(\lambda)
@@ -192,7 +192,7 @@ with non-negligible probability, making unpredictability a weaker property than 
 	\caption{The pseudorandomness security experiment $\Exp{VF}{prf}(\lambda, \A)$ from \Cref{def:pseudorandomness}, 
 	the weak pseudorandomness security experiment $\smash{\Exp{VF}{wprf}(\lambda, \A)}$ from \Cref{def:weak_pseudorandomness} and
 	the unpredictability security experiment $\Exp{VF}{up}(\lambda, \A)$ from \Cref{def:unpredictability}.
-	The oracle $\O_{\text{eval}}$ allows the adversary to evaluate arbitrary points $x \in \bin^*$
+	The oracle $\O_{\text{eval}}$ allows the adversary to evaluate arbitrary points $x \in \bin^\lambda$
 	under the hidden secret key $\sk$.
 	Differences between the pseudorandomness security experiment and the weak pseudorandomness 
 	security experiment are highlighted in grey.}
@@ -228,8 +228,8 @@ If at least $k$ candidate schemes securely implement the primitive $\prim{P}$, t
 also implements a secure instance of $\prim{P}$.
 
 The intuition behind a robust black-box combiner is that the construction extracts security properties from the 
-subset of escure candidates, even if some candidate schemes are insecure. However, note the following issue with this definition:
-if there exists a secure instance of $\prim{P}$, then the combiner $\BBComb{P}[\O_1, \ldots, \O_n]$, then there always 
+subset of secure candidates, even if some candidate schemes are insecure. However, note the following issue with this definition:
+If there exists a secure instance of $\prim{P}$, then there always 
 exists a robust $(n;0)$ black-box P-combiner that simply ignores its candidates and implements $\prim{P}$ directly.
 Note that such a combiner trivially meets all requirements of the definition.
 Proving that there exists no robust black-box combiner would therefore require showing that no secure instance of 
@@ -239,19 +239,19 @@ To circumvent this problem, we explicitly force the combiner to derive its secur
 from the subset of secure candidates. We achieve this, at least for computational security notions, by requiring the security properties 
 to hold relative to a PSPACE-complete oracle. This means that an adversary against the combiner can efficiently decide membership in a PSPACE-complete language,
 enabling the adversary to break computational hardness assumptions while still being limited to polynomially many oracle queries. 
-We note that this notion of a combiner does not resolve the issue when all security properties of the cryptographic primitive are information theoretic.
+We note that this notion of a combiner does not resolve the issue when all security properties of the cryptographic primitive are information-theoretic.
 
 \begin{definition}[Robust $(n;k)$ Black-Box P-Combiner]\label{def:robust_blackbox_combiner}
 	A robust $(n;k)$ black-box combiner for primitive P with $k$ algorithms is a tuple
 	of ppt. oracle Turing machines $\BBComb{P} = (\alg{Alg}{P}^1, \ldots, \alg{Alg}{P}^{k})$
-	such that the following holds: if there exists an ppt. adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$ that breaks the security of 
+	such that the following holds: If there exists a ppt. adversary $\A^{\O_1, \ldots, \O_n, \PSPACE}$ that breaks the security of 
 	$\BBComb{P}[\O_1, \ldots, \O_n]$, then there exist $n-k+1$ ppt. adversaries $\smash{\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
 	and an injective function $\ell: [n-k+1] \to [n]$ such that for any $i \in [n-k+1]$ the adversary $\smash{\B_i^{\O_{\ell(i)}}}$ breaks the security of the candidate $\O_{\ell(i)}$.
 \end{definition}
 
 \paragraph{Remark.}
-If primitive P has composite security properties, as is the case for VRFs, we say that an 
+If primitive P has composite security properties, as it is the case for VRFs, we say that an 
 adversary breaks the security of P if it breaks any of the required security properties.
 For computational properties such as pseudorandomness, this means winning the corresponding security 
 experiment with non-negligible advantage. For information-theoretic or statistical properties such as unique provability or correctness,
-this means the property doesn't hold.
+this means the property does not hold.
