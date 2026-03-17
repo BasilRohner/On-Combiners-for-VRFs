@@ -188,70 +188,70 @@ $f^v$ as deterministic with an additional input $\rho$ for the randomness. For n
 	against $\DAGComb{P}[\O_1, \ldots, \O_n]$ is also an adversary against $\BBComb{P}[\O_1, \ldots, \O_n]$
 	with the same advantage. 
 	Since $\BBComb{P}$ is a robust black-box combiner, by \Cref{def:robust_blackbox_combiner},
-	there exist $n-k+1$ ppt. adversaries ${\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}}$
-	and an injective function $\ell: [n-k+1] \to [n]$ such that for any $i \in [n-k+1]$ the adversary ${\B_i^{\O_{\ell(i)}}}$ breaks the security of the candidate $\O_{\ell(i)}$.
-	Hence $\DAGComb{P}$ is a robust $(n;k)$ black-box combiner.
+	there exist an injective function $\ell: [n-k+1] \to [n]$ and ppt. adversaries
+	\[
+		\B_1^{\O_{\ell(1)}}, \ldots, \B_{n-k+1}^{\O_{\ell(n-k+1)}}
+	\]
+	such that for any $i \in [n-k+1]$ the adversary $\B_i^{\O_{\ell(i)}}$ breaks the security of 
+	the candidate $\O_{\ell(i)}$. Hence $\DAGComb{P}$ is a robust $(n;k)$ black-box combiner.
 \end{proof}
 
 \paragraph{Example.}
 We illustrate the concept of a robust $(n;k)$ black-box DAG combiner in \Cref{fig:prf_dag_comb}
-on the example of the robust $(2;1)$ black-box PRF-combiner in \Cref{fig:prf_comb}. 
-Note that the robust black-box DAG combiner in \Cref{fig:prf_dag_comb}
-doesn't correspond to the robust black-box DAG combiner one would obtain by applying the procedure 
-used in the proof of \Cref{thm:generality_dag_comb}.
+using the example of the robust $(2;1)$ black-box PRF-combiner in \Cref{fig:prf_comb}. 
+Note that the robust black-box DAG combiner shown in \Cref{fig:prf_dag_comb}
+is not the same one would have obtained by applying the procedure from the proof of \Cref{thm:generality_dag_comb}.
 
 \newpage
 
 \section{Impossibility of Robust Black-Box VRF-Combiner}
 
 We consider the possibility of combining VRFs in a black-box fashion.
-Specifically, we study the possibilities of combining two candidates, at least one of them 
-implementing a secure VRF. Such robust $(2;1)$ black-box combiners are the simplest robust black-box 
-combiner construction. However the existence of robust $(2;1)$ black-box combiners
-immediately give rise to the robust $(n;1)$ black-box combiners, while an impossibility implies 
-that there exists no robuts $(n;\lfloor n/2\rfloor)$ black-box combiner. Consequently, 
-settling the $(2;1)$ case in either direction extends to a seemingly stronger result.
+Specifically, we study robust $(2;1)$ black-box VRF-combiners. 
+Such robut $(2;1)$ black-box VRF-combiners are concepturally the simplest robust black-box VRF-combiner.
+Still, the existence of a robust $(2;1)$ black-box VRF-combiner immediately implies the 
+existence of a robust $(n;1)$ black-box VRF combiner. On the other hand, an impossibility result implies 
+that there exists no robust  $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner.
+Consequently, settling the $(2;1)$ case in either direction extends to a seemingly stronger result.
 
-In this section we present a proof of the impossibility of robust $(2;1)$ black-box VRF-combiners.
-At a high level, the proof exploits the fact that the oracles outputs must be used to produce a 
-pseudorandom output but at the same time cannot influence the output distribution "too much"
-since otherwise if the candidate were the malleable candidate he could allow for two distinct
-images to be produced without the verifier being able to tell the difference.
+In this section, we prove the impossibility of a robust $(2;1)$ black-box VRF-combiner.
+At a high level, the proof exploits the fact that the outputs of the candidate schemes must be used to produce a pseudorandom output,
+yet they cannot influence the output distribution "too much". Otherwise, if a candidate has "too much" influence on the image, it could produce
+two distinct images such that the verifier cannot detect which image was produced by the honest execution of the evaluation algorithm.
+
 In the proof we make the simplifying assumption that the secret key space 
-of all candidates is given by $\SK_i = \bin^{s_i(\lambda)}$ for a function $s_i \in \poly$.
+of all candidates is given by $\SK = \bin^{s(\lambda)}$ for a function $s \in \poly$.
 We state the formal statement in the following theorem.
 
 \begin{theorem}[Robust $(2;1)$ Black-Box VRF Combiner]\label{thm:impossibility_21_comb}
-	There exists no robust $(2;1)$ black-box combiner as defined in 
-	\Cref{def:robust_blackbox_combiner} for the VRF primitive as defined in \Cref{def:vrf}.
+	There exists no robust $(2;1)$ black-box combiner (\Cref{def:robust_blackbox_combiner}) for the VRF primitive (\Cref{def:vrf}).
 \end{theorem}
 
 \paragraph{Intuition.}
-Instead of showing the impossibility for the robust $(2;1)$ black-box combiner, we show an impossibility for 
-robust $(2;1)$ black-box DAG combiners. The impossibility of a robust $(2;1)$ black-box VRF-combiner 
-then follows directly from the equivalence of robust black-box combiners and robust black-box DAG combiners 
-in \Cref{thm:generality_dag_comb}.
+Rather than proving the impossibility for robust $(2;1)$ black-box combiners directly, we prove the impossibility for 
+robust $(2;1)$ black-box DAG combiners. The impossibility of a robust $(2;1)$ black-box VRF-combiner
+then follows directly from the equivalence established in \Cref{thm:generality_dag_comb}.
 
 Now suppose, for a contradiction, that there exists a robust $(2;1)$ black-box DAG VRF-combiner $\BBComb{VRF}$.
-Let $\O_1, \O_2$ be candidate schemes, at least one of which implementing a secure VRF.
+Let $\O_1, \O_2$ be candidate schemes, at least one of which implements a secure VRF.
 By \Cref{def:robust_blackbox_combiner}, $\BBComb{VRF}[\O_1, \O_2]$ must implement a secure VRF. 
-In particular, since $\BBComb{VRF}[\O_1, \O_2]$ implements a secure VRF, it must be perfectly correct 
-and uniquely provable. We derive a contradiction by initializing $\O_1,\O_2$
-with specific candidate schemes of which at least one implements a secure VRF,
+In particular, it must be perfectly correct 
+and uniquely provable. We derive a contradiction by instantiating $\O_1,\O_2$
+with specific candidate schemes at least one of which implements a secure VRF,
 and then constructing an adversary $\A^{\PSPACE, \O_1,\O_2}$ that breaks the pseudorandomness of 
 $\BBComb{VRF}[\O_1, \O_2]$ with non-negligible advantage.
 
 The adversary works by iteratively narrowing down the set of candidate secret keys in the 
-pseudorandomness experiment, starting with the secret key space $\SK$, by relying on its PSPACE complete
+pseudorandomness experiment, starting with the secret key space $\SK$, using its PSPACE-complete
 oracle $\PSPACE$. The filtering works as follows: $\A$ samples a polynomial number of evaluation points
-$x_1, \ldots, x_{2s(\lambda)}$ u.a.r. from $\bin^\lambda$. Then uses the evaluation oracle $\O_{eval}$
-in the prf security experiment to evaluate the points under the games secret key $\sk^*$ to obtain image-proof pairs
-$(y_1, \pi_1), \ldots, (y_{2s(\lambda)}, \pi_{2s(\lambda)})$.
-Using the games public key $\pk^*$ the adversary now computes the trace of the combiners verification algorithm on the tuples 
-$(\pk^*, x_1, y_1, \pi_1),\ldots, (\pk^*, x_{2s(\lambda)}, y_{2s(\lambda)},\pi_{2s(\lambda)})$ to obtain 
-$\tau_1, \ldots, \tau_{2s(\lambda)}$.
+$x_1, \ldots, x_{s(\lambda) + \lambda}$ u.a.r. from $\bin^\lambda$, then uses the evaluation oracle $\O_{\text{eval}}$
+in the pseudorandomness security experiment to evaluate these points under the secret key $\sk^*$ in the security game to obtain image-proof pairs
+$(y_1, \pi_1), \ldots, (y_{s(\lambda) + \lambda}, \pi_{s(\lambda) + \lambda})$.
+Using public key $\pk^*$ of the security game, the adversary computes the trace of the combiner's verification algorithm on the tuples 
+$(\pk^*, x_1, y_1, \pi_1),\ldots, (\pk^*, x_{s(\lambda) + \lambda}, y_{s(\lambda) + \lambda},\pi_{s(\lambda) + \lambda})$ to obtain 
+$\tau_1, \ldots, \tau_{s(\lambda) + \lambda}$.
 The key ingredient is a ppt. Turing machine $\alg{EvalSim}{VRF}$ that takes as input 
-a tuple $(\sk,x_i,y_i,\pi_i,\tau_i)$ and returns either $\top$ or $\bot$, satisfying the following properties:
+a tuple $(\sk,x_i,y_i,\pi_i,\tau_i)$ and returns either $\top$ or $\bot$, satisfying the following three properties:
 
 \begin{itemize}
 	\item $\alg{EvalSim}{VRF}$ makes no oracle queries to the candidates $\O_1, \O_2$
@@ -259,54 +259,54 @@ a tuple $(\sk,x_i,y_i,\pi_i,\tau_i)$ and returns either $\top$ or $\bot$, satisf
 	\item If $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}^y(\sk, x_i) \neq y_i$ then $\alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \bot$
 \end{itemize}
 
-Before elaborating on the construction of $\alg{EvalSim}{VRF}$ we first explain 
-how the adversary can use this ppt. Turing machine to break pseudorandomness of $\BBComb{VRF}[\O_1, \O_2]$.
-Recall that we require the security properties of the combiner to hold relative to a PSPACE complete oracle
-precisely because we want the combiner to derive its security from the candidate oracles (and not implement it itself).
-Now, $\alg{EvalSim}{VRF}$ makes no oracle queries yet still only returns $\top$ if a secret key candidate $\sk \in \SK$
-\textit{agrees} with the games secret key $\sk^*$ in the sense that on $x_i$ they evaluate to the same image.
-Using its PSPACE complete oracle $\PSPACE$ the adversary can now enumerate the entire secret key space $\SK$
+Before elaborating on the construction of $\alg{EvalSim}{VRF}$, we first explain 
+how the adversary can use this ppt. Turing machine to break the pseudorandomness of $\BBComb{VRF}[\O_1, \O_2]$.
+Recall that we require the security properties of the combiner to hold relative to a PSPACE-complete oracle
+precisely because we want the combiner to derive its security from the candidate oracles rather than implementing it itself.
+
+$\alg{EvalSim}{VRF}$ makes no oracle queries, yet still only returns $\top$ only if a secret key candidate $\sk \in \SK$
+\textit{agrees} with the games secret key $\sk^*$ in the sense that on $x_i$, both evaluate to the same image.
+Using its PSPACE-complete oracle $\PSPACE$, the adversary can enumerate the entire secret key space $\SK$
 and discard any secret key candidate for which there exists a tuple $(x_i, y_i, \pi_i, \tau_i)$
-such that $\alg{EvalSim}{VRF}$ returns $\bot$ (strictly speaking, the $\PSPACE$ oracle decides membership queries for PSPACE languages,
-we defer these technicalities to the formal proof). Note that $\sk^*$ is never eliminated since 
-$\alg{EvalSim}{VRF}(\sk^*, x_i, y_i, \pi_i, \tau_i) = \top$ always and that all other survivors 
-satisfy that they evaluate to the same image as $\sk^*$ under $x_1, \ldots, x_{2s(\lambda)}$.
-There are two possible cases that can happen after the narrowing has taken place:
+such that $\alg{EvalSim}{VRF}$ returns $\bot$. (Strictly speaking, the $\PSPACE$ oracle decides membership queries for PSPACE languages,
+we defer these technicalities to the formal proof.) Note that $\sk^*$ is never eliminated, since 
+$\alg{EvalSim}{VRF}(\sk^*, x_i, y_i, \pi_i, \tau_i) = \top$ always holds and all surviving candidates evaluate to the same image 
+as $\sk^*$ on $x_1, \ldots, x_{s(\lambda) + \lambda}$.
+After filtering with every tuple $(x_i, y_i,\pi_i,\tau_i)$, two cases can arise:
 
 If for sufficiently many tuples $(x_i,y_i,\pi_i,\tau_i)$ the number of eliminated candidate secret keys 
-is sufficiently large then after $2s(\lambda)$
-iterations of filtering we end up with a polynomially sized set $\SK_{cand}$ containing $\sk^*$.
-The adversary can then sample a uniformly random secret key $\sk_{cand} \in \SK_{cand}$, 
-winning the security experiment if $\sk^* = \sk_{cand}$. This happens with non-negligible probability.
+is sufficiently large, then after $s(\lambda) + \lambda$
+iterations of filtering, we end up with a polynomially sized set $\SK_{cand}$ containing $\sk^*$.
+The adversary can then sample a secret key $\sk_{cand} \sample \SK_{cand}$ uniformly at random.
+If $\sk_{cand} = \sk^*$, the adversary wins the pseudorandomness security experiment, which happens 
+with non-negligible probability.  
 
-On the other hand if only for a small number of tuples $(x_i, y_i, \pi_i, \tau_i)$ the size of the set of candidate keys 
-decreases significantly this means that for many of the remaining secret key candidates, the probability of evaluating to the 
-same image than the experiments secret key on uniformly random evaluation points is non-negligible.
-In this scenario the adversary proceeds analogously, he samples a uniformly random secret key candidate and 
-evaluates the challenge pre-image $x^*$ to compare with the challenge image $y^*$.
-Since $\sk_{cand}$ agrees with the expeirments secret key $\sk^*$ with non-negligible probability 
+On the other hand, if only for a small number of tuples $(x_i, y_i, \pi_i, \tau_i)$ set of candidate keys 
+decreases significantly in size, then for many of the remaining candidates, the probability of evaluating a uniformly random evaluation point to the 
+same image as $\sk^*$ has to be non-negligible.
+In this scenario, the adversary proceeds analogously: he samples a uniformly random secret key candidate and 
+evaluates the challenge input $x^*$ to compare it with the challenge image $y^*$.
+Since $\sk_{cand}$ and $\sk^*$ evaluate $x^*$ to the same image $y^*$ with non-negligible probability, 
 the adversary wins the game with non-negligible advantage.
 
-% polish from here on
-
-We now describe the construction of $\alg{EvalSim}{VRF}$ algorithm.
+We now describe the construction of the $\alg{EvalSim}{VRF}$ algorithm.
 The algorithm simulates the evaluation of $\BBComb{VRF}[\O_1, \O_2]$ by iterating over the 
-the vertices in $V(\G_{\alg{Eval}{VRF}})$ in a fixed but arbitrary topological ordering.
-At every vertex $v$ it simulates the associated Turing machine $f_{eval}^v$ on the
+the vertices in $V(\G_{\textsf{Eval}})$ of the DAG corresponding to $\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}$ in a fixed but arbitrary topological ordering.
+At every vertex $v$ it simulates the associated Turing machine $f_{\textsf{Eval}}^v$ on the
 corresponding inputs to obtain $\mathbf q_v$. 
 Oracle queries to $\O_1$ are answered trivially with a fixed response,
 this is the case as we will later initialize this oracle with a trivial, uniquely provable and perfectly 
 correct oracle that returns fixed values for key generation and evaluation and verifies exactly the fixed image.
-For oracle queries to $\O_2$ we distinguish \textit{exposed} queries, which are contained in the verification 
+For oracle queries to $\O_2$ we distinguish \textit{exposed} queries, which can be read off the verification 
 trace $\tau_i$, and \textit{obscure} queries, which are not contained in the verification trace.
 The simulator answers the exposed queries with the response contained in $\tau_i$.
-Thus the only queries that cannot perfectly be answered are the obscure queries to $\O_2$.
+Thus the only queries that the simulator cannot perfectly answer are the obscure queries to $\O_2$.
 
 For every obscure query to $\O_2$ the adversary branches its execution for every well-formed responses
-of the query (e.g. all possible values in $\Y \times \P$ if the query is to $\O_2$s evaluation algorithm) and
-continues the execution for every branch. Finally if for all branches the evaluation of the combiner is $y_i$
-$\alg{EvalSim}{VRF}$ returns $\top$, otherwise it returns $\bot$.
-We illustrate the algorithm $\alg{EvalSim}{VRF}$ in \Cref{fig:eval_sim}.
+of the query (e.g. all possible values in $\Y \times \P$ if the query is to $\O_2.\alg{Eval}{VRF}$) and
+continues the execution for every branch. Finally if for all branches the evaluation of the combiner is $y_i$,
+then $\alg{EvalSim}{VRF}$ returns $\top$, otherwise it returns $\bot$.
+We illustrate the algorithm $\alg{EvalSim}{VRF}$ with pseudocode in \Cref{fig:eval_sim}.
 
 Its easy to see that the first and third requirements for the $\alg{EvalSim}{VRF}$ algorithm are met.
 By construction $\alg{EvalSim}{VRF}$ makes no oracle queries to candidates.
