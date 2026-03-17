@@ -3,24 +3,23 @@
 \label{ch:conclusion}
 
 We introduced robust black-box DAG combiners that make the structure of robust black-box combiners 
-more explicit while capturing the same set of constructions. Subsequently we answered the question 
-whether there exist robust $(2;1)$ black-box VRF-combiner negatively.
-The result implies an impossibility result on the family of robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiners 
+more explicit while capturing the same set of constructions. Subsequently, we answered the question 
+whether there exists a robust $(2;1)$ black-box VRF-combiner negatively.
+The result implies an impossibility result on the family of robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiners, 
 placing a lower bound on the number of secure instances needed to combine VRFs in a robust way.
 
-On the other hand we show that if we strengthen the assumptions on the candidate schemes, specifically
-by requiring all of them to be uniquely provable and perfectly correct, then VRF admit simple combiner
+On the other hand, we show that if we strengthen the assumptions on the candidate schemes, specifically
+by requiring all of them to be uniquely provable and perfectly correct, then VRFs admit simple combiners
 similar to the known PRF combiners.
 
 \paragraph{Extensions.}
-While we strongly believe robust $(n;n-1)$ black-box VRF-combiner to be impossible, extending the proof 
+While we strongly believe robust $(n;n-1)$ black-box VRF-combiners to be impossible, extending the proof 
 for the impossibility of robust $(2;1)$ black-box VRF-combiners to the more general case seems difficult.
 We pose this question as a conjecture.
 
 Additionally, it is natural to think about weaker relaxations of robust black-box VRF-combiners that circumvent the impossibility 
-result than the one we presented. For instance, it is interesting to study the possibility of combining VRFs if the combiner only needs to satisfy statistical correctness.
+result, beyond the one we presented. For instance, it is interesting to study the possibility of combining VRFs if the combiner only needs to satisfy statistical correctness.
 
-Finally, even for the strong relaxation of VRF-combiners that admit simple XOR combiner it is intersting to study 
+Finally, even for the strong relaxation of VRF-combiners that admit simple XOR combiners, it is interesting to study 
 relaxed robust black-box combiners for more advanced notions of VRFs such as 
-constrainable VRFs \cite{}, key-homomorphic VRFs \cite{},
-aggregable VRFs \cite{} and unbiasable VRFs \cite{}.
+constrainable VRFs \cite{cryptoeprint:2014/537}, key-homomorphic VRFs \cite{cryptoeprint:2024/643}, aggregable VRFs \cite{cryptoeprint:2024/643} and unbiasable VRFs \cite{cryptoeprint:2024/435}.

@@ -1224,49 +1224,4 @@ The advantage of the reduction $\mathcal R_i$ in the prf security experiment aga
 	\Adv{i}{prf}{\lambda, \mathcal R_i} = \Adv{comb}{prf}{\lambda, \A}
 \end{align}
 
-\begin{comment}
-For the notions of constrainability, key-homomorphism and aggregability this question is quckly answered 
-as we we show how the above construction of extended PRF combiner 
-can be minimally adapted to combine the notions. We will quickly explain how to extend the construction 
-of the extended PRF combiner to capture those notions and move the rigorous proofs 
-in the appendix.
-
-\paragraph{Constrainable VRF.}
-A constrainable VRF as introduced by \cite{} is a VRF 
-with an additional algorithm $\alg{Constrain}{VRF}$ that allows the constraining of specific secret keys
-$\sk$ to a subset of evaluation points $S \subseteq \mathcal X$, $\sk_S$.
-We require the additional security property that constrainable keys $\sk_S$ cannot be used 
-to evaluate points outside of $S$ and the notion of constraint hiding.
-Constraint hiding requires that the proof of an evaluation doesn't give away the key used.
-The robust $(n;1)$ black-box combiner implements the algorithms $\alg{Gen}{VRF}, \alg{Eval}{VRF}$
-and $\alg{Vfy}{VRF}$ the same as in \Cref{fig:prf_combiner} and implements the constraining algorithm 
-by constraining every candidate secret key in the tuples seperately. The algorithm is shown in \Cref{fig:extended_prf_combiner}.
-The existence is formally stated in the following lemma with the proof, as mentioned above, deferred to the appendix.
-
-\begin{lemma}[Strong Robust $(n;n-1)$ Black-Box cVRF-Combiner]
-	
-\end{lemma}
-
-\paragraph{Key-homomorphic VRF.}
-A key-homomorphic VRF as introduced in \cite{} is a VRF 
-for which the secret key space $\SK$ and the output space $\Y \times \P$ admit group structures
-$(\SK, \otimes_{\SK})$ and $(\Y \times \P, \otimes_{\Y \times \P})$ and satisfies that 
-the evaluation function for a fixed $x \in \bin^\lambda$ is a homomorphism $\alg{Eval}{VRF}(x, \cdot): \SK \to \Y \times \P$.
-The homomorphism property can be checked by using efficient homomorphism test on groups by the BLR test,
-which states that only with a constrant number of queries we can show that a function is a homomorphism except 
-with negligible probability. Since this test is global it is executed by the verifier and the evaluator, non-homoomrphic candidates are excluded.
-The result is stated in the lemma below.
-
-\begin{lemma}[Strong Robust $(n;n-1)$ Black-Box khVRF-Combiner]
-	
-\end{lemma}
-
-\paragraph{Aggregable VRF.}
-An aggregable VRF is similar to a key-homomorphic VRF but enabling the aggregation of image-proof pairs 
-through in a more general notion.
-
-\paragraph{Unbiasable VRF.}
-An unbiasable VRF requires security against biasing the output of the VRF for maliciously crafted secret keys.
-
-\todo{Only touch if sufficient time}
 \end{comment}
