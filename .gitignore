@@ -41,6 +41,11 @@
 # Listings
 *.lol
 
+# Beamer
+*.nav
+*.snm
+*.vrb
+
 # Minted
 _minted*
 *.pyg
@@ -59,10 +64,13 @@ _minted*
 .DS_Store
 .vscode
 
-# Unnessecary template files
-explanations_to_remove.tex
-mathtips.tex
-introduction.tex
-rules.tex
-structure_explanation.tex
-typography.tex
+# Unnessecary template files (only the root-level ones)
+/explanations_to_remove.tex
+/mathtips.tex
+/introduction.tex
+/rules.tex
+/structure_explanation.tex
+/typography.tex
+
+# Presentation build directory
+presentation/build/

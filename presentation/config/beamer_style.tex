@@ -1,0 +1,178 @@
+% Beamer style modeled on the Applied Crypto Group / ETH lecture style.
+
+\usepackage[T1]{fontenc}
+\usepackage[defaultsans]{lato}
+\renewcommand*\familydefault{\sfdefault}
+
+% Warm blue accent (steel-blue family, slightly warm).
+\definecolor{acgred}{RGB}{56,103,170}
+\definecolor{bodygray}{RGB}{77,77,77}
+\definecolor{blockgray}{RGB}{236,236,236}
+
+% Highlight palette — soft pastels for inline term highlighting.
+\definecolor{hlyellow}{RGB}{255,239,170}
+\definecolor{hlpeach}{RGB}{255,214,196}
+\definecolor{hlgreen}{RGB}{206,238,212}
+\definecolor{hlblue}{RGB}{200,226,244}
+\definecolor{hlpurple}{RGB}{223,213,243}
+
+% Highlight macro: works in both text and math mode.
+% Usage: \hly{text}, \hlp{text}, \hlg{text}, \hlb{text}, \hlv{text}.
+\newcommand{\acghl}[2]{%
+  \tikz[baseline=(X.base)]\node[%
+    inner xsep=2pt, inner ysep=1pt, outer sep=0pt,%
+    rectangle, fill=#1, rounded corners=1pt%
+  ] (X) {#2};%
+}
+\newcommand{\hly}[1]{\acghl{hlyellow}{#1}}
+\newcommand{\hlp}[1]{\acghl{hlpeach}{#1}}
+\newcommand{\hlg}[1]{\acghl{hlgreen}{#1}}
+\newcommand{\hlb}[1]{\acghl{hlblue}{#1}}
+\newcommand{\hlv}[1]{\acghl{hlpurple}{#1}}
+
+\setbeamercolor{normal text}{fg=bodygray, bg=white}
+\setbeamercolor{structure}{fg=acgred}
+\setbeamercolor{alerted text}{fg=acgred}
+
+\setbeamercolor{title}{fg=acgred}
+\setbeamercolor{subtitle}{fg=acgred}
+\setbeamercolor{author}{fg=bodygray}
+\setbeamercolor{institute}{fg=bodygray}
+\setbeamercolor{date}{fg=bodygray}
+
+\setbeamercolor{frametitle}{fg=acgred, bg=white}
+\setbeamercolor{framesubtitle}{fg=acgred, bg=white}
+
+\setbeamercolor{itemize item}{fg=acgred}
+\setbeamercolor{itemize subitem}{fg=acgred}
+\setbeamercolor{itemize subsubitem}{fg=acgred}
+\setbeamercolor{enumerate item}{fg=acgred}
+\setbeamercolor{enumerate subitem}{fg=acgred}
+
+\setbeamercolor{block title}{fg=acgred, bg=blockgray}
+\setbeamercolor{block body}{fg=bodygray, bg=blockgray}
+\setbeamercolor{block title alerted}{fg=acgred, bg=blockgray}
+\setbeamercolor{block body alerted}{fg=bodygray, bg=blockgray}
+\setbeamercolor{block title example}{fg=acgred, bg=blockgray}
+\setbeamercolor{block body example}{fg=bodygray, bg=blockgray}
+
+\setbeamercolor{page number in head/foot}{fg=acgred}
+
+% Single source of truth for horizontal margins on all slides.
+\newcommand{\acgsidemargin}{0.06\paperwidth}
+
+\setbeamerfont{title}{size=\Huge, series=\mdseries}
+\setbeamerfont{subtitle}{size=\Huge, series=\mdseries}
+\setbeamerfont{author}{size=\normalsize, series=\mdseries}
+\setbeamerfont{institute}{size=\normalsize, series=\mdseries}
+\setbeamerfont{frametitle}{size=\Large, series=\mdseries}
+\setbeamerfont{framesubtitle}{size=\large, series=\mdseries}
+\setbeamerfont{block title}{size*={8.5pt}{10pt}, series=\bfseries}
+\setbeamerfont{block body}{size*={8.5pt}{10pt}, series=\mdseries}
+\setbeamerfont{itemize/enumerate body}{size*={8.5pt}{10pt}}
+\setbeamerfont{itemize/enumerate subbody}{size*={8.5pt}{10pt}}
+\setbeamerfont{itemize/enumerate subsubbody}{size*={8.5pt}{10pt}}
+\setbeamerfont{page number in head/foot}{size=\small}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\textbullet}
+\setbeamertemplate{itemize subitem}{\textbullet}
+\setbeamertemplate{itemize subsubitem}{\textbullet}
+
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip
+  \vspace{1.8em}
+  \begin{beamercolorbox}[wd=\paperwidth, leftskip=\acgsidemargin, rightskip=\acgsidemargin]{frametitle}%
+    \usebeamerfont{frametitle}\insertframetitle\par%
+    \ifx\insertframesubtitle\empty\else
+      \vspace{0.15em}
+      {\usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}\insertframesubtitle\par}%
+    \fi
+  \end{beamercolorbox}%
+  \vspace{0.5em}
+}
+
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth, ht=3.2ex, dp=2.0ex, leftskip=\acgsidemargin, rightskip=\acgsidemargin]{}%
+    \raisebox{-0.4ex}{\includegraphics[height=2.6ex]{../ETHlogo.pdf}}%
+    \hfill
+    {\usebeamerfont{page number in head/foot}%
+     \usebeamercolor[fg]{page number in head/foot}%
+     \insertframenumber}%
+  \end{beamercolorbox}%
+}
+
+\setbeamertemplate{title page}{%
+  \vbox to \dimexpr\paperheight-2em\relax{%
+    \vfil
+    \begingroup
+      \centering
+      {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}%
+      \ifx\insertsubtitle\empty\else
+        \vspace{0.55em}
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi
+      \vspace{2.4em}
+      {\usebeamerfont{author}\usebeamercolor[fg]{author}\insertauthor\par}%
+      \ifx\insertinstitute\empty\else
+        \vspace{0.45em}
+        {\usebeamerfont{institute}\usebeamercolor[fg]{institute}\insertinstitute\par}%
+      \fi
+      \ifx\insertdate\empty\else
+        \vspace{0.45em}
+        {\usebeamerfont{date}\usebeamercolor[fg]{date}\insertdate\par}%
+      \fi
+    \endgroup
+    \vfil
+  }%
+}
+
+\setbeamertemplate{block begin}{%
+  \par\vspace{0.35em}%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block title}%
+    \usebeamerfont{block title}\insertblocktitle%
+  \end{beamercolorbox}%
+  \nointerlineskip%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block body}%
+    \usebeamerfont{block body}%
+}
+\setbeamertemplate{block end}{%
+  \end{beamercolorbox}%
+  \vspace{0.35em}%
+}
+
+\setbeamertemplate{block alerted begin}{%
+  \par\vspace{0.35em}%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block title alerted}%
+    \usebeamerfont{block title}\insertblocktitle%
+  \end{beamercolorbox}%
+  \nointerlineskip%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block body alerted}%
+    \usebeamerfont{block body}%
+}
+\setbeamertemplate{block alerted end}{%
+  \end{beamercolorbox}%
+  \vspace{0.35em}%
+}
+
+\setbeamertemplate{block example begin}{%
+  \par\vspace{0.35em}%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block title example}%
+    \usebeamerfont{block title}\insertblocktitle%
+  \end{beamercolorbox}%
+  \nointerlineskip%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block body example}%
+    \usebeamerfont{block body}%
+}
+\setbeamertemplate{block example end}{%
+  \end{beamercolorbox}%
+  \vspace{0.35em}%
+}
+
+\AtBeginDocument{%
+  \setlength{\leftmargini}{1.4em}%
+  \setlength{\leftmarginii}{1.2em}%
+  \linespread{0.95}\selectfont
+}
+
+\setbeamersize{text margin left=\acgsidemargin, text margin right=\acgsidemargin}

@@ -1,0 +1,415 @@
+% DO NOT MODIFY THIS FILE, USE config/custom_config.tex FOR YOUR MACROS
+
+% https://tex.stackexchange.com/questions/128797/a-renewcommand-that-does-not-care-if-a-command-is-already-defined
+\makeatletter
+\newcommand*{\setcommand}{%
+    \@star@or@long\set@command
+}
+\newcommand*{\set@command}[1]{%
+    \provide@command{#1}{}%
+    % \let#1\@empty % would be more efficient, but without error checking
+    \renew@command{#1}%
+}
+\makeatother
+
+%% geometry
+\ifbeamer{}{
+    \ifdraft
+        \geometry{
+            paperwidth=25cm,
+            textheight=24cm,
+            heightrounded,
+            left=1cm,
+            right=8cm,
+            marginparwidth=7cm,
+            asymmetric
+        }
+    \else
+        \iflncs
+        \else
+            \geometry{
+                a4paper,
+                left=1in,
+                right=1in,
+            }
+        \fi
+    \fi
+}
+
+%% Environments
+\newtheoremstyle{boldstyle}
+  {\topsep}   % Space above
+  {\topsep}   % Space below
+  {\normalfont}  % Body font
+  {}          % Indent
+  {\bfseries} % Head font (bold)
+  {.}         % Punctuation after head
+  { }         % Space after head
+  {\thmname{#1}\thmnumber{ #2}\thmnote{ (#3)}} % Head spec
+\makeatletter
+\newcommand{\defineenvironment}[2][\@nil]{%
+    \expandafter\let\csname#2\endcsname\relax
+    \makeatletter
+    \expandafter\let\csname c@#2\endcsname\relax
+    \declaretheorem[name=\makefirstuc{#2},style=boldstyle]{#2}%
+    \ifx#1\@nil
+        \crefname{#2}{#2}{#2{}s}
+    \else
+        \crefname{#2}{#2}{#1}
+    \fi
+}
+\makeatother
+\defineenvironment{definition}
+\defineenvironment{construction}
+\defineenvironment{notation}
+\defineenvironment{assumption}
+\defineenvironment{question}
+\defineenvironment{remark}
+\defineenvironment{observation}
+\defineenvironment{lemma}
+\defineenvironment{theorem}
+\defineenvironment[corollaries]{corollary}
+\defineenvironment{claim}
+\defineenvironment{fact}
+
+\newenvironment{nalign}{
+    \begin{equation}
+        \begin{aligned}
+            }{
+        \end{aligned}
+    \end{equation}%
+    \ignorespacesafterend%
+}
+
+\newenvironment{sitemize}{
+    \begin{itemize}[leftmargin=3.5mm]
+        }{
+    \end{itemize}%
+    \ignorespacesafterend%
+}
+
+\newenvironment{senumerate}{
+    \begin{enumerate}[leftmargin=3.5mm]
+        }{
+    \end{enumerate}%
+    \ignorespacesafterend%
+}
+
+\makeatletter
+\let\oldframetitle\mdf@@frametitle@use
+\let\mdf@@frametitle@use\relax
+\setcommand{\mdf@@frametitle@use}{}
+\makeatother
+\newcommand{\newcontdbox}[2]{
+    \newenvironment{#1}[1]{
+        \setcommand{\sitem}{}
+        % \tolerance=6500
+        \tolerance=99999
+        \begin{mdframed}[
+                frametitle={#2 ##1 (cont'd)},
+                repeatframetitle=true,
+                frametitlealignment=\center,
+                frametitlebelowskip=0,
+                frametitlefont=\textrm,
+                innertopmargin=2mm,
+                innerleftmargin=1mm,
+                innerrightmargin=1mm,
+                everyline=true,
+                needspace=6cm
+            ]
+            \mdfsubtitle[
+                subtitleaboveskip=0,
+                subtitlebelowskip=0,
+                subtitleinneraboveskip=0,
+                subtitleinnerbelowskip=1mm,
+                subtitlefont=\textrm
+            ]{#2 ##1}
+            }{
+        \end{mdframed}
+        \ignorespacesafterend
+    }
+}
+\newcontdbox{functionalitybox}{Functionality}
+\newcontdbox{protocolbox}{Protocol}
+\newcontdbox{simulatorbox}{Simulator for}
+
+% https://tex.stackexchange.com/questions/391726/the-quotation-environment
+\NewDocumentCommand{\bywhom}{m}{% the Bourbaki trick
+    {\nobreak\hfill\penalty50\hskip1em\null\nobreak
+            \hfill\mbox{\normalfont{#1}}%
+            \parfillskip=0pt \finalhyphendemerits=0 \par}%
+}
+
+\NewDocumentEnvironment{pquotation}{m}{
+    \begin{quoting}[
+            leftmargin=\parindent,
+            rightmargin=\parindent,]\itshape
+        }{
+    \end{quoting}
+    \vspace{-3mm}
+    \bywhom{#1}
+}
+
+% environment for hybrid proofs
+\newif\ifitemstar
+    \def\customlabelstring{}
+    \newcommand{\hybridcustomref}{\arabic{enumi}}
+    \newcommand{\hybridcustomlabel}{%
+    \textbf{Game{\ifitemstar{*}\fi} \(\hybridcustomref\)\customlabelstring:}%
+}
+\newcommand{\hybriditem}{}
+\newcommand{\hybriditemstar}{}
+% the following enivorment takes an optional argument specifying the a template as which an item gets referenced, i.e., \ref{item:one} = "this is the \arabic{enumi} (first) item"
+% the \hybriditem(star) command takes an optional argument specifying the name of the hybrid; displayed in parenthesis
+\let\hybrids\relax
+\newenvironment{hybrids}[1][]{%
+    \begingroup%
+    \ifthenelse{\equal{#1}{}}{}{%
+        \renewcommand{\hybridcustomref}{#1}%
+    }
+    \renewcommand{\hybriditem}[1][]{%
+        \ifthenelse{\equal{##1}{}}{}{%
+            \def\customlabelstring{ (##1)}
+        }
+        \item%
+        \def\customlabelstring{}%
+    }%
+    \renewcommand{\hybriditemstar}[1][]{%
+        \global\itemstartrue%
+        \hybriditem[##1]%
+        \global\itemstarfalse%
+    }%
+    \begin{enumerate}[start=0,wide=0pt,label={\protect\hybridcustomlabel},ref={\hybridcustomref}]% \protect seems important
+        %\begin{enumerate}[start=0,wide=0pt,ref={\hybridcustomref}]% \protect seems important
+        }{%
+    \end{enumerate}%
+    \endgroup%
+}
+\newcommand\currenthybrid\hybridcustomref
+\newcommand\previoushybrid{\the\numexpr\value{enumi}-1\relax}
+
+% https://tex.stackexchange.com/questions/223948/suggestions-for-nested-proofs
+\newenvironment{subproof}[1][\proofname]{%
+    \providecommand{\qedsymbol}{}%
+    \renewcommand{\qedsymbol}{\(\blacksquare\)}%
+    \begin{proof}[#1]%
+        }{%
+    \end{proof}%
+}
+
+% math environment that breaks across pages
+\newenvironment{bralign}{
+    \begingroup
+    \allowdisplaybreaks
+    \align
+}{
+    \endalign
+    \endgroup
+}
+
+%% Square at end of each proof
+\let\originalendproof\endproof
+% \providecommand{\endproof}{~\hfill\originalendproof}
+
+%% Todos
+\ifdraft
+\else
+    \setcommand{\marginpar}[1]{}
+    \setcommand{\marginnote}[1]{}
+\fi
+% fix margin are on the right side
+% https://tex.stackexchange.com/questions/69595/marginnote-always-on-right-side-of-the-page
+\makeatletter
+\long\def\@mn@@@marginnote[#1]#2[#3]{%
+    \begingroup
+    \ifmmode\mn@strut\let\@tempa\mn@vadjust\else
+        \if@inlabel\leavevmode\fi
+        \ifhmode\mn@strut\let\@tempa\mn@vadjust\else\let\@tempa\mn@vlap\fi
+    \fi
+    \@tempa{%
+        \vbox to\z@{%
+            \vss
+            \@mn@margintest
+            \if@reversemargin\if@tempswa
+                    \@tempswafalse
+                \else
+                    \@tempswatrue
+                \fi\fi
+            %\if@tempswa
+            \rlap{%
+                \if@mn@verbose
+                    \PackageInfo{marginnote}{xpos seems to be \@mn@currxpos}%
+                \fi
+                \begingroup
+                \ifx\@mn@currxpos\relax\else\ifx\@mn@currxpos\@empty\else
+                        \kern-\dimexpr\@mn@currxpos\relax
+                    \fi\fi
+                \ifx\@mn@currpage\relax
+                    \let\@mn@currpage\@ne
+                \fi
+                \if@twoside\ifodd\@mn@currpage\relax
+                        \kern\oddsidemargin
+                    \else
+                        \kern\evensidemargin
+                    \fi
+                \else
+                    \kern\oddsidemargin
+                \fi
+                \kern 1in
+                \endgroup
+                \kern\marginnotetextwidth\kern\marginparsep
+                \vbox to\z@{\kern\marginnotevadjust\kern #3
+                    \vbox to\z@{%
+                        \hsize\marginparwidth
+                        \linewidth\hsize
+                        \kern-\parskip
+                        \marginfont\raggedrightmarginnote\strut\hspace{\z@}%
+                        \ignorespaces#2\endgraf
+                        \vss}%
+                    \vss}%
+            }%
+        }%
+    }%
+    \endgroup
+}
+\makeatother
+
+%% lists
+\setcommand\labelitemi{\textbullet}
+\setcommand\labelitemii{\textopenbullet}
+%\setcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\setlist{noitemsep, topsep=0pt}
+\setenumerate[2]{labelindent=0pt,itemindent=0pt}
+
+%% tikz
+% \usetikzlibrary{patterns} % incompatible with tikzpeople -> jester -> pattern
+\usetikzlibrary{calc,shapes.misc,shapes.callouts,tikzmark,decorations.pathreplacing,calligraphy,graphs,arrows.meta,positioning}
+\tikzset{
+    square/.style={rectangle, minimum width=.8cm, minimum height=.8cm, draw=black!60},
+    % party/.style={rectangle, minimum width=.8cm, minimum height=.8cm, draw=black!60, rounded corners=.2cm},
+    party/.style={circle, minimum size=.8cm, draw=black!60},
+    func/.style={rectangle, draw=black, minimum width = .8cm, minimum height = .8cm},
+    title/.style={rectangle, minimum width=.8cm, minimum height=.8cm},
+    label/.style={rectangle, minimum width=.8cm, minimum height=.8cm},
+    dummyicon/.style={circle, inner sep=0.05cm, minimum size=.8cm, draw=black!60, dotted, line width=.03cm},
+    partyset/.style={circle, inner sep=0.05cm, minimum size=.8cm, draw=black!60, densely dashed, line width=.03cm},
+    partyicon/.style={circle, inner sep=0.05cm, minimum size=.8cm, draw=black!60, fill=white},
+    placeholder/.style={circle, inner sep=0.05cm, minimum size=.8cm},
+    advicon/.style={circle, inner sep=0.05cm, minimum size=.8cm, draw=black!60, double},
+    smallpartyicon/.style={circle, inner sep=0.05cm, minimum size=.08cm, draw=black!60},
+    line/.style={densely dotted, line width=.02cm},
+    functionalitybox/.style={draw=black!70,fill=black!70, text=white, minimum width=1cm,minimum height=.6cm}
+}
+
+%% Page numbering
+\ifbeamer{}{%
+    % We need page numbers according to https://crypto.iacr.org/2021/callforpapers.html
+    \pagestyle{plain}
+}
+
+%% ulem...
+\normalem
+
+%% Equations alignment
+\AtBeginDocument{\setlength\abovedisplayskip{4pt}}
+\AtBeginDocument{\setlength\belowdisplayskip{4pt}}
+
+%% Typography
+\renewcommand*{\bibfont}{\small}
+
+%% Table
+\def\arraystretch{1.2}
+\AtBeginDocument{\setlength{\tabcolsep}{0.5em}}
+
+%% Default hyper setup
+\ifanonymous
+    \hypersetup{
+        final,
+        linktoc=all,
+        pdfauthor={},
+        pdftitle={},
+        pdfsubject={},
+        pdfkeywords={}
+    }
+\fi
+\setcounter{tocdepth}{2}
+
+%% Cross-referencing: hyper-xr
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+    \typeout{(#1)}
+    \@addtofilelist{#1}
+    \IfFileExists{#1}{}{\typeout{No file #1.}}
+}
+\makeatother
+
+\newcommand*{\myexternaldocument}[1]{%
+    \externaldocument{#1}%
+    \addFileDependency{#1.tex}%
+    \addFileDependency{#1.aux}%
+}
+
+%% providing lncs dummy commands
+\providecommand{\inst}[1]{}
+\providecommand{\institute}[1]{}
+\providecommand{\email}[1]{}
+\providecommand{\and}{}
+
+%% My TOC
+\setcommand{\mytoc}{
+    \begingroup
+    \let\clearpage\relax
+    \let\chapter\section
+    \def\contentsname{Contents}
+    \tableofcontents
+    \endgroup
+}
+
+%% My maketitle
+\setcommand{\mymaketitle}{
+    \begingroup
+    \let\oldaddcontentsline\addcontentsline
+    \renewcommand*{\addcontentsline}[3]{%
+        \ifstrequal{##1}{toc}{%
+            \ifstrequal{##2}{author}{}{%
+                \ifstrequal{##2}{title}{}{%
+                    \oldaddcontentsline{##1}{##2}{##3}
+                }
+            }
+        }{%
+            \oldaddcontentsline{##1}{##2}{##3}
+        }
+    }
+    %\let\addtocontents\relax
+    \maketitle
+    \endgroup
+    % Don't have the word "Abstract" in the beginning
+    \let\abstractname\relax
+}
+
+%% Auto delimiters
+\let\ifdisplay\iffalse
+\everydisplay\expandafter{\let\ifdisplay\iftrue}
+\setcommand{\DeclareAutoPairedDelimiter}[3]{%
+    \setcommand{#1}[1]{\ifdisplay\left#2\else#2\fi##1\ifdisplay\right#3\else#3\fi}
+}
+
+%% auto cref / text upright in display mode
+\let\originalcref\cref%
+\setcommand{\cref}[1]{\ifdisplay\textup{\originalcref{#1}}\else\originalcref{#1}\fi}
+\let\originalCref\Cref%
+\setcommand{\Cref}[1]{\ifdisplay\textup{\originalCref{#1}}\else\originalCref{#1}\fi}
+
+%% strikeout in math mode
+\let\originalsout\sout
+\setcommand{\sout}[1]{\ifmmode\text{\originalsout{\ensuremath{#1}}}\else\originalsout{#1}\fi}
+
+%% ifthen lncs for math mode
+\setcommand{\ifthenlncs}[2]{%
+    \ifthenelse{\boolean{lncs}}{#1}{#2}%
+}
+
+%% keep the title capitalization as it is
+\DeclareFieldFormat*{titlecase}{#1}
+
+% DO NOT MODIFY THIS FILE, USE config/custom_config.tex FOR YOUR MACROS

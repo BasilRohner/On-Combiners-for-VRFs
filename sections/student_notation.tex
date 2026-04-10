@@ -91,7 +91,7 @@ Next, we define unique provability. A VF is uniquely provable if no more than on
 
 \begin{definition}[Unique Provability, \cite{EPRINT:Brandt25}]\label{def:unique_provability}
 	A VF $\prim{VF} = (\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$
-	is uniquely provable if for all evaluation points $x \in \bin^\lambda$, all public-keys $\pk \in \PK$
+	is uniquely provable if for all evaluation points $x \in \bin^\lambda$, all public keys $\pk \in \PK$
 	and any two image-proof pairs $(y_0,\pi_0), (y_1,\pi_1) \in \Y \times \PK$, we have
 	\[
 		\alg{Vfy}{VF}(\pk, x, y_0, \pi_0) = 1 \land \alg{Vfy}{VF}(\pk, x, y_1, \pi_1) = 1 \implies y_0 = y_1
@@ -117,13 +117,13 @@ Next, we define two weaker notions of pseudorandomness. While (strong) pseudoran
 from uniformly random elements of $\Y$, weak pseudorandomness relaxes this by requiring indistinguishability only for uniformly random challenges $x^* \sample \bin^\lambda$.
 
 \begin{definition}[$\errtime$-Weak Pseudorandomness]\label{def:weak_pseudorandomness}
-	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is $\errtime$-weak pseudorandom if for all security parameters $\lambda \in \N$
+	A VF $(\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF})$ is $\errtime$-weakly pseudorandom if for all security parameters $\lambda \in \N$
 	and all adversaries $\A = (\A_1, \A_2)$ running in time at most $\runtime(\lambda)$, the advantage of $\A$
 	in the weak pseudorandomness security experiment in \Cref{fig:prf_wprf_up_experiment} is at most $\err(\lambda)$, i.e.
 	\[
 		\Adv{VF}{wprf}{\lambda, \A} := 2 \cdot \abs*{\Prob*{\Exp{VF}{wprf}(\lambda, \A) = 1} - \frac{1}{2}} \le \err(\lambda)
 	\]
-	We say that a verifiable function $\prim{VF}$ is weak pseudorandom if it is $\errtime$-weak pseudorandom with $\err \in \negl$ and $\runtime \in \poly$.
+	We say that a verifiable function $\prim{VF}$ is weakly pseudorandom if it is $\errtime$-weakly pseudorandom with $\err \in \negl$ and $\runtime \in \poly$.
 \end{definition}
 
 Alternatively, a VF can be unpredictable. A VF is unpredictable if no adversary can predict the image $y$ of the evaluation at a challenge $x^*$
@@ -200,8 +200,8 @@ with non-negligible probability, making unpredictability a weaker property than 
 \end{figure}
 
 We now define verifiable random functions (VRFs), weak verifiable random functions (WVRFs)
-and verifiable unpredictable functions (VUFs). These are VFs that are correct, uniquely provable and pseudorandom, 
-weak pseudorandom or unpredictable respectively.
+and verifiable unpredictable functions (VUFs). These are VFs that are correct, uniquely provable and pseudorandom,
+weakly pseudorandom or unpredictable respectively.
 
 \begin{definition}[Verifiable Random Functions]\label{def:vrf}
 	A verifiable random function $\prim{VRF} = (\alg{Gen}{VRF}, \alg{Eval}{VRF}, \alg{Vfy}{VRF})$ is a VF that satisfies 
@@ -250,7 +250,7 @@ We note that this notion of a combiner does not resolve the issue when all secur
 \end{definition}
 
 \paragraph{Remark.}
-If primitive P has composite security properties, as it is the case for VRFs, we say that an 
+If primitive P has composite security properties, as is the case for VRFs, we say that an 
 adversary breaks the security of P if it breaks any of the required security properties.
 For computational properties such as pseudorandomness, this means winning the corresponding security 
 experiment with non-negligible advantage. For information-theoretic or statistical properties such as unique provability or correctness,

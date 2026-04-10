@@ -1,0 +1,28 @@
+\section{Introduction}
+\label{sec:intro}
+
+\begin{frame}
+    \frametitle{What This Thesis Studies}
+    \textbf{Question.}
+    Can we \emph{combine} several candidate verifiable random functions (VRFs)
+    into a single VRF that is secure as long as \emph{enough} of the candidates are?
+
+    \vspace{0.8em}
+    \begin{itemize}
+        \item \textbf{Why VRFs?}
+            Public-key analogue of PRFs with a verifiability guarantee;
+            central to Proof-of-Stake leader election, lotteries, e-cash, \ldots
+        \item \textbf{Why combine?}
+            Hedging against the breakdown of hardness assumptions ---
+            a recurring theme in post-quantum and hybrid cryptography.
+        \item \textbf{Why black-box?}
+            We want a generic construction that queries candidates as oracles,
+            without peeking at their internals.
+    \end{itemize}
+
+    \vspace{0.8em}
+    \textbf{Scope.}
+    We ask whether \emph{robust black-box VRF-combiners} exist,
+    identify where the obstruction lies, and give a matching positive result
+    under stronger assumptions on the candidates.
+\end{frame}

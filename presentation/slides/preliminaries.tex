@@ -1,0 +1,85 @@
+\section{Preliminaries}
+
+\begin{frame}
+    \frametitle{Verifiable Functions}
+    \begin{block}{Definition (Verifiable Function)}
+        A \emph{verifiable function} (VF) $\prim{VF}$ is a triple of efficient (ppt.) algorithms
+        $\Paren{\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF}}$ with the syntax:
+        \begin{itemize}
+            \item $\alg{Gen}{VF}(1^\lambda) \to (\sk, \pk) \in \SK \times \PK$\\
+                produces a secret key and a public key.
+            \item $\alg{Eval}{VF}(\sk, x) \to (y, \pi) \in \Y \times \P$\\
+                on input $\sk$ and an evaluation point $x \in \bin^\lambda$,
+                outputs an image $y$ and a proof $\pi$.
+            \item $\alg{Vfy}{VF}(\pk, x, y, \pi) \to b \in \bin$\\
+                accepts or rejects a triple $(x, y, \pi)$ under public key $\pk$.
+        \end{itemize}
+    \end{block}
+    \vspace{0.3em}
+    A VF is a purely syntactic object --- we impose security properties on top of it.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Verifiable Random Functions}
+    A \hly{verifiable random function (VRF)} is a VF with three additional properties.
+    \vspace{0.5em}
+    \begin{block}{Correctness}
+        Honestly generated \hlb{image-proof pairs} are always accepted:
+        \[
+            \alg{Vfy}{VRF}(\pk, x, y, \pi) = 1
+            \quad\text{for all } (y,\pi) \gets \alg{Eval}{VRF}(\sk, x).
+        \]
+    \end{block}
+    \begin{block}{Unique provability}
+        For every $\pk$ and every $x$, \hlg{at most one image $y$} is provable:
+        \[
+            \alg{Vfy}{VRF}(\pk, x, y_0, \pi_0) = \alg{Vfy}{VRF}(\pk, x, y_1, \pi_1) = 1
+            \;\Longrightarrow\; y_0 = y_1.
+        \]
+    \end{block}
+    \begin{block}{Pseudorandomness}
+        No \hlv{efficient adversary $\mathcal A$} can distinguish $\alg{Eval}{VRF}(\sk, x^*)$
+        from a \hlp{uniformly random $y \sample \Y$}, even after seeing
+        polynomially many evaluations at points $x \neq x^*$.
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Verifiable Random Functions --- why}
+    \begin{itemize}
+        \item VRFs are a \textbf{public-key analogue of PRFs} with a verifiability guarantee.
+        \item Key applications:
+            \begin{itemize}
+                \item distributed leader election in Proof-of-Stake blockchains,
+                \item lottery and e-cash systems,
+                \item resettable zero-knowledge proofs,
+                \item signatures with strong verifiability.
+            \end{itemize}
+        \item Weaker variants: \emph{weak VRFs} (random challenge)
+            and \emph{verifiable unpredictable functions} (image hard to predict, not pseudorandom).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Robust Black-Box Combiners}
+    \textbf{Motivation.}
+    Constructions rely on hardness assumptions that may break.
+    We want to \emph{hedge} our bets by combining several candidate schemes
+    so security survives as long as enough candidates are secure.
+
+    \vspace{0.5em}
+    \begin{block}{Definition (Robust $(n;k)$ Black-Box $\prim{P}$-Combiner)}
+        A ppt.\ oracle Turing machine $\BBComb{P}$ that, given oracle access
+        to $n$ candidates $\mathcal O_1, \ldots, \mathcal O_n$, implements primitive $\prim{P}$
+        securely whenever at least $k$ of the candidates do.
+    \end{block}
+
+    \begin{itemize}
+        \item \textbf{Black-box:} the combiner queries candidates as oracles ---
+            it cannot inspect or modify their code.
+        \item We require security against adversaries with access to a
+            \textbf{PSPACE oracle}, forcing the combiner to derive its security from the candidates.
+        \item Known results: simple $(n;1)$ black-box combiners exist for PRFs,
+            OWFs, PKE, key agreement, \ldots\ --- but \textbf{not known for VRFs}.
+    \end{itemize}
+\end{frame}

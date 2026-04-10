@@ -1,0 +1,117 @@
+% default \include messes up \ref{fig:...}
+% must come before thmtools
+\usepackage{newclude}
+
+%% Math
+\usepackage{nicefrac}
+\usepackage{mleftright}
+%\usepackage{amsmath}
+\let\proof\relax
+\let\endproof\relax
+\usepackage{amsthm}
+\usepackage{aligned-overset}
+%\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{thmtools}
+\usepackage{thm-restate}
+\usepackage{mathtools}
+\usepackage{braket}
+\usepackage{centernot}
+\usepackage[b]{esvect}
+\usepackage{fnpct} % kerns footnote superscripts
+
+\usepackage[lambda,keys]{cryptocode} % load before hyperref
+
+%% Typesetting
+\usepackage[english]{babel}
+\usepackage{xr} % load before hyperref
+% \usepackage[nopostdot,nomain,acronym,symbols,nogroupskip,nonumberlist]{glossaries} % load before hyperref (otherwise acronyms will link to glossary)
+\usepackage{hyperref}
+\usepackage[capitalize,nameinlink]{cleveref} % load after amsmath
+\usepackage[tableposition=top,labelfont=bf,font={small}]{caption}
+\usepackage[]{subcaption}
+\usepackage{ulem}
+\ifbiber
+    \def\backend{biber}
+\else
+    \def\backend{bibtex}
+\fi
+\ifnumeric
+    \def\citestyle{numeric}
+\else
+    \def\citestyle{trad-alpha}
+\fi
+\usepackage[citestyle=\citestyle,style=\citestyle,giveninits=true,backend=\backend,isbn=false,doi=false,dateabbrev=false,url=false,natbib=true]{biblatex}
+\usepackage[inline]{enumitem}
+\usepackage{quoting}
+\usepackage[autostyle=true,german=quotes]{csquotes}
+\usepackage{mdframed}
+\usepackage[]{tikzpeople}
+\usepackage{tikz}
+\ifdraft
+    \usepackage{geometry}
+    \usepackage{marginnote}
+\else
+    \iflncs
+        \usepackage[pass]{geometry}
+    \else
+        \usepackage{geometry}
+    \fi
+\fi
+\usepackage{calc}
+\usepackage{xspace}
+
+
+%% Extras
+\usepackage{algorithm} % load after hyperref
+\usepackage{algpseudocode}
+\usepackage{algorithmicx}
+\usepackage{orcidlink}
+\usepackage{mfirstuc}
+\usepackage{adjustbox}
+\usepackage{bbm}
+\usepackage{multirow}
+% \usepackage{showframe}
+
+%% Obsolete
+% \usepackage{lmodern}
+% \usepackage{mathrsfs}
+% \usepackage{eqparbox}
+% \usepackage{xifthen}
+% \usepackage[utf8]{inputenc}
+% \usepackage[T1]{fontenc}
+%\usepackage{xr-hyper} % xr-hyper causes errors with restatable !
+% \usepackage{bibgerm}
+%_\usepackage[sort&compress]{natbib}
+%\usepackage[protrusion=true,expansion,babel=true]{microtype}
+%\usepackage{dsfont}
+%\usepackage{xparse}
+%\usepackage[notext]{stix}
+% \usepackage{MnSymbol}
+% \usepackage{glossaries-extra}
+% \usepackage{glossary-longragged}
+%\usepackage{acro}
+%\usepackage{booktabs}
+%\usepackage{romannum}
+%\usepackage[citestyle=numeric-comp,style=numeric,giveninits=true,backend=biber,isbn=false,doi=false,dateabbrev=false,url=false]{biblatex}
+%\usepackage[nodayofweek]{datetime}
+%\usepackage{siunitx}
+%\usepackage{color}
+%\usepackage{amsmath}
+%\usepackage{pdfpages}
+%\usepackage{stmaryrd}
+%\usepackage{comment}
+%\usepackage{xcolor}
+%\usepackage{breakcites}
+%\usepackage{fancybox}
+%\usepackage{upquote}
+%\usepackage{animate}
+%\usepackage{longtable}
+%\usepackage{booktabs}
+%\usepackage{tabularx}
+%\usepackage{scalerel}
+%\usepackage{stackengine}
+% \usepackage[svgnames]{xcolor} % load this before todonotes
+% \usepackage{ifdraft}
+% \usepackage{ifluatex}
+%\usepackage{mfirstuc} % upper case first letter

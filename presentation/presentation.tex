@@ -1,0 +1,51 @@
+\let\ifdraft\iffalse
+\let\iffullversion\iffalse
+\let\ifanonymous\iffalse
+\let\ifnumeric\iffalse
+
+\input{config/conditionals}
+
+\documentclass[11pt,aspectratio=169]{beamer}
+
+\input{config/packages}
+\input{config/config}
+\input{config/macros}
+\input{config/custom_config}
+\input{config/beamer_style}
+
+\title{On Combiners for}
+\subtitle{Verifiable Random Functions}
+
+\ifanonymous
+    \author{\vspace*{-1cm}}
+    \institute{\vspace*{-1cm}}
+\else
+    \author{Basil Rohner\quad(\texttt{brohner@ethz.ch})}
+    \institute{Bachelor's Thesis, ETH Zürich}
+
+    % hyper setup
+    \hypersetup{
+        linktoc=all,
+        pdfauthor={author},
+        pdftitle={title},
+        pdfsubject={},
+        pdfkeywords={}
+    }
+\fi
+
+\addbibresource{../refs.bib}
+\addbibresource{references.bib}
+
+\begin{document}
+
+\begin{frame}[plain,noframenumbering]
+    \titlepage
+\end{frame}
+
+% \tocframe
+
+\input{slides/introduction}
+\input{slides/preliminaries}
+\input{slides/results}
+
+\end{document}

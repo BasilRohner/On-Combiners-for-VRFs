@@ -1,0 +1,60 @@
+% add custom config and macros
+
+% --- Thesis macros (subset needed for the slides) ---
+% Note: \sk and \pk are provided by cryptocode and formatted similarly.
+
+% Key spaces
+\newcommand{\SK}{\ensuremath{\mathcal{SK}}}
+\newcommand{\PK}{\ensuremath{\mathcal{PK}}}
+
+% Graphs
+\newcommand{\G}{\ensuremath{\mathcal{G}}}
+
+% Uniform sampling
+\newcommand{\sample}{\ensuremath{\gets_\$}}
+
+% Robust black-box combiner
+\NewDocumentCommand{\BBComb}{mo}{%
+    \ensuremath{%
+        \IfNoValueTF{#2}{%
+            {\Pi_{\prim{#1}}}%
+        }{%
+            {\Pi_{\prim{#1}}^{#2}}%
+        }%
+    }%
+}
+
+% Robust black-box DAG combiner
+\NewDocumentCommand{\DAGComb}{mo}{%
+    \ensuremath{%
+        \IfNoValueTF{#2}{%
+            {\widetilde\Pi_{\prim{#1}}}%
+        }{%
+            {\widetilde\Pi_{\prim{#1}}^{#2}}%
+        }%
+    }%
+}
+
+% Sets
+\newcommand{\bin}{\ensuremath{\{0,1\}}}
+\newcommand{\Y}{\ensuremath{\mathcal{Y}}}
+\renewcommand{\P}{\ensuremath{\mathcal{P}}}
+
+% Parenthesis
+\DeclarePairedDelimiter{\Paren}{(}{)}
+
+% Primitives: \prim{x} => denote the cryptographic primitive x
+\NewDocumentCommand{\prim}{m}{%
+    \ensuremath{\textup{\textsf{#1}}}%
+}
+
+% \alg{x}{y} => algorithm x of primitive y
+\NewDocumentCommand{\alg}{smm}{%
+    \ensuremath{%
+        \IfBooleanTF{#1}{%
+            \textup{\textsf{#2}}_{#3}%
+        }{%
+            \textup{\textsf{#2}}_{\prim{#3}}%
+        }%
+    }%
+}
