@@ -80,6 +80,11 @@
 \setbeamertemplate{itemize subitem}{\textbullet}
 \setbeamertemplate{itemize subsubitem}{\textbullet}
 
+\AtBeginDocument{%
+  \setlist[itemize]{itemsep=0.5em, topsep=0.5em}%
+  \setlist[enumerate]{itemsep=0.5em, topsep=0.5em}%
+}
+
 \setbeamertemplate{frametitle}{%
   \nointerlineskip
   \vspace{1.8em}
@@ -95,7 +100,6 @@
 
 \setbeamertemplate{footline}{%
   \begin{beamercolorbox}[wd=\paperwidth, ht=3.2ex, dp=2.0ex, leftskip=\acgsidemargin, rightskip=\acgsidemargin]{}%
-    \raisebox{-0.4ex}{\includegraphics[height=2.6ex]{../ETHlogo.pdf}}%
     \hfill
     {\usebeamerfont{page number in head/foot}%
      \usebeamercolor[fg]{page number in head/foot}%

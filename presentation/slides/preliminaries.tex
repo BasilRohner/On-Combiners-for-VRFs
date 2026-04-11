@@ -3,28 +3,21 @@
 \begin{frame}
     \frametitle{Verifiable Functions}
     \begin{block}{Definition (Verifiable Function)}
-        A \emph{verifiable function} (VF) $\prim{VF}$ is a triple of efficient (ppt.) algorithms
-        $\Paren{\alg{Gen}{VF}, \alg{Eval}{VF}, \alg{Vfy}{VF}}$ with the syntax:
+        A \emph{verifiable function} (VF) $\prim{VF}$ is a triple of the following efficient algorithms:
         \begin{itemize}
-            \item $\alg{Gen}{VF}(1^\lambda) \to (\sk, \pk) \in \SK \times \PK$\\
-                produces a secret key and a public key.
-            \item $\alg{Eval}{VF}(\sk, x) \to (y, \pi) \in \Y \times \P$\\
-                on input $\sk$ and an evaluation point $x \in \bin^\lambda$,
-                outputs an image $y$ and a proof $\pi$.
-            \item $\alg{Vfy}{VF}(\pk, x, y, \pi) \to b \in \bin$\\
-                accepts or rejects a triple $(x, y, \pi)$ under public key $\pk$.
+            \item $\alg{Gen}{VF}(1^\lambda) = (\sk, \pk)$ generates a key-pair
+            \item $\alg{Eval}{VF}(\sk, x) = (y, \pi)$ evaluates points to an image-proof pair
+            \item $\alg{Vfy}{VF}(\pk, x, y, \pi) = b$ verifies evaluations
         \end{itemize}
     \end{block}
     \vspace{0.3em}
-    A VF is a purely syntactic object --- we impose security properties on top of it.
+    A VF is a purely syntactic object, we define security properties on top of it.
 \end{frame}
 
 \begin{frame}
-    \frametitle{Verifiable Random Functions}
-    A \hly{verifiable random function (VRF)} is a VF with three additional properties.
-    \vspace{0.5em}
-    \begin{block}{Correctness}
-        Honestly generated \hlb{image-proof pairs} are always accepted:
+    \frametitle{Properties of Verifiable Functions}
+    \begin{block}{$\varepsilon$-Correctness}
+        Honestly generated image-proof pairs are excepted except with probability $\varepsilon$:
         \[
             \alg{Vfy}{VRF}(\pk, x, y, \pi) = 1
             \quad\text{for all } (y,\pi) \gets \alg{Eval}{VRF}(\sk, x).
