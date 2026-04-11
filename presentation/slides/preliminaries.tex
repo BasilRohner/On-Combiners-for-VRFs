@@ -17,23 +17,43 @@
 \begin{frame}
     \frametitle{Properties of Verifiable Functions}
     \begin{block}{$\varepsilon$-Correctness}
-        Honestly generated image-proof pairs are excepted except with probability $\varepsilon$:
+        Honestly generated image-proof pairs verify with probability at least $\varepsilon$:
         \[
-            \alg{Vfy}{VRF}(\pk, x, y, \pi) = 1
-            \quad\text{for all } (y,\pi) \gets \alg{Eval}{VRF}(\sk, x).
+            \Pr{
+                \begin{aligned}
+                    (\sk, \pk) &\sample \alg{Gen}{VF}(1^\lambda)\\ 
+                    x &\sample \bin^\lambda\\
+                    (y, \pi) &\gets \alg{Eval}{VF}(\sk, x)
+                \end{aligned} :
+                \alg{Vfy}{VF}(\pk, x, y, \pi) = 1 
+            } \ge \varepsilon(\lambda)
         \]
+        $\prim{VF}$ is \emph{correct} if it is $1$-correct and \emph{statistically correct} if it is $(1-\varepsilon)$-correct and $\varepsilon \in \negl(\lambda)$.
     \end{block}
-    \begin{block}{Unique provability}
-        For every $\pk$ and every $x$, \hlg{at most one image $y$} is provable:
+\end{frame}
+
+\begin{frame}
+    \frametitle{Properties of Verifiable Functions}
+    \begin{block}{Unique Provability}
+        For every $\pk$ and every $x$, at most one image $y$ is provable:
         \[
             \alg{Vfy}{VRF}(\pk, x, y_0, \pi_0) = \alg{Vfy}{VRF}(\pk, x, y_1, \pi_1) = 1
             \;\Longrightarrow\; y_0 = y_1.
         \]
     \end{block}
-    \begin{block}{Pseudorandomness}
-        No \hlv{efficient adversary $\mathcal A$} can distinguish $\alg{Eval}{VRF}(\sk, x^*)$
-        from a \hlp{uniformly random $y \sample \Y$}, even after seeing
-        polynomially many evaluations at points $x \neq x^*$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Properties of Verifiable Functions}
+    \begin{block}{$(\varepsilon, \frakt)$-Pseudorandom}
+        For any adversary $\mathcal A$ running in time at most $\frakt$, playing the prf experiment $\Exp{VF}{prf}(\lambda, \mathcal A)$:
+        
+
+
+        The advantage $\Adv{VF}{prf}{\lambda, \mathcal A}$ is bounded from above by 
+        \[
+            \Adv{VF}{prf}{\lambda, \mathcal A} := 2 \cdot \abs*{\Pr{\Exp{VF}{prf}(\lambda, \mathcal A) = 1} - \frac{1}{2}} \le \varepsilon(\lambda)
+        \]
     \end{block}
 \end{frame}
 

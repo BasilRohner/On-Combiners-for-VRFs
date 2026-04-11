@@ -58,3 +58,65 @@
         }%
     }%
 }
+
+%% Fixed/scaling delimiter examples (see mathtools documentation)
+\let\abs\relax
+\let\norm\relax
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
+
+% Probability:  \Prob{Event} =>  P{Event},   \Prob*{...} => auto-sized { ... }
+%    By default, we use curly braces for probabilities.
+\NewDocumentCommand{\Prob}{som}{%
+\ensuremath{\Pr% or \mathbb{P}, if you prefer
+  \IfBooleanTF{#1}{%
+    % *-version => auto-sized braces
+    \Bracket*{#3}%
+  }{%
+    % no star
+    \IfNoValueTF{#2}{%
+      % no optional argument => normal size braces
+      \Bracket{#3}%
+    }{%
+      % optional argument => \big, \Big, etc.
+      \Bracket[#2]{#3}%
+    }%
+  }%
+}}
+
+% Expectation:  \E{X} => E[X],   \E*{X} => auto-sized [ X ]
+\NewDocumentCommand{\Expect}{som}{%
+\ensuremath{\mathbb{E}
+  \IfBooleanTF{#1}{%
+    \Bracket*{#3}%
+  }{%
+    \IfNoValueTF{#2}{%
+      \Bracket{#3}%
+    }{%
+      \Bracket[#2]{#3}%
+    }%
+  }%
+}}
+
+
+% \Exp{x,A}{z} => z security experiment/game for instance x and adversary A
+\NewDocumentCommand{\Exp}{smm}{
+\ensuremath{
+	\IfBooleanTF{#1}{
+      \textup{\textbf{Exp}}_{#2}^{\textup{#3}}
+      }{
+      \textup{\textbf{Exp}}_{\prim{#2}}^{\textup{#3}}
+	}
+}
+}
+
+% \Adv{x,A}{z} => advantage of adversary A in \Exp{x,A}{z}
+\NewDocumentCommand{\Adv}{smmm}{
+\ensuremath{
+	\IfBooleanTF{#1}{
+		\textup{\textbf{Adv}}_{#2}^{\textup{#3}}(#4)
+	}{
+		\textup{\textbf{Adv}}_{\prim{#2}}^{\textup{#3}}(#4)
+	}
+}
+}
