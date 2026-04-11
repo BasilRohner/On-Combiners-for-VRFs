@@ -8,6 +8,7 @@
 \definecolor{acgred}{RGB}{56,103,170}
 \definecolor{bodygray}{RGB}{77,77,77}
 \definecolor{blockgray}{RGB}{236,236,236}
+\definecolor{blocktitlegray}{RGB}{215,215,215}
 
 % Highlight palette — soft pastels for inline term highlighting.
 \definecolor{hlyellow}{RGB}{255,239,170}
@@ -49,11 +50,11 @@
 \setbeamercolor{enumerate item}{fg=acgred}
 \setbeamercolor{enumerate subitem}{fg=acgred}
 
-\setbeamercolor{block title}{fg=acgred, bg=blockgray}
+\setbeamercolor{block title}{fg=acgred, bg=blocktitlegray}
 \setbeamercolor{block body}{fg=bodygray, bg=blockgray}
-\setbeamercolor{block title alerted}{fg=acgred, bg=blockgray}
+\setbeamercolor{block title alerted}{fg=acgred, bg=blocktitlegray}
 \setbeamercolor{block body alerted}{fg=bodygray, bg=blockgray}
-\setbeamercolor{block title example}{fg=acgred, bg=blockgray}
+\setbeamercolor{block title example}{fg=acgred, bg=blocktitlegray}
 \setbeamercolor{block body example}{fg=bodygray, bg=blockgray}
 
 \setbeamercolor{page number in head/foot}{fg=acgred}
@@ -67,8 +68,8 @@
 \setbeamerfont{institute}{size=\normalsize, series=\mdseries}
 \setbeamerfont{frametitle}{size=\Large, series=\mdseries}
 \setbeamerfont{framesubtitle}{size=\large, series=\mdseries}
-\setbeamerfont{block title}{size*={8.5pt}{10pt}, series=\bfseries}
-\setbeamerfont{block body}{size*={8.5pt}{10pt}, series=\mdseries}
+\setbeamerfont{block title}{size=\small, series=\mdseries}
+\setbeamerfont{block body}{size=\small, series=\mdseries}
 \setbeamerfont{itemize/enumerate body}{size*={8.5pt}{10pt}}
 \setbeamerfont{itemize/enumerate subbody}{size*={8.5pt}{10pt}}
 \setbeamerfont{itemize/enumerate subsubbody}{size*={8.5pt}{10pt}}
@@ -129,7 +130,7 @@
 
 \setbeamertemplate{block begin}{%
   \par\vspace{0.35em}%
-  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block title}%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=0.6ex, rightskip=1.2ex]{block title}%
     \usebeamerfont{block title}\insertblocktitle%
   \end{beamercolorbox}%
   \nointerlineskip%
@@ -143,7 +144,7 @@
 
 \setbeamertemplate{block alerted begin}{%
   \par\vspace{0.35em}%
-  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block title alerted}%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=0.6ex, rightskip=1.2ex]{block title alerted}%
     \usebeamerfont{block title}\insertblocktitle%
   \end{beamercolorbox}%
   \nointerlineskip%
@@ -157,7 +158,7 @@
 
 \setbeamertemplate{block example begin}{%
   \par\vspace{0.35em}%
-  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=1.2ex, rightskip=1.2ex]{block title example}%
+  \begin{beamercolorbox}[wd=\textwidth, sep=0.7ex, leftskip=0.6ex, rightskip=1.2ex]{block title example}%
     \usebeamerfont{block title}\insertblocktitle%
   \end{beamercolorbox}%
   \nointerlineskip%

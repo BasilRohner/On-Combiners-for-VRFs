@@ -28,53 +28,35 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Example: PRF-Combiner as a DAG}
-    The standard $(2;1)$ black-box PRF-combiner
-    $\alg{Eval}{PRF}^{\mathcal O_1, \mathcal O_2}(k, x) := \mathcal O_1(k,x) \oplus \mathcal O_2(k,x)$
-    as a DAG:
+    \frametitle{Equivalence}
 
-    \vspace{0.5em}
-    \begin{center}
-        \begin{tikzpicture}[
-            every node/.style={font=\small},
-            vertex/.style={draw, rounded corners, inner sep=4pt, align=center, minimum width=2.4cm},
-            arr/.style={-{Latex[length=2mm]}}
-        ]
-            \node[vertex] (s) at (0, 2)
-                {\textbf{Source $s$}\\ $\mathbf x_s \gets (k, x)$};
-            \node[vertex] (v1) at (-3, 0)
-                {\textbf{$v_1$}\\ $\mathbf q_{v_1} \gets \mathbf x_s$\\
-                $\mathbf x_{v_1} \gets \mathcal O_1(\mathbf q_{v_1})$};
-            \node[vertex] (v2) at (3, 0)
-                {\textbf{$v_2$}\\ $\mathbf q_{v_2} \gets \mathbf x_s$\\
-                $\mathbf x_{v_2} \gets \mathcal O_2(\mathbf q_{v_2})$};
-            \node[vertex] (t) at (0, -2)
-                {\textbf{Sink $t$}\\ $\mathbf y \gets \mathbf x_{v_1} \oplus \mathbf x_{v_2}$};
-            \draw[arr] (s) -- (v1);
-            \draw[arr] (s) -- (v2);
-            \draw[arr] (v1) -- (t);
-            \draw[arr] (v2) -- (t);
-        \end{tikzpicture}
-    \end{center}
+    \begin{itemize}
+        \item Robust $(n;k)$ black-box DAG combiners are robust $(n;k)$ black-box combiners
+        \item Robust $(n;k)$ black-box combiners can be converted into robust $(n;k)$ black-box DAG combiner
+    \end{itemize}
+
+    By induction over the number of oracle queries, bounded from above by $p(\lambda) \in \poly$. $p(\lambda)$
+    layers. At every vertex $v$ in layer $l$ simulate the combiner $\BBComb{VRF}{}$ 
 \end{frame}
 
 \begin{frame}
-    \frametitle{Example: reading the DAG}
-    \begin{itemize}
-        \item The \textbf{source} packages the algorithm's inputs $(k, x)$ into $\mathbf x_s$.
-        \item Vertices $v_1, v_2$ are labeled with $\ell(v_i) = (i, \alg{Eval}{PRF})$;
-            each queries its candidate with the forwarded input and stores the response $\mathbf x_{v_i}$.
-        \item The \textbf{sink}'s Turing machine combines the predecessors' outputs,
-            returning $\mathbf x_{v_1} \oplus \mathbf x_{v_2}$.
-        \item The DAG makes explicit what the usual pseudocode hides:
-            \begin{itemize}
-                \item which queries happen in parallel vs.\ in sequence,
-                \item which candidate each query targets,
-                \item exactly what information each query depends on.
-            \end{itemize}
-        \item This structure is what lets us argue about the combiner's computation
-            vertex-by-vertex in the impossibility proof.
-    \end{itemize}
+    \frametitle{Impossibility of Robust $(2;1)$ Black-Box DAG VRF-Combiners}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impossibility of Robust $(2;1)$ Black-Box DAG VRF-Combiners}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impossibility of Robust $(2;1)$ Black-Box DAG VRF-Combiners}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impossibility of Robust $(n;\lfloor n/2\rfloor)$ Black-Box DAG VRF-Combiners}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Impossibility of Robust $(n;n-1)$ Black-Box DAG VRF-Combiners}
 \end{frame}
 
 \begin{frame}
