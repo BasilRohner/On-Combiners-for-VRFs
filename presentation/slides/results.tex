@@ -2,11 +2,9 @@
 
 \begin{frame}
     \frametitle{Robust Black-Box DAG Combiners}
-    \textbf{Idea.}
-    Represent each algorithm of the combiner as a \emph{directed acyclic graph} (DAG) $\G$
-    that makes the structure of oracle calls explicit.
 
-    \vspace{0.5em}
+    We consider robust black-box combiners in a DAG normal form.
+
     \begin{itemize}
         \item Dedicated \textbf{source} $s$ (the input) and \textbf{sink} $t$ (the output).
         \item Every other vertex $v$ carries
@@ -40,11 +38,27 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Impossibility of Robust $(2;1)$ Black-Box DAG VRF-Combiners}
+    \frametitle{The $1$-out-of-$2$ Combiner}
+
+    \begin{itemize}
+        \item Simplest non-trivial case, only two candidates
+        \item Construction extends to robust $(n{-}1)$-out-of-$n$ black-box combiner
+        \item Impossibility extends to robust $\lfloor n/2\rfloor$-out-of-$n$ black-box combiner
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Impossibility of Robust $(2;1)$ Black-Box DAG VRF-Combiners}
+    \frametitle{Impossibility Proof Overview}
+
+    Given any robust $(2;1)$ black-box DAG VRF-combiner $\BBComb{VRF}$ we find oracles $\mathcal O_1, \mathcal O_2$
+    such that at least one of them implements a VRF but $\BBComb{VRF}[\mathcal O_1, \mathcal O_2]$ doesn't implement a VRF.
+
+
+    \begin{itemize}
+        \item Let $\mathcal O_{vrf}$ be a VF candidate implementing a secure VRF
+        \item Let $\mathcal O_{uppc}$ be a VF candidate implementing a uniquely provable and correct VF
+        \item Let $\mathcal A$ be the adversary defined as follows
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -61,66 +75,44 @@
 
 \begin{frame}
     \frametitle{What We Showed}
-    \begin{block}{DAG combiners are a normal form}
-        Every robust $(n;k)$ black-box combiner has a computationally equivalent
-        robust $(n;k)$ black-box DAG combiner --- we can reason over DAGs without loss.
-    \end{block}
-
-    \begin{block}{Impossibility}
+    \begin{block}{Theorem. Impossibility $1$-out-of-$2$ combiner.}
         There is \textbf{no} robust $(2;1)$ black-box VRF-combiner.\\
-        By reduction, no robust $(n; \lfloor n/2 \rfloor)$ black-box VRF-combiner exists either ---
-        at least half of the candidates must be secure.
     \end{block}
-
-    \begin{block}{Matching positive result}
-        If we \emph{strengthen} the candidates by assuming every one is uniquely provable and
-        perfectly correct, then a simple XOR-style robust $(n;1)$ black-box VRF-combiner exists.
+    \begin{block}{Corollary. Impossibility $\lfloor n/2\rfloor$-out-of-$n$ combiner.}
+        There is \textbf{no} robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner.\\
     \end{block}
-
-    \vspace{0.2em}
-    \textbf{Takeaway.}
-    Combining VRFs is strictly harder than combining PRFs:
-    verifiability forces the combiner to commit to a single provable image,
-    and without strong guarantees on the candidates, no black-box combiner can do this.
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Sketch (1/3)}
-    \begin{center}\large \emph{placeholder for proof}\end{center}
+    \frametitle{Generalizing to $(n{-}1)$-out-of-$n$ Combiner}
+    \begin{block}{Conjecture. Impossibility $(n{-}1)$-out-of-$n$ combiner.}
+        There is \textbf{no} robust $(n;n{-}1)$ black-box VRF-combiner.\\
+    \end{block}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Sketch (2/3)}
-    \begin{center}\large \emph{placeholder for proof}\end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Proof Sketch (3/3)}
-    \begin{center}\large \emph{placeholder for proof}\end{center}
+    \frametitle{Where the Proof breaks down}
+    \begin{itemize}
+        \item In the $1$-out-of-$2$ case we rely on the fact that for one candidate we can always guess the responses perfectly,
+            and for the other the obscure queries are mutually irrelevant in the sense that under the correct secret key 
+            the image $y$ stays the same. That means that for all tests on the correct secret keys $\sk^*$ the output remains consistent
+            through all runs. For any $n > 2$ and $k = n-1$ we have at least two candidate whose outputs we cannot predict perfectly.
+            While mutual independence holds for 
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
     \frametitle{Beyond Impossibility}
-    The impossibility result rules out black-box VRF-combiners in the strictest setting.
-    Several natural relaxations are worth exploring:
+    Let assume \emph{unique provability} for all $n$ candidates:
 
-    \vspace{0.5em}
     \begin{itemize}
-        \item \textbf{Statistical correctness.}
-            Require the combined scheme to be correct only with overwhelming probability,
-            rather than perfectly --- does this open up new constructions?
-        \item \textbf{Stronger candidates.}
-            Our positive result assumes \emph{all} candidates are uniquely provable and perfectly correct.
-            How far can we weaken this (e.g.\ statistical uniqueness, a mix of assumptions) and still combine?
-        \item \textbf{Richer VRF notions.}
-            Combiners for VRF variants with additional algebraic structure:
-            \begin{itemize}
-                \item constrainable VRFs,
-                \item key-homomorphic VRFs,
-                \item aggregable VRFs,
-                \item unbiasable VRFs.
-            \end{itemize}
-            These primitives may admit combiners even when plain VRFs do not.
+        \item \emph{Then a parallel combiner for PRF is applicable}
+    \end{itemize}
+
+    Too strong of an assumption?
+
+    \begin{itemize}
+        \item No, unique provability is an information theoretic property and typically proven.
     \end{itemize}
 \end{frame}
 
