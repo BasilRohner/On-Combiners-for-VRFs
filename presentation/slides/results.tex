@@ -25,6 +25,89 @@
     DAG combiner --- the DAG form is a convenient normal form for our proofs.
 \end{frame}
 
+\begin{frame}[fragile]
+    \frametitle{Example}
+
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}
+            \node (x) at (0,0) {
+                \begin{minipage}{0.35\textwidth}
+                    \centering
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Source $s$}
+                        {
+                            \x_s \gets (k, x)\\
+                            \pcreturn \x_s
+                        }
+                    \end{pcvstack}
+                \end{minipage}
+            };
+            \node (v1) at (-3,-5) {
+                \begin{minipage}{0.35\textwidth}
+                    \centering
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Vertex $v_1$}
+                        {
+                            \mathbf q_{v_1} \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
+                                \pcreturn \x_s
+                            }}
+                            \end{subprocedure}\\
+                            \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
+                            \pcreturn \x_{v_1}
+                        }
+                    \end{pcvstack}
+                \end{minipage}
+            };
+            \node (v2) at (3,-5) {
+                \begin{minipage}{0.35\textwidth}
+                    \centering
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Vertex $v_2$}
+                        {
+                            \mathbf q_{v_2} \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
+                                \pcreturn \x_s
+                            }}
+                            \end{subprocedure}\\
+                            \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
+                            \pcreturn \x_{v_2}
+                        }
+                    \end{pcvstack}
+                \end{minipage}
+            };
+            \node (t) at (0,-10) {
+                \begin{minipage}{0.35\textwidth}
+                    \centering
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Sink $t$}
+                        {
+                            \y \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
+                                \pcreturn \x_{v_1} \xor \x_{v_2}
+                            }}
+                            \end{subprocedure}\\
+                            \pcreturn \y
+                        }
+                    \end{pcvstack}
+                \end{minipage}
+            };
+            \draw[-latex] (x) -> (v1);
+            \draw[-latex] (v1) -> (t);
+            \draw[-latex] (x) -> (v2);
+            \draw[-latex] (v2) -> (t);
+        \end{tikzpicture}
+    \end{figure}
+\end{frame}
+
 \begin{frame}
     \frametitle{Equivalence}
 
@@ -48,29 +131,257 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Impossibility Proof Overview}
+    \frametitle{Proof Setup}
 
-    Given any robust $(2;1)$ black-box DAG VRF-combiner $\BBComb{VRF}$ we find oracles $\mathcal O_1, \mathcal O_2$
-    such that at least one of them implements a VRF but $\BBComb{VRF}[\mathcal O_1, \mathcal O_2]$ doesn't implement a VRF.
-
+    Suppose $\BBComb{VRF}$ is a robust $(2;1)$ black-box DAG VRF-combiner.
 
     \begin{itemize}
-        \item Let $\mathcal O_{vrf}$ be a VF candidate implementing a secure VRF
-        \item Let $\mathcal O_{uppc}$ be a VF candidate implementing a uniquely provable and correct VF
-        \item Let $\mathcal A$ be the adversary defined as follows
+        \item $\mathcal O_{vrf}$: a secure VRF
+        \item $\mathcal O_{uppc}$: a \emph{trivial}, uniquely provable and perfectly correct VF:
+            \begin{itemize}
+                \item $\alg{Gen}{VRF}(1^\lambda) = (\sk_{def}, \pk_{def})$
+                \item $\alg{Eval}{VRF}(\sk, x) = (y_{def}, \pi_{def})$
+                \item $\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1 \iff y = y_{def}$
+            \end{itemize}
+        \item $\mathcal O_{vrf}$ a secure VRF $\implies$ $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$ a secure VRF
+    \end{itemize}
+
+    \vspace{0.3em}
+
+    \textbf{Goal:} Adversary $\mathcal A^{\mathsf{PSPACE}, \mathcal O_{vrf}, \mathcal O_{uppc}}$
+    against psuedorandomness of $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$.
+
+    \textbf{Assume}: $\SK = \bin^{s(\lambda)}$ for $s \in \poly(\lambda)$ for all candidates.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Proof Overview}
+
+    Assume we have a Turing machine (inefficient) $\alg{EvalSim}{VRF}$ satisfying:
+
+    \begin{itemize}
+        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$
+        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \bot \text{ if } \alg{Eval}{VRF}^y(\sk_{cand}, x) \neq \alg{Eval}{VRF}^y(\sk, x)$
+        \item $\alg{EvalSim}{VRF}$ makes \textit{no queries to any oracles}.
+        \item $\alg{EvalSim}{VRF}$ has a \textit{polynomial space complexity}.
+    \end{itemize}
+
+    For $x \in \bin^\lambda, (y,\pi) = \BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]\alg{Eval}{VRF}(\sk, x)$ and $\tau = \text{trace}(\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Vfy}{VRF}(\pk, x, y, \pi))$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Proof Overview - Adversary}
+    \begin{figure}[htbp]
+        \begin{pchstack}[space=1em]
+            \procedure[linenumbering]%
+            {Adversary $\mathcal A^{}$}
+            {
+                b \sample \bin\\ 
+                (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
+                S \gets \varnothing\\ 
+                (x^*, \sigma) \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)\\ 
+                (y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
+                y_1 \sample \Y\\ 
+                b' \sample \mathcal A_2(1^\lambda, x^*, \sigma, y_b) \\ 
+                \pcreturn b = b' \land x^* \notin S
+            }
+            \procedure[linenumbering]%
+            {Oracle $\mathcal O_{\text{eval}}(x)$}
+            {
+                S \gets S \cup \{x\}\\ 
+                (y,\pi) \sample \alg{Eval}{VF}(\sk, x)\\ 
+                \pcreturn y
+            }
+        \end{pchstack}
+        \label{fig:prf_wprf_up_experiment}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+
+    Given $(\sk_{cand}, x, y, \pi, \tau)$, $\alg{EvalSim}{VRF}$ is computed by:
+
+    \begin{itemize}
+        \item Follow the DAG $\G_{\text{Eval}}$, describing $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$, in some topological ordering
+        \item For every vertex $v$ corresponding to a query to $\mathcal O_{uppc}$ answer with default value
+        \item For every vertex $v$ corresponding to a query to $\mathcal O_{vrf}$ check $\tau$:
+        \begin{itemize}
+            \item If $\mathbf q \in \tau$: answer accordingly
+            \item If $\mathbf q \notin \tau$: branch for every possible answer
+        \end{itemize}
+        \item Return $\top$ iff all branches produce the image $y$
     \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Impossibility of Robust $(2;1)$ Black-Box DAG VRF-Combiners}
+    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+
+    Given $(\sk_{cand}, x, y, \pi, \tau)$, $\alg{EvalSim}{VRF}$ is computed by:
+
+    \begin{itemize}
+        \item Follow the DAG $\G_{\text{Eval}}$, describing $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$, in some topological ordering
+        \item For every vertex $v$ corresponding to a query to $\mathcal O_{uppc}$ answer with default value
+        \item For every vertex $v$ corresponding to a query to $\mathcal O_{vrf}$ check $\tau$:
+        \begin{itemize}
+            \item If $\mathbf q \in \tau$: answer accordingly
+            \item If $\mathbf q \notin \tau$: branch for every possible answer
+        \end{itemize}
+        \item Return $\top$ iff all branches produce the image $y$
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Impossibility of Robust $(n;\lfloor n/2\rfloor)$ Black-Box DAG VRF-Combiners}
+    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+
+    Assume we have a Turing machine (inefficient) $\alg{EvalSim}{VRF}$ satisfying:
+
+    \begin{itemize}
+        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$
+        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \bot \text{ if } \alg{Eval}{VRF}^y(\sk_{cand}, x) \neq \alg{Eval}{VRF}^y(\sk, x)$
+        \item $\alg{EvalSim}{VRF}$ makes \textit{no queries to any oracles}.
+        \item $\alg{EvalSim}{VRF}$ has a \textit{polynomial space complexity}.
+    \end{itemize}
+
+    For $x \in \bin^\lambda, (y,\pi) = \BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]\alg{Eval}{VRF}(\sk, x)$ and $\tau = \text{trace}(\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Vfy}{VRF}(\pk, x, y, \pi))$.
 \end{frame}
 
 \begin{frame}
-    \frametitle{Impossibility of Robust $(n;n-1)$ Black-Box DAG VRF-Combiners}
+    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+
+    $\alg{EvalSim}{VRF}$ has a \textit{polynomial space complexity}:
+
+    \begin{itemize}
+        \item $\alg{EvalSim}{VRF}$ in $\textsf{NPSPACE}$ since every branch is an execution of $\alg{Eval}{VRF}$
+        \item $\textsf{NPSPACE} \subseteq \textsf{PSPACE}$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+
+    $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \bot \text{ if } \alg{Eval}{VRF}^y(\sk_{cand}, x) \neq y$:
+
+    \begin{itemize}
+        \item All queries made to $\mathcal O_{uppc}$ answered the same $\alg{Eval}{VRF}(\sk_{cand}, x)$
+        \item All queries made to $\mathcal O_{vrf}$ with $\mathbf q \in \tau$ answered the same
+        \item For all queries made to $\mathcal O_{vrf}$ with $\mathbf q \notin \tau$ there exists a branch which is the same
+    \end{itemize}
+    
+    $\implies$ At least one branch evaluates to $\alg{Eval}{VRF}^y(\sk_{cand}, x) \neq y$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+
+    $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$.
+
+    \vspace{.5em}
+
+    Suppose $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$:
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{Proof Overview}
+
+
+    Suppose $\BBComb{VRF}$ is a robust $(2;1)$ black-box DAG VRF-combiner.
+
+    \begin{itemize}
+        \item $\mathcal O_{vrf}$: a secure VRF
+        \item $\mathcal O_{uppc}$: a \emph{trivial}, uniquely provable and perfectly correct VF:
+            \begin{itemize}
+                \item $\alg{Gen}{VRF}(1^\lambda) = (\sk_{def}, \pk_{def})$
+                \item $\alg{Eval}{VRF}(\sk, x) = (y_{def}, \pi_{def})$
+                \item $\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1 \iff y = y_{def}$
+            \end{itemize}
+        \item $\mathcal O_{vrf}$ a secure VRF $\implies$ $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$ a secure VRF
+    \end{itemize}
+
+    \vspace{0.3em}
+
+    \textbf{Goal:} Adversary $\mathcal A^{\mathsf{PSPACE}, \mathcal O_{vrf}, \mathcal O_{uppc}}$
+    against psuedorandomness of $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Exposed vs.\ Obscure Queries}
+
+    Honest evaluation $(y,\pi) \gets \BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Eval}{VRF}(\sk, x)$;
+    let $\tau$ be the verification trace. Classify each oracle-query vertex of the Eval DAG:
+
+    \begin{itemize}
+        \item query to $\mathcal O_{uppc}$ \hfill$\to$\quad default $\mathbf x_v^{def}$
+        \item query to $\mathcal O_{vrf}$ in $\tau$ \hfill$\to$\quad \emph{exposed}: read from $\tau$
+        \item query to $\mathcal O_{vrf}$ not in $\tau$ \hfill$\to$\quad \emph{obscure}
+    \end{itemize}
+
+    \begin{block}{Claim (obscure queries are irrelevant)}
+        Under any well-formed reassignment of responses to the obscure queries,
+        the combiner still outputs the same image $y$.
+    \end{block}
+
+    \textbf{Sketch.} Else two reassignments yield $\widehat{\mathcal O}_{vrf}, \widetilde{\mathcal O}_{vrf}$
+    with $\hat y \neq \tilde y$. The \emph{vrfification lemma} upgrades $\mathcal O_{uppc}$ to a secure VRF
+    matching it on the relevant keys --- $\tau$ is the same in both worlds, breaking unique provability. \contradiction
+\end{frame}
+
+\begin{frame}
+    \frametitle{A Query-Free Simulator $\alg{EvalSim}{VRF}$}
+
+    Given $(\sk, x, y, \pi, \tau)$, simulate the combiner's Eval without any oracle call:
+    answer $\mathcal O_{uppc}$ queries with defaults, exposed queries from $\tau$, and \emph{branch}
+    over all well-formed responses on obscure queries. Return $\top$ iff every branch outputs $y$.
+
+    \begin{block}{Properties}
+        \begin{itemize}
+            \item $\alg{EvalSim}{VRF}$ makes no queries to $\mathcal O_{vrf}, \mathcal O_{uppc}$.
+            \item $\sk = \sk^* \Rightarrow \alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \top$ \hfill(previous claim)
+            \item $\BBComb{VRF}.\alg{Eval}{VRF}^y(\sk, x) \neq y \Rightarrow \alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$
+        \end{itemize}
+    \end{block}
+
+    Inefficient, but decidable in $\mathsf{PSPACE}$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Adversary}
+
+    \begin{itemize}
+        \item[\textbf{1.}] Sample $x_1, \ldots, x_{s(\lambda) + \lambda} \sample \bin^\lambda$;
+            obtain $(y_i, \pi_i, \tau_i)$ via $\mathcal O_{\text{eval}}$ and $\BBComb{VRF}.\alg{Vfy}{VRF}$.
+        \item[\textbf{2.}] Use $\mathsf{PSPACE}$ to compute the filtered set
+            $\SK_{cand} = \bigcap_{i} \{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top\}$;
+            note $\sk^* \in \SK_{cand}$.
+        \item[\textbf{3.}] Sample $\sk_{cand} \sample \SK_{cand}$ uniformly.
+        \item[\textbf{4.}] On challenge $x^*$, predict $y' \gets \BBComb{VRF}.\alg{Eval}{VRF}(\sk_{cand}, x^*)$
+            and guess $b = 0 \iff y' = y^*$.
+    \end{itemize}
+
+    \textbf{Advantage.} Call $\sk$ \emph{unfavorable} if it agrees with $\sk^*$ on a random $x$ with probability $< 1/2$.
+    A Markov bound shows unfavorables survive all rounds with expected count $\le 2^{-\lambda}$, hence
+    \[
+        \mathbf{Adv}^{\textup{prf}}_{\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]}(\lambda, \mathcal A)
+        \ge \tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}} - \tfrac{1}{|\Y|}.
+    \]
+\end{frame}
+
+\begin{frame}
+    \frametitle{From $(2;1)$ to $(n;\lfloor n/2\rfloor)$}
+
+    Given a robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner $\BBComb{VRF}$, build a robust $(2;1)$ combiner $\DAGComb{VRF}$:
+
+    \begin{itemize}
+        \item initialize the first $\lfloor n/2\rfloor$ candidates of $\BBComb{VRF}$ with $\mathcal O_1$
+        \item initialize the remaining $\lceil n/2\rceil$ candidates with $\mathcal O_2$
+    \end{itemize}
+
+    If either $\mathcal O_1$ or $\mathcal O_2$ is a secure VRF,
+    at least $\lfloor n/2\rfloor$ candidates of $\BBComb{VRF}$ are secure, so $\DAGComb{VRF}$ is a robust $(2;1)$ combiner.
+
+    \vspace{0.3em}
+    Contraposition with the main theorem yields the impossibility of robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiners.
 \end{frame}
 
 \begin{frame}
