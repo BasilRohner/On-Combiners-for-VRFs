@@ -39,6 +39,18 @@
 \newcommand{\bin}{\ensuremath{\{0,1\}}}
 \newcommand{\Y}{\ensuremath{\mathcal{Y}}}
 \renewcommand{\P}{\ensuremath{\mathcal{P}}}
+\renewcommand{\O}{\ensuremath{\mathcal{O}}}
+
+% Vectors
+\newcommand{\x}{\ensuremath{\mathbf{x}}}
+\newcommand{\y}{\ensuremath{\mathbf{y}}}
+
+% Dashed box (used to wrap subprocedures in DAG figures)
+\newcommand{\dbox}[1]{%
+    \tikz[baseline=(dboxnode.base)]{%
+        \node[draw, dashed, inner sep=3pt] (dboxnode) {#1};%
+    }%
+}
 
 % Parenthesis
 \DeclarePairedDelimiter{\Paren}{(}{)}

@@ -28,12 +28,91 @@
 \begin{frame}[fragile]
     \frametitle{Example}
 
-    \begin{figure}
-        \centering
-        \begin{tikzpicture}
+    \vspace*{-1.5em}
+    \begin{center}
+        \begin{adjustbox}{max width=\textwidth, max totalheight=0.9\textheight}
+        \begin{tikzpicture}[node distance=0pt]
             \node (x) at (0,0) {
-                \begin{minipage}{0.35\textwidth}
-                    \centering
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Source $s$}
+                    {
+                        \x_s \gets (k, x)\\
+                        \pcreturn \x_s
+                    }
+                \end{pcvstack}
+            };
+            \node (v1) at (-3,-4) {
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Vertex $v_1$}
+                    {
+                        \mathbf q_{v_1} \gets
+                        \begin{subprocedure}
+                        \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
+                            \pcreturn \x_s
+                        }}
+                        \end{subprocedure}\\
+                        \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
+                        \pcreturn \x_{v_1}
+                    }
+                \end{pcvstack}
+            };
+            \node (v2) at (3,-4) {
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Vertex $v_2$}
+                    {
+                        \mathbf q_{v_2} \gets
+                        \begin{subprocedure}
+                        \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
+                            \pcreturn \x_s
+                        }}
+                        \end{subprocedure}\\
+                        \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
+                        \pcreturn \x_{v_2}
+                    }
+                \end{pcvstack}
+            };
+            \node (t) at (0,-8) {
+                \begin{pcvstack}[center, boxed, space=1em]
+                    \procedure[linenumbering]
+                    {Sink $t$}
+                    {
+                        \y \gets
+                        \begin{subprocedure}
+                        \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
+                            \pcreturn \x_{v_1} \xor \x_{v_2}
+                        }}
+                        \end{subprocedure}\\
+                        \pcreturn \y
+                    }
+                \end{pcvstack}
+            };
+            \draw[-latex] (x) -> (v1);
+            \draw[-latex] (v1) -> (t);
+            \draw[-latex] (x) -> (v2);
+            \draw[-latex] (v2) -> (t);
+        \end{tikzpicture}
+        \end{adjustbox}
+    \end{center}
+\end{frame}
+
+\begin{frame}[fragile,c]
+    \frametitle{Example}
+
+    \begin{columns}[T]
+    \column{0.4\textwidth}
+        \begin{itemize}
+            \item symbolic, simplifies reasoning
+            \item produces the input
+        \end{itemize}
+
+    \column{0.6\textwidth}
+    \begin{center}
+        \begin{adjustbox}{max width=\textwidth, max totalheight=0.75\textheight}
+            \begin{tikzpicture}[node distance=0pt]
+                \node (x) at (0,0) {
                     \begin{pcvstack}[center, boxed, space=1em]
                         \procedure[linenumbering]
                         {Source $s$}
@@ -42,11 +121,9 @@
                             \pcreturn \x_s
                         }
                     \end{pcvstack}
-                \end{minipage}
-            };
-            \node (v1) at (-3,-5) {
-                \begin{minipage}{0.35\textwidth}
-                    \centering
+                };
+                \node (v1) at (-3,-4) {
+                    \color{black!25}
                     \begin{pcvstack}[center, boxed, space=1em]
                         \procedure[linenumbering]
                         {Vertex $v_1$}
@@ -61,11 +138,9 @@
                             \pcreturn \x_{v_1}
                         }
                     \end{pcvstack}
-                \end{minipage}
-            };
-            \node (v2) at (3,-5) {
-                \begin{minipage}{0.35\textwidth}
-                    \centering
+                };
+                \node (v2) at (3,-4) {
+                    \color{black!25}
                     \begin{pcvstack}[center, boxed, space=1em]
                         \procedure[linenumbering]
                         {Vertex $v_2$}
@@ -80,11 +155,9 @@
                             \pcreturn \x_{v_2}
                         }
                     \end{pcvstack}
-                \end{minipage}
-            };
-            \node (t) at (0,-10) {
-                \begin{minipage}{0.35\textwidth}
-                    \centering
+                };
+                \node (t) at (0,-8) {
+                    \color{black!25}
                     \begin{pcvstack}[center, boxed, space=1em]
                         \procedure[linenumbering]
                         {Sink $t$}
@@ -98,35 +171,208 @@
                             \pcreturn \y
                         }
                     \end{pcvstack}
-                \end{minipage}
-            };
-            \draw[-latex] (x) -> (v1);
-            \draw[-latex] (v1) -> (t);
-            \draw[-latex] (x) -> (v2);
-            \draw[-latex] (v2) -> (t);
-        \end{tikzpicture}
-    \end{figure}
+                };
+                \draw[-latex] (x) -> (v1);
+                \draw[-latex] (v1) -> (t);
+                \draw[-latex] (x) -> (v2);
+                \draw[-latex] (v2) -> (t);
+            \end{tikzpicture}
+            \end{adjustbox}
+    \end{center}
+\end{columns}
 \end{frame}
 
+
+\begin{frame}[fragile,c]
+    \frametitle{Example}
+
+    \begin{columns}[T]
+    \column{0.4\textwidth}
+        \begin{itemize}
+            \item symbolic, simplifies reasoning
+            \item produces the input
+        \end{itemize}
+
+    \column{0.6\textwidth}
+    \begin{center}
+        \begin{adjustbox}{max width=\textwidth, max totalheight=0.75\textheight}
+            \begin{tikzpicture}[node distance=0pt]
+                \node (x) at (0,0) {
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Source $s$}
+                        {
+                            \x_s \gets (k, x)\\
+                            \pcreturn \x_s
+                        }
+                    \end{pcvstack}
+                };
+                \node (v1) at (-3,-4) {
+                    \color{black!25}
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Vertex $v_1$}
+                        {
+                            \mathbf q_{v_1} \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
+                                \pcreturn \x_s
+                            }}
+                            \end{subprocedure}\\
+                            \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
+                            \pcreturn \x_{v_1}
+                        }
+                    \end{pcvstack}
+                };
+                \node (v2) at (3,-4) {
+                    \color{black!25}
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Vertex $v_2$}
+                        {
+                            \mathbf q_{v_2} \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
+                                \pcreturn \x_s
+                            }}
+                            \end{subprocedure}\\
+                            \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
+                            \pcreturn \x_{v_2}
+                        }
+                    \end{pcvstack}
+                };
+                \node (t) at (0,-8) {
+                    \color{black!25}
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Sink $t$}
+                        {
+                            \y \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
+                                \pcreturn \x_{v_1} \xor \x_{v_2}
+                            }}
+                            \end{subprocedure}\\
+                            \pcreturn \y
+                        }
+                    \end{pcvstack}
+                };
+                \draw[-latex] (x) -> (v1);
+                \draw[-latex] (v1) -> (t);
+                \draw[-latex] (x) -> (v2);
+                \draw[-latex] (v2) -> (t);
+            \end{tikzpicture}
+            \end{adjustbox}
+    \end{center}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile,c]
+    \frametitle{Example}
+
+    \begin{columns}[T]
+    \column{0.4\textwidth}
+        \begin{itemize}
+            \item symbolic, simplifies reasoning
+            \item produces the input
+        \end{itemize}
+
+    \column{0.6\textwidth}
+    \begin{center}
+        \begin{adjustbox}{max width=\textwidth, max totalheight=0.75\textheight}
+            \begin{tikzpicture}[node distance=0pt]
+                \node (x) at (0,0) {
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Source $s$}
+                        {
+                            \x_s \gets (k, x)\\
+                            \pcreturn \x_s
+                        }
+                    \end{pcvstack}
+                };
+                \node (v1) at (-3,-4) {
+                    \color{black!25}
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Vertex $v_1$}
+                        {
+                            \mathbf q_{v_1} \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
+                                \pcreturn \x_s
+                            }}
+                            \end{subprocedure}\\
+                            \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
+                            \pcreturn \x_{v_1}
+                        }
+                    \end{pcvstack}
+                };
+                \node (v2) at (3,-4) {
+                    \color{black!25}
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Vertex $v_2$}
+                        {
+                            \mathbf q_{v_2} \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
+                                \pcreturn \x_s
+                            }}
+                            \end{subprocedure}\\
+                            \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
+                            \pcreturn \x_{v_2}
+                        }
+                    \end{pcvstack}
+                };
+                \node (t) at (0,-8) {
+                    \color{black!25}
+                    \begin{pcvstack}[center, boxed, space=1em]
+                        \procedure[linenumbering]
+                        {Sink $t$}
+                        {
+                            \y \gets
+                            \begin{subprocedure}
+                            \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
+                                \pcreturn \x_{v_1} \xor \x_{v_2}
+                            }}
+                            \end{subprocedure}\\
+                            \pcreturn \y
+                        }
+                    \end{pcvstack}
+                };
+                \draw[-latex] (x) -> (v1);
+                \draw[-latex] (v1) -> (t);
+                \draw[-latex] (x) -> (v2);
+                \draw[-latex] (v2) -> (t);
+            \end{tikzpicture}
+            \end{adjustbox}
+    \end{center}
+\end{columns}
+\end{frame}
 \begin{frame}
     \frametitle{Equivalence}
 
     \begin{itemize}
-        \item Robust $(n;k)$ black-box DAG combiners are robust $(n;k)$ black-box combiners
-        \item Robust $(n;k)$ black-box combiners can be converted into robust $(n;k)$ black-box DAG combiner
+        \item<1-> Robust $(n;k)$ black-box DAG Combiner $\implies$ Robust $(n;k)$ black-box combiners
+        \item<2-> Robust $(n;k)$ black-box combiners $\implies$ Robust $(n;k)$ black-box DAG combiner
     \end{itemize}
 
-    By induction over the number of oracle queries, bounded from above by $p(\lambda) \in \poly$. $p(\lambda)$
-    layers. At every vertex $v$ in layer $l$ simulate the combiner $\BBComb{VRF}{}$ 
+    \vspace{1em}
+
+    \begin{center}
+        \only<3->{\textbf{Sufficient to show (im)possibility of a robust $(n;k)$ black-box DAG combiner.}}
+    \end{center}
 \end{frame}
 
 \begin{frame}
     \frametitle{The $1$-out-of-$2$ Combiner}
 
     \begin{itemize}
-        \item Simplest non-trivial case, only two candidates
-        \item Construction extends to robust $(n{-}1)$-out-of-$n$ black-box combiner
-        \item Impossibility extends to robust $\lfloor n/2\rfloor$-out-of-$n$ black-box combiner
+        \item<1-> Simplest non-trivial case, only two candidates
+        \item<2-> Construction extends to robust $1$-out-of-$n$ black-box combiner
+        \item<3-> Impossibility extends to robust $\lfloor n/2\rfloor$-out-of-$n$ black-box combiner
     \end{itemize}
 \end{frame}
 
@@ -155,7 +401,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Overview}
+    \frametitle{Proof}
 
     Assume we have a Turing machine (inefficient) $\alg{EvalSim}{VRF}$ satisfying:
 
@@ -170,7 +416,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Overview - Adversary}
+    \frametitle{Adversary}
     \begin{figure}[htbp]
         \begin{pchstack}[space=1em]
             \procedure[linenumbering]%
@@ -197,8 +443,19 @@
     \end{figure}
 \end{frame}
 
+
 \begin{frame}
-    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{Adversary}
+
+
+    \[
+        \mathbf{Adv}^{\textup{prf}}_{\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]}(\lambda, \mathcal A)
+        \ge \tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}} - \tfrac{1}{|\Y|}.
+    \]
+\end{frame}
+
+\begin{frame}
+    \frametitle{How to get $\alg{EvalSim}{VRF}$}
 
     Given $(\sk_{cand}, x, y, \pi, \tau)$, $\alg{EvalSim}{VRF}$ is computed by:
 
@@ -215,7 +472,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{How to get $\alg{EvalSim}{VRF}$}
 
     Given $(\sk_{cand}, x, y, \pi, \tau)$, $\alg{EvalSim}{VRF}$ is computed by:
 
@@ -232,7 +489,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{How to get $\alg{EvalSim}{VRF}$}
 
     Assume we have a Turing machine (inefficient) $\alg{EvalSim}{VRF}$ satisfying:
 
@@ -247,7 +504,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{How to get $\alg{EvalSim}{VRF}$}
 
     $\alg{EvalSim}{VRF}$ has a \textit{polynomial space complexity}:
 
@@ -258,7 +515,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{How to get $\alg{EvalSim}{VRF}$}
 
     $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \bot \text{ if } \alg{Eval}{VRF}^y(\sk_{cand}, x) \neq y$:
 
@@ -272,99 +529,52 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof Overview - How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{How to get $\alg{EvalSim}{VRF}$}
 
     $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$.
 
     \vspace{.5em}
 
-    Suppose $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$:
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{Proof Overview}
-
-
-    Suppose $\BBComb{VRF}$ is a robust $(2;1)$ black-box DAG VRF-combiner.
-
     \begin{itemize}
-        \item $\mathcal O_{vrf}$: a secure VRF
-        \item $\mathcal O_{uppc}$: a \emph{trivial}, uniquely provable and perfectly correct VF:
-            \begin{itemize}
-                \item $\alg{Gen}{VRF}(1^\lambda) = (\sk_{def}, \pk_{def})$
-                \item $\alg{Eval}{VRF}(\sk, x) = (y_{def}, \pi_{def})$
-                \item $\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1 \iff y = y_{def}$
-            \end{itemize}
-        \item $\mathcal O_{vrf}$ a secure VRF $\implies$ $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$ a secure VRF
+        \item Suppose $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$
+        \item Then there exist answers to queries to $\mathcal O_{vrf}$ such that the output is $y' \neq y$
+        \item Modify $\mathcal O_{uppc}$ to make it a secure VRF such that $\mathcal O_{uppc}^*\big|_{\widetilde\SK} = \mathcal O_{uppc}\big|_{\widetilde\SK}$
+        \item Modify $\mathcal O_{vrf}$ to produce the transcript of the branch, $\mathcal O_{vrf}^*$
+        \item $\mathcal O_{vrf}$ and $\mathcal O_{vrf}^*$ only differ on queries $\mathbf q \notin \tau$ and indistinguishable for verification
     \end{itemize}
 
-    \vspace{0.3em}
+    Now we have:
 
-    \textbf{Goal:} Adversary $\mathcal A^{\mathsf{PSPACE}, \mathcal O_{vrf}, \mathcal O_{uppc}}$
-    against psuedorandomness of $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$.
+    \begin{align*}
+        y = \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}].\alg{Eval}{VRF}^y(\sk, x) \neq 
+        \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}^*].\alg{Eval}{VRF}^y(\sk, x) = y^*
+    \end{align*}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Exposed vs.\ Obscure Queries}
+    \frametitle{How to get $\alg{EvalSim}{VRF}$}
 
-    Honest evaluation $(y,\pi) \gets \BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Eval}{VRF}(\sk, x)$;
-    let $\tau$ be the verification trace. Classify each oracle-query vertex of the Eval DAG:
+    $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$.
 
-    \begin{itemize}
-        \item query to $\mathcal O_{uppc}$ \hfill$\to$\quad default $\mathbf x_v^{def}$
-        \item query to $\mathcal O_{vrf}$ in $\tau$ \hfill$\to$\quad \emph{exposed}: read from $\tau$
-        \item query to $\mathcal O_{vrf}$ not in $\tau$ \hfill$\to$\quad \emph{obscure}
-    \end{itemize}
+    Now we have:
 
-    \begin{block}{Claim (obscure queries are irrelevant)}
-        Under any well-formed reassignment of responses to the obscure queries,
-        the combiner still outputs the same image $y$.
-    \end{block}
+    \begin{align*}
+        y = \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}].\alg{Eval}{VRF}^y(\sk, x) \neq 
+        \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}^*].\alg{Eval}{VRF}^y(\sk, x) = y^*
+    \end{align*}
 
-    \textbf{Sketch.} Else two reassignments yield $\widehat{\mathcal O}_{vrf}, \widetilde{\mathcal O}_{vrf}$
-    with $\hat y \neq \tilde y$. The \emph{vrfification lemma} upgrades $\mathcal O_{uppc}$ to a secure VRF
-    matching it on the relevant keys --- $\tau$ is the same in both worlds, breaking unique provability. \contradiction
+    Since the verification algorithms are however the same on queries $\mathbf q \in \tau$, the proof $\pi$ verifies identically in both executions.
+
+    \vspace{.5em}
+
+    $\implies$ Two distinct values $y \neq y^*$ both verify under the same $(\pk, x, \pi)$, breaking \textbf{unique provability} of $\BBComb{VRF}$.
 \end{frame}
 
 \begin{frame}
-    \frametitle{A Query-Free Simulator $\alg{EvalSim}{VRF}$}
+    \frametitle{Construction of $\mathcal O_{uppc}^*$}
 
-    Given $(\sk, x, y, \pi, \tau)$, simulate the combiner's Eval without any oracle call:
-    answer $\mathcal O_{uppc}$ queries with defaults, exposed queries from $\tau$, and \emph{branch}
-    over all well-formed responses on obscure queries. Return $\top$ iff every branch outputs $y$.
+    \hlb{TODO: Move to backup}
 
-    \begin{block}{Properties}
-        \begin{itemize}
-            \item $\alg{EvalSim}{VRF}$ makes no queries to $\mathcal O_{vrf}, \mathcal O_{uppc}$.
-            \item $\sk = \sk^* \Rightarrow \alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \top$ \hfill(previous claim)
-            \item $\BBComb{VRF}.\alg{Eval}{VRF}^y(\sk, x) \neq y \Rightarrow \alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$
-        \end{itemize}
-    \end{block}
-
-    Inefficient, but decidable in $\mathsf{PSPACE}$.
-\end{frame}
-
-\begin{frame}
-    \frametitle{The Adversary}
-
-    \begin{itemize}
-        \item[\textbf{1.}] Sample $x_1, \ldots, x_{s(\lambda) + \lambda} \sample \bin^\lambda$;
-            obtain $(y_i, \pi_i, \tau_i)$ via $\mathcal O_{\text{eval}}$ and $\BBComb{VRF}.\alg{Vfy}{VRF}$.
-        \item[\textbf{2.}] Use $\mathsf{PSPACE}$ to compute the filtered set
-            $\SK_{cand} = \bigcap_{i} \{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top\}$;
-            note $\sk^* \in \SK_{cand}$.
-        \item[\textbf{3.}] Sample $\sk_{cand} \sample \SK_{cand}$ uniformly.
-        \item[\textbf{4.}] On challenge $x^*$, predict $y' \gets \BBComb{VRF}.\alg{Eval}{VRF}(\sk_{cand}, x^*)$
-            and guess $b = 0 \iff y' = y^*$.
-    \end{itemize}
-
-    \textbf{Advantage.} Call $\sk$ \emph{unfavorable} if it agrees with $\sk^*$ on a random $x$ with probability $< 1/2$.
-    A Markov bound shows unfavorables survive all rounds with expected count $\le 2^{-\lambda}$, hence
-    \[
-        \mathbf{Adv}^{\textup{prf}}_{\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]}(\lambda, \mathcal A)
-        \ge \tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}} - \tfrac{1}{|\Y|}.
-    \]
 \end{frame}
 
 \begin{frame}
@@ -385,31 +595,29 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{What We Showed}
+    \frametitle{Result}
     \begin{block}{Theorem. Impossibility $1$-out-of-$2$ combiner.}
         There is \textbf{no} robust $(2;1)$ black-box VRF-combiner.\\
     \end{block}
     \begin{block}{Corollary. Impossibility $\lfloor n/2\rfloor$-out-of-$n$ combiner.}
         There is \textbf{no} robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner.\\
     \end{block}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Generalizing to $(n{-}1)$-out-of-$n$ Combiner}
     \begin{block}{Conjecture. Impossibility $(n{-}1)$-out-of-$n$ combiner.}
         There is \textbf{no} robust $(n;n{-}1)$ black-box VRF-combiner.\\
     \end{block}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Where the Proof breaks down}
-    \begin{itemize}
-        \item In the $1$-out-of-$2$ case we rely on the fact that for one candidate we can always guess the responses perfectly,
-            and for the other the obscure queries are mutually irrelevant in the sense that under the correct secret key 
-            the image $y$ stays the same. That means that for all tests on the correct secret keys $\sk^*$ the output remains consistent
-            through all runs. For any $n > 2$ and $k = n-1$ we have at least two candidate whose outputs we cannot predict perfectly.
-            While mutual independence holds for 
-    \end{itemize}
+    \frametitle{What We Showed}
+
+    Additionally the same proof shows that:
+
+    \begin{block}{Lemma. Impossibility $\lfloor n/2\rfloor$-out-of-$n$ VUF-combiner.}
+        There is \textbf{no} robust $(2;1)$ black-box VRF-combiner.\\
+    \end{block}
+    \begin{block}{Lemma. Impossibility $\lfloor n/2\rfloor$-out-of-$n$ wVRF-combiner.}
+        There is \textbf{no} robust $(2;1)$ black-box VRF-combiner.\\
+    \end{block}
 \end{frame}
 
 \begin{frame}
@@ -428,28 +636,30 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Open Questions}
-    \begin{block}{Conjecture: $(n; n-1)$ is also impossible}
-        There exists no robust $(n; n-1)$ black-box VRF-combiner.\\[0.3em]
-        That is, it is \emph{not} enough for all-but-one candidates to be secure ---
-        any robust black-box VRF-combiner needs strictly more than a constant
-        number of insecure candidates to tolerate.
-    \end{block}
+    \frametitle{Robust $1$-out-of-$n$ Black-Box Combiner for UP-VRF}
 
-    \vspace{0.3em}
-    \textbf{Why it is hard.}
-    Our $(2;1)$ impossibility proof exploits a specific structural argument
-    about obscure queries and verification traces.
-    Extending it to $n-1$ adversarial candidates would require reasoning
-    about the simultaneous freedom on many oracles, and the current technique
-    does not directly generalize.
-
-    \vspace{0.3em}
-    \textbf{Other open directions.}
-    \begin{itemize}
-        \item Closing the gap between $(n; \lfloor n/2 \rfloor)$ (impossible)
-            and $(n; n-1)$ (conjectured impossible).
-        \item Finding the weakest candidate assumptions under which
-            \emph{some} robust black-box VRF-combiner exists.
-    \end{itemize}
+    \begin{figure}[htbp]
+        \begin{pchstack}[space=1em]
+            \procedure[linenumbering]%
+            {Adversary $\mathcal A^{}$}
+            {
+                b \sample \bin\\ 
+                (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
+                S \gets \varnothing\\ 
+                (x^*, \sigma) \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)\\ 
+                (y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
+                y_1 \sample \Y\\ 
+                b' \sample \mathcal A_2(1^\lambda, x^*, \sigma, y_b) \\ 
+                \pcreturn b = b' \land x^* \notin S
+            }
+            \procedure[linenumbering]%
+            {Oracle $\mathcal O_{\text{eval}}(x)$}
+            {
+                S \gets S \cup \{x\}\\ 
+                (y,\pi) \sample \alg{Eval}{VF}(\sk, x)\\ 
+                \pcreturn y
+            }
+        \end{pchstack}
+        \label{fig:prf_wprf_up_experiment}
+    \end{figure}
 \end{frame}

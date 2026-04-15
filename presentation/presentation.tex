@@ -2,6 +2,7 @@
 \let\iffullversion\iffalse
 \let\ifanonymous\iffalse
 \let\ifnumeric\iffalse
+\let\ifbiber\iftrue
 
 \input{config/conditionals}
 
@@ -25,6 +26,8 @@
 
     % hyper setup
     \hypersetup{
+        hidelinks,
+        pdfborder={0 0 0},
         linktoc=all,
         pdfauthor={author},
         pdftitle={title},
@@ -33,7 +36,6 @@
     }
 \fi
 
-\addbibresource{../refs.bib}
 \addbibresource{references.bib}
 
 \begin{document}
@@ -48,5 +50,8 @@
 \input{slides/preliminaries}
 \input{slides/results}
 \input{slides/summary}
+\input{slides/references}
+\appendix
+\input{slides/backup}
 
 \end{document}

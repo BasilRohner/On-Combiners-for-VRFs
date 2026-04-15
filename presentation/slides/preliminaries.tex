@@ -11,7 +11,7 @@
         \end{itemize}
     \end{block}
     \vspace{0.3em}
-    A VF is a purely syntactic object, we define security properties on top of it.
+    \only<2->{A VF is a purely syntactic object, we define security properties on top of it.}
 \end{frame}
 
 \begin{frame}
@@ -35,7 +35,7 @@
 \begin{frame}
     \frametitle{Properties of Verifiable Functions}
     \begin{block}{Unique Provability}
-        For every $\pk$ and every $x$, at most one image $y$ is provable:
+        For every public key $\pk$ and every point $x$, at most one image $y$ is provable:
         \[
             \alg{Vfy}{VRF}(\pk, x, y_0, \pi_0) = \alg{Vfy}{VRF}(\pk, x, y_1, \pi_1) = 1
             \;\Longrightarrow\; y_0 = y_1.
@@ -45,16 +45,40 @@
 
 \begin{frame}
     \frametitle{Properties of Verifiable Functions}
-    \begin{block}{$(\varepsilon, \frakt)$-Pseudorandom}
-        For any adversary $\mathcal A$ running in time at most $\frakt$, playing the prf experiment $\Exp{VF}{prf}(\lambda, \mathcal A)$:
-
-
-
-        The advantage $\Adv{VF}{prf}{\lambda, \mathcal A}$ is bounded from above by
+    \begin{block}{$(\varepsilon, \frakt)$-Pseudorandomness}
+        For any adversary $\mathcal A$ running in time at most $\frakt$:
         \[
             \Adv{VF}{prf}{\lambda, \mathcal A} := 2 \cdot \abs*{\Pr{\Exp{VF}{prf}(\lambda, \mathcal A) = 1} - \frac{1}{2}} \le \varepsilon(\lambda)
         \]
     \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Pseudorandomness experiment}
+    \begin{figure}[htbp]
+        \begin{pchstack}[space=1em]
+            \procedure[linenumbering]%
+            {Experiment $\Exp{VF}{prf}(\lambda, \mathcal A)$}
+            {
+                b \sample \bin\\ 
+                (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
+                S \gets \varnothing\\ 
+                (x^*, \sigma) \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)\\ 
+                (y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
+                y_1 \sample \Y\\ 
+                b' \sample \mathcal A_2(1^\lambda, x^*, \sigma, y_b) \\ 
+                \pcreturn b = b' \land x^* \notin S
+            }
+            \procedure[linenumbering]%
+            {Oracle $\mathcal O_{\text{eval}}(x)$}
+            {
+                S \gets S \cup \{x\}\\ 
+                (y,\pi) \sample \alg{Eval}{VF}(\sk, x)\\ 
+                \pcreturn y
+            }
+        \end{pchstack}
+        \label{fig:prf_wprf_up_experiment}
+    \end{figure}
 \end{frame}
 
 \begin{frame}
@@ -72,6 +96,34 @@
 \end{frame}
 
 \begin{frame}
+    \frametitle{Unpredictability experiment}
+    \begin{figure}[htbp]
+        \begin{pchstack}[space=1em]
+            \procedure[linenumbering]%
+            {Experiment $\Exp{VF}{prf}(\lambda, \mathcal A)$}
+            {
+                b \sample \bin\\ 
+                (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
+                S \gets \varnothing\\ 
+                (x^*, \sigma) \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)\\ 
+                (y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
+                y_1 \sample \Y\\ 
+                b' \sample \mathcal A_2(1^\lambda, x^*, \sigma, y_b) \\ 
+                \pcreturn b = b' \land x^* \notin S
+            }
+            \procedure[linenumbering]%
+            {Oracle $\mathcal O_{\text{eval}}(x)$}
+            {
+                S \gets S \cup \{x\}\\ 
+                (y,\pi) \sample \alg{Eval}{VF}(\sk, x)\\ 
+                \pcreturn y
+            }
+        \end{pchstack}
+        \label{fig:prf_wprf_up_experiment}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
     \frametitle{Properties of Verifiable Functions}
     \begin{block}{$(\varepsilon, \frakt)$-Weak Pseudorandomness}
         For any adversary $\mathcal A$ running in time at most $\frakt$, playing the prf experiment $\Exp{VF}{prf}(\lambda, \mathcal A)$,
@@ -84,7 +136,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Pseudorandomness experiment}
+    \frametitle{Weak Pseudorandomness experiment}
     \begin{figure}[htbp]
         \begin{pchstack}[space=1em]
             \procedure[linenumbering]%
@@ -124,20 +176,49 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Robust Black-Box Combiners}
-    \begin{block}{Definition (Robust $(n;k)$ Black-Box $\prim{P}$-Combiner)}
-        A ppt.\ oracle Turing machine $\BBComb{P}$ that, given oracle access
-        to $n$ candidates $\mathcal O_1, \ldots, \mathcal O_n$, implements primitive $\prim{P}$
-        securely whenever at least $k$ of the candidates do s.t. computational security properties 
-        hold against inefficient adversaries.
+    \frametitle{Verifiable Unpredictable Functions}
+    \begin{block}{Verifiable Unpredictable Function}
+        A \emph{verifiable unpredictable function} (VUF) is a VF that is:
+        \begin{itemize}
+            \item Correct
+            \item Uniquely Provable
+            \item Unpredictable
+        \end{itemize}
     \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Weak Verifiable Unpredictable Functions}
+    \begin{block}{Weak Verifiable Unpredictable Function}
+        A \emph{weak verifiable unpredictable function} (WVUF) is a VF that is:
+        \begin{itemize}
+            \item Correct
+            \item Uniquely Provable
+            \item Weakly Pseudorandom
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Why Should We Care About VRFs?}
 
     \begin{itemize}
-        \item \textbf{Black-box:} the combiner queries candidates as oracles ---
-            it cannot inspect or modify their code.
-        \item We require security against adversaries with access to a
-            \textbf{PSPACE oracle}, forcing the combiner to derive its security from the candidates.
-        \item Known results: simple $(n;1)$ black-box combiners exist for PRFs,
-            OWFs, PKE, key agreement, \ldots\ --- but \textbf{not known for VRFs}.
+        \item<1-> Signatures with Strong Verifiability Guarantees \only<1->{\cite{C:GolOst92}}
+        \item<2-> Resettable Zero-Knowledge proofs \only<2->{\cite{C:MicRey01}}
+        \item<3-> Distributed Leader Election in PoS blockchains \only<3->{\cite{C:KRDO17,EC:DGKR18,EPRINT:BASV23b}}
     \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Robust Black-Box Combiners}
+    \begin{block}{Definition (Robust $(n;k)$ Black-Box Combiner (Informal))}
+        Robust $(n;k)$ black-box $\prim{P}$-combiner $\BBComb{P}$ satisfy:
+        \begin{itemize}
+            \item Give oracle access to $n$ candidate schemes $\mathcal O_1, \ldots, \mathcal O_n$
+            \item Implements primitive $\prim{P}$
+            \item Is secure if at least $k$ candidates are secure \only<2->{\textbf{even against inefficient adversaries}}
+        \end{itemize}       
+    \end{block}
+
+    With inefficient we mean adversaries with access to a PSPACE complete oracle.
 \end{frame}
