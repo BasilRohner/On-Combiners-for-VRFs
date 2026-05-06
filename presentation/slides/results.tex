@@ -3,16 +3,16 @@
 \begin{frame}
     \frametitle{Robust Black-Box DAG Combiners}
 
-    \begin{block}{Definition (Robust $(n;k)$ Black-Box DAG Combiner --- informal)}
+    \begin{block}{Definition (Robust $(n;k)$ Black-Box DAG Combiner, informal)}
         Each algorithm of $\DAGComb{P}$ is given by a directed acyclic graph $\G$:
         \begin{itemize}
-            \item source $s$, sink $t$, intermediate vertices labeled $\ell : V(\G) \to [n]$
+            \item source $s$, sink $t$, intermediate vertices labeled $\ell : V(\G) \to [n] \times [\abs{\prim{P}}]$
             \item at each vertex $v$, a PPT machine $f^v$ computes a query $\mathbf q_v$ from predecessors' outputs and queries $\O_{\ell(v)}$
         \end{itemize}
-        Execute in topological order; the sink emits the final output.
+        Execute in topological order. The sink emits the final output.
     \end{block}
 
-    \only<2->{\emph{Why DAGs?} Decouples local computation from oracle queries --- structure becomes explicit.}
+    \only<2->{\emph{Why DAGs?} Decouples local computation from oracle queries. Structure becomes explicit.}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -98,7 +98,7 @@
 
     \vspace{1.5em}
     \begin{center}
-        \only<3->{\textbf{It suffices to (im)prove the DAG version.}}
+        \only<3->{\textbf{It suffices to (dis)prove the DAG version.}}
     \end{center}
 \end{frame}
 
@@ -151,13 +151,13 @@
     \begin{center}
     \begin{tikzpicture}
         \draw[thick, rounded corners] (0,0) rectangle (8.5, 2.4);
-        \node[align=center] at (1.3, 1.2) {$\SK$\\[0.2em]\small $2^{s(\lambda)}$};
+        \node[align=center] at (1.3, 1.2) {$\SK$};
         \fill[acgred] (5.4, 1.1) circle (3pt);
         \node[anchor=west] at (5.55, 1.1) {\small $\sk^*$};
 
         \only<2->{
             \draw[thick, rounded corners, fill=hlblue, fill opacity=0.55] (4.9, 0.5) rectangle (6.7, 1.7);
-            \node at (5.8, 0.8) {\small $\SK_{cand}$};
+            \node[anchor=south] at (5.8, 1.75) {\small $\SK_{cand}$};
         }
     \end{tikzpicture}
     \end{center}
@@ -176,17 +176,15 @@
 
     \vspace{0.6em}
     \begin{itemize}\setlength\itemsep{0.5em}
-        \item<2-> \textbf{makes no oracle queries}
+        \item<2-> makes no oracle queries
         \item<3-> returns $\top$ on the experiment's secret key $\sk^*$
         \item<4-> returns $\bot$ when $\sk$'s combiner output disagrees with $y$
         \item<5-> runs in polynomial space
     \end{itemize}
 
     \vspace{0.8em}
-    \only<6->{\emph{Constructing $\alg{EvalSim}{VRF}$ is the technical core of the thesis.}}
+    \only<6->{\emph{Constructing $\alg{EvalSim}{VRF}$ and proving these properties hold is the technical core of the thesis.}}
 
-    \vspace{0.4em}
-    \only<7->{The \emph{no-oracle-queries} property is what makes everything else possible.}
 \end{frame}
 
 \begin{frame}
@@ -197,18 +195,18 @@
     \vspace{0.5em}
     \begin{center}
     \begin{tikzpicture}[
-        every node/.style={font=\small},
-        box/.style={draw, rounded corners, align=center, inner sep=6pt}
+        every node/.style={font=\small, align=center, inner sep=4pt},
+        elabel/.style={fill=white, inner sep=2pt, font=\footnotesize}
     ]
-        \node[box]              (root)     at (0, 3.6)   {oracle call at vertex $v$};
-        \node[box, fill=hlpeach](uppc)     at (-4.6, 1.8){reply $y_{def}$};
-        \node[box]              (vrf)     at (2.5, 1.8) {check trace $\tau$};
-        \node[box, fill=hlblue] (intau)   at (0, 0)     {reply $\tau(\mathbf q)$};
-        \node[box, fill=hlgreen](notintau) at (5, 0)    {branch over all\\well-formed outputs};
-        \draw[->, thick] (root) -- (uppc)     node[midway, above, sloped, font=\footnotesize]{$\mathcal O_{uppc}$};
-        \draw[->, thick] (root) -- (vrf)      node[midway, above, sloped, font=\footnotesize]{$\mathcal O_{vrf}$};
-        \draw[->, thick] (vrf)  -- (intau)    node[midway, above, sloped, font=\footnotesize]{$\mathbf q \in \tau$};
-        \draw[->, thick] (vrf)  -- (notintau) node[midway, above, sloped, font=\footnotesize]{$\mathbf q \notin \tau$};
+        \node              (root)     at (0, 3.6)   {oracle call at vertex $v$};
+        \node              (uppc)     at (-4.6, 1.8){\hlb{reply $y_{def}$}};
+        \node              (vrf)      at (2.5, 1.8) {check trace $\tau$};
+        \node              (intau)    at (0, 0)     {\hlb{reply $\tau(\mathbf q)$}};
+        \node              (notintau) at (5, 0)     {\hlr{branch over all well-formed outputs}};
+        \draw[->, thick] (root) -- (uppc)     node[midway, elabel]{$\mathcal O_{uppc}$};
+        \draw[->, thick] (root) -- (vrf)      node[midway, elabel]{$\mathcal O_{vrf}$};
+        \draw[->, thick] (vrf)  -- (intau)    node[midway, elabel]{$\mathbf q \in \tau$};
+        \draw[->, thick] (vrf)  -- (notintau) node[midway, elabel]{$\mathbf q \notin \tau$};
     \end{tikzpicture}
     \end{center}
 
@@ -217,177 +215,96 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Brute-Force Filtering Is in $\textsf{PSPACE}$}
+    \frametitle{$\alg{EvalSim}{VRF}$ Revisited}
 
-    Enumerate all $\sk \in \SK$ via DFS over a binary tree of depth $s(\lambda)$; run $\alg{EvalSim}{VRF}$ at each leaf.
+    Properties of $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau)$:
 
-    \vspace{0.6em}
-    \begin{center}
-    \begin{tikzpicture}[
-        every node/.style={font=\footnotesize},
-        n/.style={circle, draw, inner sep=1.5pt, minimum size=0.35cm}
-    ]
-        \node[n] (r)    at (0, 2.4)    {};
-        \node[n] (a0)   at (-2, 1.6)   {};
-        \node[n] (a1)   at (2, 1.6)    {};
-        \node[n] (b00)  at (-3, 0.8)   {};
-        \node[n] (b01)  at (-1, 0.8)   {};
-        \node[n] (b10)  at (1, 0.8)    {};
-        \node[n] (b11)  at (3, 0.8)    {};
-        \node[n] (c1)   at (-3.5, 0)   {};
-        \node[n] (c2)   at (-2.5, 0)   {};
-        \node[n] (c3)   at (-1.5, 0)   {};
-        \node[n] (c4)   at (-0.5, 0)   {};
-        \node[n] (c5)   at (0.5, 0)    {};
-        \node[n] (c6)   at (1.5, 0)    {};
-        \node[n] (c7)   at (2.5, 0)    {};
-        \node[n] (c8)   at (3.5, 0)    {};
-        \draw (r)--(a0); \draw (r)--(a1);
-        \draw (a0)--(b00); \draw (a0)--(b01);
-        \draw (a1)--(b10); \draw (a1)--(b11);
-        \draw (b00)--(c1); \draw (b00)--(c2);
-        \draw (b01)--(c3); \draw (b01)--(c4);
-        \draw (b10)--(c5); \draw (b10)--(c6);
-        \draw (b11)--(c7); \draw (b11)--(c8);
-        \node[anchor=east] at (-4, 1.6) {\small depth};
-        \node[anchor=east] at (-4, 1.1) {\small $s(\lambda)$};
-        \node[draw, rounded corners, fill=hlblue, inner sep=4pt] (sim) at (5.7, 0) {\small $\alg{EvalSim}{VRF}$};
-        \draw[->, dashed] (c8) -- (sim);
-    \end{tikzpicture}
-    \end{center}
-
-    \vspace{0.3em}
-    \begin{itemize}\setlength\itemsep{0.3em}
-        \item<2-> DFS stack: depth $s(\lambda)$
-        \item<3-> $\alg{EvalSim}{VRF}$ tape: polynomial, \emph{reused} at each leaf
+    \vspace{0.8em}
+    \begin{itemize}\setlength\itemsep{0.7em}
+        \item[\alt<2->{\textcolor{acgred}{$\checkmark$}}{$\bullet$}] makes no oracle queries
+        \item[$\bullet$] returns $\top$ on the experiment's secret key $\sk^*$
+        \item[\alt<3->{\textcolor{acgred}{$\checkmark$}}{$\bullet$}] returns $\bot$ when $\sk$'s combiner output disagrees with $y$
+        \item[\alt<4->{\textcolor{acgred}{$\checkmark$}}{$\bullet$}] runs in polynomial space
     \end{itemize}
-
-    \vspace{0.3em}
-    \only<4->{Total memory polynomial $\Rightarrow$ in $\textsf{PSPACE}$.}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Two Cases After Filtering}
-
-    \vspace{0.4em}
-    \begin{center}
-    \begin{tikzpicture}[
-        node distance=1.2cm,
-        case/.style={draw, rounded corners, minimum width=4.6cm, minimum height=2cm, align=center, inner sep=8pt}
-    ]
-        \node (top) at (0, 0.8) {\textit{after filtering with all $x_i$}};
-        \node[case, fill=hlgreen]  (a) at (-3.3, -1.6) {\textbf{Case A}\\[0.3em] $\abs{\SK_{cand}} \in \poly$};
-        \node[case, fill=hlpeach]  (b) at ( 3.3, -1.6) {\textbf{Case B}\\[0.3em] $\SK_{cand}$ stays large};
-        \draw[thick, ->] (top) -- (a);
-        \draw[thick, ->] (top) -- (b);
-    \end{tikzpicture}
-    \end{center}
-
-    \vspace{0.3em}
-    \only<2->{\textbf{A:} sample $\sk_{cand}$, \emph{guess} $\sk_{cand} = \sk^*$.}
-
-    \vspace{0.3em}
-    \only<3->{\textbf{B:} many $\sk_{cand}$ collide with $\sk^*$ on random points; \emph{evaluate} $x^*$ under $\sk_{cand}$.}
 \end{frame}
 
 \begin{frame}[c]
     \frametitle{The Adversary}
 
-    {\large
     \begin{enumerate}
-        \setlength\itemsep{0.8em}
-        \item<1-> Sample $x_1, \ldots, x_{s+\lambda} \sample \bin^\lambda$.
+        \setlength\itemsep{0.6em}
+        \item<1-> Sample $x_1, \ldots, x_{s+\lambda} \sample \bin^\lambda$ \quad (recall $\SK = \bin^{s(\lambda)}$).
         \item<2-> Query the eval oracle: $(y_i, \pi_i) \gets \mathcal O_\text{eval}(x_i)$.
-        \item<3-> Compute the verification trace
-        \only<3->{%
-        \vspace{0.9em}
-        \[
-            \tau_i \gets \text{trace}\bigl(\DAGComb{VRF}.\alg{Vfy}{VRF}(\pk^*, x_i, y_i, \pi_i)\bigr).
-        \]
-        \vspace{0.4em}
-        }
-        \item<4-> Define the candidate-key set
+        \item<3-> Compute the verification traces $\tau_i \gets \text{trace}\bigl(\DAGComb{VRF}[\O_{vrf}, \O_{uppc}].\alg{Vfy}{}(\pk^*, x_i, y_i, \pi_i)\bigr)$.
+        \item<4-> Use $\textsf{PSPACE}$ to sample $\sk_{cand} \sample \SK_{cand}$, where
         \only<4->{%
-        \vspace{0.9em}
+        \vspace{0.2em}
         \[
-            \SK_{cand} \coloneqq \{\sk : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top \text{ for all } i\}
+            \SK_{cand} \coloneqq \big\{\sk \in \SK : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top \;\forall i\big\}.
         \]
-        \vspace{0.4em}
-
-        and use $\textsf{PSPACE}$ to sample $\sk_{cand} \sample \SK_{cand}$.
         }
-        \item<5-> Apply the strategy of Case A or Case B.
+        \item<5-> Sample challenge $x^* \sample \bin^\lambda$ and obtain $y^*$.
+        \item<6-> Check $\DAGComb{VRF}[\O_{vrf}, \O_{uppc}].\alg{Eval}{}(\sk_{cand}, x^*) \overset{?}{=} (y^*, \pi)$.
     \end{enumerate}
-    }
 \end{frame}
 
 \begin{frame}[c]
-    \frametitle{The Bound}
+    \frametitle{Bounding the Advantage}
 
-    \begin{center}
-        $\Adv{\DAGComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]}{prf}{\lambda, \mathcal A} \;\geq\; \dfrac{1}{2} - \dfrac{1}{2^{\lambda+1}} - \dfrac{1}{\abs{\Y}}$
-    \end{center}
+    \begin{align*}
+        \Adv{\DAGComb{VRF}[\O_{vrf}, \O_{uppc}]}{prf}{\lambda, \mathcal A}
+        &= 2 \cdot \bigl|\Pr{\mathcal A \text{ wins}} - \tfrac{1}{2}\bigr|
+        \only<2->{\\ &\geq 2 \cdot \bigl|\Pr{\sk_{cand} \text{ and } \sk^* \text{ produce the same eval image on fresh } x^*} - \tfrac{1}{2}\bigr|}
+        \only<3->{\\ &\geq \dfrac{1}{2} - \dfrac{1}{2^{\lambda+1}} - \dfrac{1}{\abs{\Y}} \quad \text{(by a Markov argument)}}
+    \end{align*}
 
-    \vspace{1.2em}
-    \begin{center}
-        Non-negligible \quad$\Rightarrow$\quad contradicts pseudorandomness. \quad$\Box$
-    \end{center}
+    \vspace{1em}
+    \only<4->{
+        \begin{center}
+            $\Adv{\DAGComb{VRF}[\O_{vrf}, \O_{uppc}]}{prf}{\lambda, \mathcal A} \notin \negl(\lambda) \;\Rightarrow\;$ contradicts pseudorandomness. \quad $\Box$
+        \end{center}
+    }
 \end{frame}
 
-\section{Extensions}
+\section{Results}
 
-\begin{frame}
-    \frametitle{From $(2;1)$ to $(n;\lfloor n/2 \rfloor)$: Rotating Instances}
-
-    Given a robust $(n;\lfloor n/2 \rfloor)$ black-box VRF-combiner $\BBComb{VRF}$, build a $(2;1)$ combiner $\DAGComb{VRF}$:
-    \begin{itemize}
-        \item<2-> Initialize the first $\lfloor n/2 \rfloor$ candidate slots with $\O_1$
-        \item<3-> Initialize the remaining $\lceil n/2 \rceil$ slots with $\O_2$
-    \end{itemize}
-
-    \vspace{0.6em}
-    \only<4->{If \emph{either} $\O_1$ or $\O_2$ is secure, at least $\lfloor n/2 \rfloor$ slots are secure $\Rightarrow$ $\BBComb{VRF}$ is secure.}
-
-    \vspace{0.4em}
-    \only<5->{So $\DAGComb{VRF}$ is a robust $(2;1)$ combiner --- contradicting the impossibility above.}
-
-    \vspace{0.4em}
-    \only<6->{\emph{Contraposition:} no robust $(n;\lfloor n/2 \rfloor)$ black-box VRF-combiner.}
-\end{frame}
-
-\begin{frame}
+\begin{frame}[c]
     \frametitle{Results}
 
-    \begin{block}{Theorem ($1$-out-of-$2$ impossibility)}
-        There is no robust $(2;1)$ black-box VRF-combiner.
+    \begin{block}{Theorem}
+        No robust $(2;1)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
     \end{block}
 
-    \begin{block}{Corollary ($\lfloor n/2 \rfloor$-out-of-$n$ impossibility)}
-        There is no robust $(n;\lfloor n/2 \rfloor)$ black-box VRF-combiner.
+    \begin{block}{Corollary}
+        No robust $(n;\lfloor n/2\rfloor)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
     \end{block}
 
-    \begin{block}{Conjecture ($(n-1)$-out-of-$n$ impossibility)}
-        There is no robust $(n;n-1)$ black-box VRF-combiner.
+    \begin{block}{Conjecture}
+        No robust $(n;n-1)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
     \end{block}
+\end{frame}
 
-    \vspace{0.4em}
-    \only<2->{The same proof yields impossibility for VUF and wVRF.}
+\begin{frame}[c]
+    \frametitle{Extending to $(n;\lfloor n/2 \rfloor)$ Combiners}
+
+    Fill the $n$ slots of an $(n;\lfloor n/2\rfloor)$ combiner with two oracles $\O_1, \O_2$.
+
+    \vspace{0.8em}
+    \only<2->{Security of either $\Rightarrow$ $\geq \lfloor n/2\rfloor$ slots secure $\Rightarrow$ a $(2;1)$ combiner.}
+
+    \vspace{0.5em}
+    \only<3->{Contraposition $\Rightarrow$ no $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner.}
 \end{frame}
 
 \section{Beyond Impossibility}
 
-\begin{frame}
-    \frametitle{Stronger Candidate Assumptions}
+\begin{frame}[c]
+    \frametitle{Beyond Impossibility}
 
-    What if all candidates are \emph{uniquely provable} \emph{and} \emph{perfectly correct}?
+    If all candidates are \emph{uniquely provable} and \emph{perfectly correct} (information-theoretic, typically proven):
 
-    \begin{itemize}
-        \item<2-> Both are \emph{information-theoretic} properties --- typically proven, not assumed.
-        \item<3-> No need to hedge against them with combiners.
-    \end{itemize}
-
-    \vspace{0.8em}
-    \only<4->{Under these assumptions, a simple robust $(n;1)$ black-box VRF-combiner exists.}
+    \vspace{1em}
+    \only<2->{a simple robust $(n;1)$ black-box VRF-combiner exists.}
 \end{frame}
 
 \begin{frame}
@@ -396,13 +313,6 @@
     \begin{center}
         \begin{adjustbox}{max width=\textwidth}
             \begin{pchstack}[space=1em]
-                \procedure[linenumbering]
-                {$\BBComb{VRF}[\O_1, \O_2].\alg{Gen}{VRF}(1^\lambda)$}
-                {
-                    (\sk_1, \pk_1) \sample \O_1.\alg{Gen}{VRF}(1^\lambda)\\
-                    (\sk_2, \pk_2) \sample \O_2.\alg{Gen}{VRF}(1^\lambda)\\
-                    \pcreturn ((\sk_1, \sk_2), (\pk_1, \pk_2))
-                }
                 \procedure[linenumbering]
                 {$\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk, x)$}
                 {

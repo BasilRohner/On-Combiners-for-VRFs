@@ -16,9 +16,10 @@
 \definecolor{hlgreen}{RGB}{206,238,212}
 \definecolor{hlblue}{RGB}{200,226,244}
 \definecolor{hlpurple}{RGB}{223,213,243}
+\definecolor{hlred}{RGB}{255,200,200}
 
 % Highlight macro: works in both text and math mode.
-% Usage: \hly{text}, \hlp{text}, \hlg{text}, \hlb{text}, \hlv{text}.
+% Usage: \hly{text}, \hlp{text}, \hlg{text}, \hlb{text}, \hlv{text}, \hlr{text}.
 \newcommand{\acghl}[2]{%
   \tikz[baseline=(X.base)]\node[%
     inner xsep=2pt, inner ysep=1pt, outer sep=0pt,%
@@ -30,6 +31,7 @@
 \newcommand{\hlg}[1]{\acghl{hlgreen}{#1}}
 \newcommand{\hlb}[1]{\acghl{hlblue}{#1}}
 \newcommand{\hlv}[1]{\acghl{hlpurple}{#1}}
+\newcommand{\hlr}[1]{\acghl{hlred}{#1}}
 
 \setbeamercolor{normal text}{fg=bodygray, bg=white}
 \setbeamercolor{structure}{fg=acgred}

@@ -218,11 +218,9 @@
         \begin{itemize}
             \item Give oracle access to $n$ candidate schemes $\mathcal O_1, \ldots, \mathcal O_n$
             \item Implements primitive $\prim{P}$
-            \item Is secure if at least $k$ candidates are secure \only<2->{\textbf{even against inefficient adversaries}}
-        \end{itemize}       
+            \item Is secure if at least $k$ candidates are secure \only<2->{\textbf{even against \alt<3->{adversaries with a $\textsf{PSPACE}$ oracle}{inefficient adversaries}}}
+        \end{itemize}
     \end{block}
-
-    With inefficient we mean adversaries with access to a PSPACE complete oracle.
 \end{frame}
 
 \begin{frame}
@@ -232,8 +230,8 @@
             \procedure[linenumbering]%
             {Algorithm $\BBComb{PRF}[\mathcal O_1, \mathcal O_2].\alg{Eval}{PRF}(k_1,k_2,x)$}
             {
-                y_1 \gets \mathcal O_1(k_1, x)\\ 
-                y_2 \gets \mathcal O_2(k_2, x)\\ 
+                y_1 \gets \mathcal O_1.\alg{Eval}{PRF}(k_1, x)\\
+                y_2 \gets \mathcal O_2.\alg{Eval}{PRF}(k_2, x)\\
                 \pcreturn y_1 \xor y_2
             }
         \end{pchstack}
