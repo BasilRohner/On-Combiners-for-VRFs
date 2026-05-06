@@ -12,14 +12,28 @@
         Execute in topological order. The sink emits the final output.
     \end{block}
 
-    \only<2->{\emph{Why DAGs?} Decouples local computation from oracle queries. Structure becomes explicit.}
+    \only<2->{\emph{Why DAGs?} Decouples \hlb{local computation} from \hlb{oracle queries}. Structure becomes explicit.}
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Example: PRF Combiner as a DAG}
+    \frametitle{Example: DAG PRF-Combiner}
 
-    \vspace*{-1.5em}
-    \begin{center}
+    \begin{columns}[T]
+    \column{0.40\textwidth}
+        \begin{itemize}\setlength\itemsep{1em}
+            \item<1-> \emph{Source $s$}: forwards $(k_1, k_2, x)$.
+            \item<2-> \emph{Intermediate vertices}:
+                \begin{itemize}\setlength\itemsep{0.2em}
+                    \item<2-> PPT TM $f^v$ pre-computes the query
+                    \item<3-> query the candidate oracle
+                    \item<4-> return the response
+                \end{itemize}
+            \item<5-> \emph{Sink $t$}: computes the final output.
+        \end{itemize}
+
+    \column{0.60\textwidth}
+        \vspace*{-4em}
+        \begin{center}
         \begin{adjustbox}{max width=\textwidth, max totalheight=0.85\textheight}
         \begin{tikzpicture}[node distance=0pt]
             \node (x) at (0,0) {
@@ -27,44 +41,53 @@
                     \procedure[linenumbering]
                     {Source $s$}
                     {
-                        \x_s \gets (k, x)\\
+                        \x_s \gets (k_1, k_2, x)\\
                         \pcreturn \x_s
                     }
                 \end{pcvstack}
             };
             \node (v1) at (-3,-4) {
+                \alt<4->{}{\color{black!25}}
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
-                    {Vertex $v_1$}
+                    {{\alt<2->{\color{black}}{}Vertex $v_1$}}
                     {
+                        \alt<2->{\color{black}}{}
                         \mathbf q_{v_1} \gets
                         \begin{subprocedure}
                         \dbox{\procedure{$f^{v_1}(\x_s)$}{
-                            \pcreturn \x_s
+                            (k_1, k_2, x) \gets \x_s\\
+                            \pcreturn (k_1, x)
                         }}
                         \end{subprocedure}\\
+                        \alt<3->{\color{black}}{}
                         \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf q_{v_1})\\
                         \pcreturn \x_{v_1}
                     }
                 \end{pcvstack}
             };
             \node (v2) at (3,-4) {
+                \alt<4->{}{\color{black!25}}
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
-                    {Vertex $v_2$}
+                    {{\alt<2->{\color{black}}{}Vertex $v_2$}}
                     {
+                        \alt<2->{\color{black}}{}
                         \mathbf q_{v_2} \gets
                         \begin{subprocedure}
                         \dbox{\procedure{$f^{v_2}(\x_s)$}{
-                            \pcreturn \x_s
+                            (k_1, k_2, x) \gets \x_s\\
+                            \pcreturn (k_2, x)
                         }}
                         \end{subprocedure}\\
+                        \alt<3->{\color{black}}{}
                         \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf q_{v_2})\\
                         \pcreturn \x_{v_2}
                     }
                 \end{pcvstack}
             };
             \node (t) at (0,-8) {
+                \alt<5->{}{\color{black!25}}
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
                     {Sink $t$}
@@ -85,7 +108,8 @@
             \draw[-latex] (v2) -> (t);
         \end{tikzpicture}
         \end{adjustbox}
-    \end{center}
+        \end{center}
+    \end{columns}
 \end{frame}
 
 \begin{frame}
