@@ -1,27 +1,26 @@
-\section{Results}
+\section{Robust Black-Box DAG Combiners}
 
 \begin{frame}
     \frametitle{Robust Black-Box DAG Combiners}
 
-    \begin{block}{Definition (Robust $(n;k)$ Black-Box Combiner (Informal))}
-        Robust $(n;k)$ black-box DAG $\prim{P}$-combiner $\DAGComb{P}$ consist for every algorithm:
+    \begin{block}{Definition (Robust $(n;k)$ Black-Box DAG Combiner --- informal)}
+        Each algorithm of $\DAGComb{P}$ is given by a directed acyclic graph $\G$:
         \begin{itemize}
-            \item Directed acyclic graph $\G$
-            \item Source $s \in V(\G)$
-            \item Sink $t \in V(\G)$
-            \item Vertex labeling $\ell : V(\G) \to \prim{P} \times [n]$
-            \item PPT Turing machines $\{f^v\}_{v \in V(\G) \setminus \{s\}}$ 
+            \item source $s$, sink $t$, intermediate vertices labeled $\ell : V(\G) \to [n]$
+            \item at each vertex $v$, a PPT machine $f^v$ computes a query $\mathbf q_v$ from predecessors' outputs and queries $\O_{\ell(v)}$
         \end{itemize}
-        Execute $\DAGComb{P}$ in topological order. At $v \in V(\G)$ evaluate $f^v$ on all predecessor outputs and query $\mathcal O_{\ell(v)}$.
+        Execute in topological order; the sink emits the final output.
     \end{block}
+
+    \only<2->{\emph{Why DAGs?} Decouples local computation from oracle queries --- structure becomes explicit.}
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Example}
+    \frametitle{Example: PRF Combiner as a DAG}
 
     \vspace*{-1.5em}
     \begin{center}
-        \begin{adjustbox}{max width=\textwidth, max totalheight=0.9\textheight}
+        \begin{adjustbox}{max width=\textwidth, max totalheight=0.85\textheight}
         \begin{tikzpicture}[node distance=0pt]
             \node (x) at (0,0) {
                 \begin{pcvstack}[center, boxed, space=1em]
@@ -40,11 +39,11 @@
                     {
                         \mathbf q_{v_1} \gets
                         \begin{subprocedure}
-                        \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
+                        \dbox{\procedure{$f^{v_1}(\x_s)$}{
                             \pcreturn \x_s
                         }}
                         \end{subprocedure}\\
-                        \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
+                        \x_{v_1} \gets \O_{\ell(v_1)}(\mathbf q_{v_1})\\
                         \pcreturn \x_{v_1}
                     }
                 \end{pcvstack}
@@ -56,11 +55,11 @@
                     {
                         \mathbf q_{v_2} \gets
                         \begin{subprocedure}
-                        \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
+                        \dbox{\procedure{$f^{v_2}(\x_s)$}{
                             \pcreturn \x_s
                         }}
                         \end{subprocedure}\\
-                        \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
+                        \x_{v_2} \gets \O_{\ell(v_2)}(\mathbf q_{v_2})\\
                         \pcreturn \x_{v_2}
                     }
                 \end{pcvstack}
@@ -72,7 +71,7 @@
                     {
                         \y \gets
                         \begin{subprocedure}
-                        \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
+                        \dbox{\procedure{$f^{t}(\x_{v_1}, \x_{v_2})$}{
                             \pcreturn \x_{v_1} \xor \x_{v_2}
                         }}
                         \end{subprocedure}\\
@@ -89,574 +88,344 @@
     \end{center}
 \end{frame}
 
-\begin{frame}[fragile,c]
-    \frametitle{Example}
-
-    \begin{columns}[T]
-    \column{0.4\textwidth}
-        \begin{itemize}
-            \item symbolic, simplifies reasoning
-            \item produces the input
-        \end{itemize}
-
-    \column{0.6\textwidth}
-    \begin{center}
-        \begin{adjustbox}{max width=\textwidth, max totalheight=0.75\textheight}
-            \begin{tikzpicture}[node distance=0pt]
-                \node (x) at (0,0) {
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Source $s$}
-                        {
-                            \x_s \gets (k, x)\\
-                            \pcreturn \x_s
-                        }
-                    \end{pcvstack}
-                };
-                \node (v1) at (-3,-4) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Vertex $v_1$}
-                        {
-                            \mathbf q_{v_1} \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
-                                \pcreturn \x_s
-                            }}
-                            \end{subprocedure}\\
-                            \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
-                            \pcreturn \x_{v_1}
-                        }
-                    \end{pcvstack}
-                };
-                \node (v2) at (3,-4) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Vertex $v_2$}
-                        {
-                            \mathbf q_{v_2} \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
-                                \pcreturn \x_s
-                            }}
-                            \end{subprocedure}\\
-                            \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
-                            \pcreturn \x_{v_2}
-                        }
-                    \end{pcvstack}
-                };
-                \node (t) at (0,-8) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Sink $t$}
-                        {
-                            \y \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
-                                \pcreturn \x_{v_1} \xor \x_{v_2}
-                            }}
-                            \end{subprocedure}\\
-                            \pcreturn \y
-                        }
-                    \end{pcvstack}
-                };
-                \draw[-latex] (x) -> (v1);
-                \draw[-latex] (v1) -> (t);
-                \draw[-latex] (x) -> (v2);
-                \draw[-latex] (v2) -> (t);
-            \end{tikzpicture}
-            \end{adjustbox}
-    \end{center}
-\end{columns}
-\end{frame}
-
-
-\begin{frame}[fragile,c]
-    \frametitle{Example}
-
-    \begin{columns}[T]
-    \column{0.4\textwidth}
-        \begin{itemize}
-            \item symbolic, simplifies reasoning
-            \item produces the input
-        \end{itemize}
-
-    \column{0.6\textwidth}
-    \begin{center}
-        \begin{adjustbox}{max width=\textwidth, max totalheight=0.75\textheight}
-            \begin{tikzpicture}[node distance=0pt]
-                \node (x) at (0,0) {
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Source $s$}
-                        {
-                            \x_s \gets (k, x)\\
-                            \pcreturn \x_s
-                        }
-                    \end{pcvstack}
-                };
-                \node (v1) at (-3,-4) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Vertex $v_1$}
-                        {
-                            \mathbf q_{v_1} \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
-                                \pcreturn \x_s
-                            }}
-                            \end{subprocedure}\\
-                            \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
-                            \pcreturn \x_{v_1}
-                        }
-                    \end{pcvstack}
-                };
-                \node (v2) at (3,-4) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Vertex $v_2$}
-                        {
-                            \mathbf q_{v_2} \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
-                                \pcreturn \x_s
-                            }}
-                            \end{subprocedure}\\
-                            \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
-                            \pcreturn \x_{v_2}
-                        }
-                    \end{pcvstack}
-                };
-                \node (t) at (0,-8) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Sink $t$}
-                        {
-                            \y \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
-                                \pcreturn \x_{v_1} \xor \x_{v_2}
-                            }}
-                            \end{subprocedure}\\
-                            \pcreturn \y
-                        }
-                    \end{pcvstack}
-                };
-                \draw[-latex] (x) -> (v1);
-                \draw[-latex] (v1) -> (t);
-                \draw[-latex] (x) -> (v2);
-                \draw[-latex] (v2) -> (t);
-            \end{tikzpicture}
-            \end{adjustbox}
-    \end{center}
-\end{columns}
-\end{frame}
-
-
-\begin{frame}[fragile,c]
-    \frametitle{Example}
-
-    \begin{columns}[T]
-    \column{0.4\textwidth}
-        \begin{itemize}
-            \item symbolic, simplifies reasoning
-            \item produces the input
-        \end{itemize}
-
-    \column{0.6\textwidth}
-    \begin{center}
-        \begin{adjustbox}{max width=\textwidth, max totalheight=0.75\textheight}
-            \begin{tikzpicture}[node distance=0pt]
-                \node (x) at (0,0) {
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Source $s$}
-                        {
-                            \x_s \gets (k, x)\\
-                            \pcreturn \x_s
-                        }
-                    \end{pcvstack}
-                };
-                \node (v1) at (-3,-4) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Vertex $v_1$}
-                        {
-                            \mathbf q_{v_1} \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
-                                \pcreturn \x_s
-                            }}
-                            \end{subprocedure}\\
-                            \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\
-                            \pcreturn \x_{v_1}
-                        }
-                    \end{pcvstack}
-                };
-                \node (v2) at (3,-4) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Vertex $v_2$}
-                        {
-                            \mathbf q_{v_2} \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
-                                \pcreturn \x_s
-                            }}
-                            \end{subprocedure}\\
-                            \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\
-                            \pcreturn \x_{v_2}
-                        }
-                    \end{pcvstack}
-                };
-                \node (t) at (0,-8) {
-                    \color{black!25}
-                    \begin{pcvstack}[center, boxed, space=1em]
-                        \procedure[linenumbering]
-                        {Sink $t$}
-                        {
-                            \y \gets
-                            \begin{subprocedure}
-                            \dbox{\procedure{$f_{\text{Eval}}^{t}(\x_{v_1}, \x_{v_2})$}{
-                                \pcreturn \x_{v_1} \xor \x_{v_2}
-                            }}
-                            \end{subprocedure}\\
-                            \pcreturn \y
-                        }
-                    \end{pcvstack}
-                };
-                \draw[-latex] (x) -> (v1);
-                \draw[-latex] (v1) -> (t);
-                \draw[-latex] (x) -> (v2);
-                \draw[-latex] (v2) -> (t);
-            \end{tikzpicture}
-            \end{adjustbox}
-    \end{center}
-\end{columns}
-\end{frame}
 \begin{frame}
     \frametitle{Equivalence}
 
     \begin{itemize}
-        \item<1-> Robust $(n;k)$ black-box DAG Combiner $\implies$ Robust $(n;k)$ black-box combiners
-        \item<2-> Robust $(n;k)$ black-box combiners $\implies$ Robust $(n;k)$ black-box DAG combiner
+        \item<1-> Robust $(n;k)$ black-box DAG combiner $\implies$ robust $(n;k)$ black-box combiner
+        \item<2-> Robust $(n;k)$ black-box combiner $\implies$ robust $(n;k)$ black-box DAG combiner
     \end{itemize}
 
-    \vspace{1em}
-
+    \vspace{1.5em}
     \begin{center}
-        \only<3->{\textbf{Sufficient to show (im)possibility of a robust $(n;k)$ black-box DAG combiner.}}
+        \only<3->{\textbf{It suffices to (im)prove the DAG version.}}
     \end{center}
 \end{frame}
 
-\begin{frame}
-    \frametitle{The $1$-out-of-$2$ Combiner}
-
-    \begin{itemize}
-        \item<1-> Simplest non-trivial case, only two candidates
-        \item<2-> Construction extends to robust $1$-out-of-$n$ black-box combiner
-        \item<3-> Impossibility extends to robust $\lfloor n/2\rfloor$-out-of-$n$ black-box combiner
-    \end{itemize}
-\end{frame}
+\section{Impossibility}
 
 \begin{frame}[c]
-    \frametitle{What we show}
+    \frametitle{Main Theorem}
 
     \begin{center}
         \begin{minipage}{0.9\textwidth}
             \Large
             \raggedright
             \hyphenpenalty=10000\exhyphenpenalty=10000
-            There exists no robust $(2;1)$ black-box combiner for VRF.
+            There exists no robust $(2;1)$ black-box VRF-combiner.
         \end{minipage}
     \end{center}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Setup}
+    \frametitle{The Two Candidates}
 
-    Suppose $\BBComb{VRF}$ is a robust $(2;1)$ black-box DAG VRF-combiner. The proof works by
+    Suppose $\DAGComb{VRF}$ is a robust $(2;1)$ black-box DAG VRF-combiner.
 
-    \begin{itemize}
-        \item Candidates $\mathcal O_1, \mathcal O_2$ of which at least one is secure
-        \item Adversary $\mathcal A$ against 
+    \vspace{1em}
+    \begin{center}
+    \begin{tikzpicture}[
+        cand/.style={draw, rounded corners, minimum width=4.5cm, minimum height=2cm, align=center, inner sep=8pt}
+    ]
+        \node[cand, fill=hlblue]  (vrf)  at (0,0)   {\large $\mathcal O_{vrf}$\\[0.3em] secure VRF};
+        \node[cand, fill=hlpeach] (uppc) at (6.5,0) {\large $\mathcal O_{uppc}$\\[0.3em] trivial VF};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.4em}
+    \only<2->{$\mathcal O_{uppc}$: every $\alg{Eval}{}(\sk, x)$ returns the same default $y_{def}$.}
+
+    \vspace{0.4em}
+    \only<3->{$\mathcal O_{vrf}$ secure $\Rightarrow$ $\DAGComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$ is a secure VRF.}
+
+    \vspace{0.4em}
+    \only<4->{\textbf{Goal:} adversary $\mathcal A^{\textsf{PSPACE}}$ breaking its pseudorandomness.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{The Idea}
+
+    The pseudorandomness experiment hides a secret key $\sk^* \in \SK = \bin^{s(\lambda)}$.
+
+    \vspace{0.8em}
+    \begin{center}
+    \begin{tikzpicture}
+        \draw[thick, rounded corners] (0,0) rectangle (8.5, 2.4);
+        \node[align=center] at (1.3, 1.2) {$\SK$\\[0.2em]\small $2^{s(\lambda)}$};
+        \fill[acgred] (5.4, 1.1) circle (3pt);
+        \node[anchor=west] at (5.55, 1.1) {\small $\sk^*$};
+
+        \only<2->{
+            \draw[thick, rounded corners, fill=hlblue, fill opacity=0.55] (4.9, 0.5) rectangle (6.7, 1.7);
+            \node at (5.8, 0.8) {\small $\SK_{cand}$};
+        }
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.3em}
+    \only<2->{Use the $\textsf{PSPACE}$ oracle to \emph{filter} $\SK$ down to a small $\SK_{cand}$ that still contains $\sk^*$.}
+
+    \vspace{0.4em}
+    \only<3->{If $\abs{\SK_{cand}} \in \poly$, sampling uniformly gives $\sk_{cand} = \sk^*$ with non-negligible probability.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{$\alg{EvalSim}{VRF}$ as a Black Box}
+
+    Assume an algorithm $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) \in \{\top, \bot\}$ with the following properties:
+
+    \vspace{0.6em}
+    \begin{itemize}\setlength\itemsep{0.5em}
+        \item<2-> \textbf{makes no oracle queries}
+        \item<3-> returns $\top$ on the experiment's secret key $\sk^*$
+        \item<4-> returns $\bot$ when $\sk$'s combiner output disagrees with $y$
+        \item<5-> runs in polynomial space
     \end{itemize}
 
-    \begin{itemize}
-        \item $\mathcal O_{vrf}$: a secure VRF
-        \item $\mathcal O_{uppc}$: a \emph{trivial}, uniquely provable and perfectly correct VF:
-            \begin{itemize}
-                \item $\alg{Gen}{VRF}(1^\lambda) = (\sk_{def}, \pk_{def})$
-                \item $\alg{Eval}{VRF}(\sk, x) = (y_{def}, \pi_{def})$
-                \item $\alg{Vfy}{VRF}(\pk, x, y, \pi) = 1 \iff y = y_{def}$
-            \end{itemize}
-        \item $\mathcal O_{vrf}$ a secure VRF $\implies$ $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$ a secure VRF
+    \vspace{0.8em}
+    \only<6->{\emph{Constructing $\alg{EvalSim}{VRF}$ is the technical core of the thesis.}}
+
+    \vspace{0.4em}
+    \only<7->{The \emph{no-oracle-queries} property is what makes everything else possible.}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Constructing $\alg{EvalSim}{VRF}$}
+
+    Traverse the DAG in topological order. At each oracle-call vertex:
+
+    \vspace{0.5em}
+    \begin{center}
+    \begin{tikzpicture}[
+        every node/.style={font=\small},
+        box/.style={draw, rounded corners, align=center, inner sep=6pt}
+    ]
+        \node[box]              (root)     at (0, 3.6)   {oracle call at vertex $v$};
+        \node[box, fill=hlpeach](uppc)     at (-4.6, 1.8){reply $y_{def}$};
+        \node[box]              (vrf)     at (2.5, 1.8) {check trace $\tau$};
+        \node[box, fill=hlblue] (intau)   at (0, 0)     {reply $\tau(\mathbf q)$};
+        \node[box, fill=hlgreen](notintau) at (5, 0)    {branch over all\\well-formed outputs};
+        \draw[->, thick] (root) -- (uppc)     node[midway, above, sloped, font=\footnotesize]{$\mathcal O_{uppc}$};
+        \draw[->, thick] (root) -- (vrf)      node[midway, above, sloped, font=\footnotesize]{$\mathcal O_{vrf}$};
+        \draw[->, thick] (vrf)  -- (intau)    node[midway, above, sloped, font=\footnotesize]{$\mathbf q \in \tau$};
+        \draw[->, thick] (vrf)  -- (notintau) node[midway, above, sloped, font=\footnotesize]{$\mathbf q \notin \tau$};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.4em}
+    Return $\top$ iff \emph{every} branch produces the honest image $y$.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Brute-Force Filtering Is in $\textsf{PSPACE}$}
+
+    Enumerate all $\sk \in \SK$ via DFS over a binary tree of depth $s(\lambda)$; run $\alg{EvalSim}{VRF}$ at each leaf.
+
+    \vspace{0.6em}
+    \begin{center}
+    \begin{tikzpicture}[
+        every node/.style={font=\footnotesize},
+        n/.style={circle, draw, inner sep=1.5pt, minimum size=0.35cm}
+    ]
+        \node[n] (r)    at (0, 2.4)    {};
+        \node[n] (a0)   at (-2, 1.6)   {};
+        \node[n] (a1)   at (2, 1.6)    {};
+        \node[n] (b00)  at (-3, 0.8)   {};
+        \node[n] (b01)  at (-1, 0.8)   {};
+        \node[n] (b10)  at (1, 0.8)    {};
+        \node[n] (b11)  at (3, 0.8)    {};
+        \node[n] (c1)   at (-3.5, 0)   {};
+        \node[n] (c2)   at (-2.5, 0)   {};
+        \node[n] (c3)   at (-1.5, 0)   {};
+        \node[n] (c4)   at (-0.5, 0)   {};
+        \node[n] (c5)   at (0.5, 0)    {};
+        \node[n] (c6)   at (1.5, 0)    {};
+        \node[n] (c7)   at (2.5, 0)    {};
+        \node[n] (c8)   at (3.5, 0)    {};
+        \draw (r)--(a0); \draw (r)--(a1);
+        \draw (a0)--(b00); \draw (a0)--(b01);
+        \draw (a1)--(b10); \draw (a1)--(b11);
+        \draw (b00)--(c1); \draw (b00)--(c2);
+        \draw (b01)--(c3); \draw (b01)--(c4);
+        \draw (b10)--(c5); \draw (b10)--(c6);
+        \draw (b11)--(c7); \draw (b11)--(c8);
+        \node[anchor=east] at (-4, 1.6) {\small depth};
+        \node[anchor=east] at (-4, 1.1) {\small $s(\lambda)$};
+        \node[draw, rounded corners, fill=hlblue, inner sep=4pt] (sim) at (5.7, 0) {\small $\alg{EvalSim}{VRF}$};
+        \draw[->, dashed] (c8) -- (sim);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.3em}
+    \begin{itemize}\setlength\itemsep{0.3em}
+        \item<2-> DFS stack: depth $s(\lambda)$
+        \item<3-> $\alg{EvalSim}{VRF}$ tape: polynomial, \emph{reused} at each leaf
     \end{itemize}
 
     \vspace{0.3em}
-
-    \textbf{Goal:} Adversary $\mathcal A^{\mathsf{PSPACE}, \mathcal O_{vrf}, \mathcal O_{uppc}}$
-    against psuedorandomness of $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$.
-
-    \textbf{Assume}: $\SK = \bin^{s(\lambda)}$ for $s \in \poly(\lambda)$ for all candidates.
+    \only<4->{Total memory polynomial $\Rightarrow$ in $\textsf{PSPACE}$.}
 \end{frame}
 
 \begin{frame}
-    \frametitle{The Adversary}
+    \frametitle{Two Cases After Filtering}
 
-    Assume we have a Turing machine (inefficient) $\alg{EvalSim}{VRF}$ satisfying:
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=1.2cm,
+        case/.style={draw, rounded corners, minimum width=4.6cm, minimum height=2cm, align=center, inner sep=8pt}
+    ]
+        \node (top) at (0, 0.8) {\textit{after filtering with all $x_i$}};
+        \node[case, fill=hlgreen]  (a) at (-3.3, -1.6) {\textbf{Case A}\\[0.3em] $\abs{\SK_{cand}} \in \poly$};
+        \node[case, fill=hlpeach]  (b) at ( 3.3, -1.6) {\textbf{Case B}\\[0.3em] $\SK_{cand}$ stays large};
+        \draw[thick, ->] (top) -- (a);
+        \draw[thick, ->] (top) -- (b);
+    \end{tikzpicture}
+    \end{center}
 
-    \begin{itemize}
-        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$
-        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \bot \text{ if } \alg{Eval}{VRF}^y(\sk_{cand}, x) \neq \alg{Eval}{VRF}^y(\sk, x)$
-        \item $\alg{EvalSim}{VRF}$ makes \textit{no queries to any oracles}.
-        \item $\alg{EvalSim}{VRF}$ has a \textit{polynomial space complexity}.
-    \end{itemize}
+    \vspace{0.3em}
+    \only<2->{\textbf{A:} sample $\sk_{cand}$, \emph{guess} $\sk_{cand} = \sk^*$.}
 
-    For $x \in \bin^\lambda, (y,\pi) = \BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]\alg{Eval}{VRF}(\sk, x)$ and $\tau = \text{trace}(\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Vfy}{VRF}(\pk, x, y, \pi))$.
+    \vspace{0.3em}
+    \only<3->{\textbf{B:} many $\sk_{cand}$ collide with $\sk^*$ on random points; \emph{evaluate} $x^*$ under $\sk_{cand}$.}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[c]
     \frametitle{The Adversary}
 
-    Adversary $\mathcal A_1^{\textsf{PSPACE}, \mathcal O_{vrf}, \mathcal O_{uppc}, \mathcal O_{\text{eval}}}(\pk)$:
-
+    {\large
     \begin{enumerate}
-        \setlength{\itemsep}{1em}
-        \item Sample $x_i \sample \bin^\lambda$ for all $i \in [s(\lambda) + \lambda]$
-        \item For all $i \in [s(\lambda) + \lambda]$ query
+        \setlength\itemsep{0.8em}
+        \item<1-> Sample $x_1, \ldots, x_{s+\lambda} \sample \bin^\lambda$.
+        \item<2-> Query the eval oracle: $(y_i, \pi_i) \gets \mathcal O_\text{eval}(x_i)$.
+        \item<3-> Compute the verification trace
+        \only<3->{%
+        \vspace{0.9em}
         \[
-            (y_i, \pi_i) \gets \mathcal O_{\text{eval}}(x_i) 
+            \tau_i \gets \text{trace}\bigl(\DAGComb{VRF}.\alg{Vfy}{VRF}(\pk^*, x_i, y_i, \pi_i)\bigr).
         \]
-        \item For all $i \in [s(\lambda) + \lambda]$ compute the verification trace
+        \vspace{0.4em}
+        }
+        \item<4-> Define the candidate-key set
+        \only<4->{%
+        \vspace{0.9em}
         \[
-            \tau_i \gets \text{trace}\left(\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Vfy}{VRF}(\pk, x_i, y_i, \pi_i)\right)
-        \]  
-        \item Sample a candidate secret key $\sk_{cand}$ using the PSPACE-complete oracle
-        \[
-            \sk_{cand} \sample \left\{\sk \in \SK : \forall i \in [s(\lambda) + \lambda], \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top\right\}
+            \SK_{cand} \coloneqq \{\sk : \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top \text{ for all } i\}
         \]
+        \vspace{0.4em}
+
+        and use $\textsf{PSPACE}$ to sample $\sk_{cand} \sample \SK_{cand}$.
+        }
+        \item<5-> Apply the strategy of Case A or Case B.
     \end{enumerate}
+    }
 \end{frame}
 
+\begin{frame}[c]
+    \frametitle{The Bound}
 
-\begin{frame}
-    \frametitle{The Adversary}
+    \begin{center}
+        $\Adv{\DAGComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]}{prf}{\lambda, \mathcal A} \;\geq\; \dfrac{1}{2} - \dfrac{1}{2^{\lambda+1}} - \dfrac{1}{\abs{\Y}}$
+    \end{center}
 
-
-    \[
-        \mathbf{Adv}^{\textup{prf}}_{\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]}(\lambda, \mathcal A)
-        \ge \tfrac{1}{2} - \tfrac{1}{2^{\lambda + 1}} - \tfrac{1}{|\Y|}.
-    \]
+    \vspace{1.2em}
+    \begin{center}
+        Non-negligible \quad$\Rightarrow$\quad contradicts pseudorandomness. \quad$\Box$
+    \end{center}
 \end{frame}
 
+\section{Extensions}
+
 \begin{frame}
-    \frametitle{How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{From $(2;1)$ to $(n;\lfloor n/2 \rfloor)$: Rotating Instances}
 
-    Given $(\sk_{cand}, x, y, \pi, \tau)$, $\alg{EvalSim}{VRF}$ is computed by:
-
+    Given a robust $(n;\lfloor n/2 \rfloor)$ black-box VRF-combiner $\BBComb{VRF}$, build a $(2;1)$ combiner $\DAGComb{VRF}$:
     \begin{itemize}
-        \item Follow the DAG $\G_{\text{Eval}}$, describing $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$, in some topological ordering
-        \item For every vertex $v$ corresponding to a query to $\mathcal O_{uppc}$ answer with default value
-        \item For every vertex $v$ corresponding to a query to $\mathcal O_{vrf}$ check $\tau$:
-        \begin{itemize}
-            \item If $\mathbf q \in \tau$: answer accordingly
-            \item If $\mathbf q \notin \tau$: branch for every possible answer
-        \end{itemize}
-        \item Return $\top$ iff all branches produce the image $y$
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{How to get $\alg{EvalSim}{VRF}$}
-
-    Given $(\sk_{cand}, x, y, \pi, \tau)$, $\alg{EvalSim}{VRF}$ is computed by:
-
-    \begin{itemize}
-        \item Follow the DAG $\G_{\text{Eval}}$, describing $\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$, in some topological ordering
-        \item For every vertex $v$ corresponding to a query to $\mathcal O_{uppc}$ answer with default value
-        \item For every vertex $v$ corresponding to a query to $\mathcal O_{vrf}$ check $\tau$:
-        \begin{itemize}
-            \item If $\mathbf q \in \tau$: answer accordingly
-            \item If $\mathbf q \notin \tau$: branch for every possible answer
-        \end{itemize}
-        \item Return $\top$ iff all branches produce the image $y$
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{How to get $\alg{EvalSim}{VRF}$}
-
-    Assume we have a Turing machine (inefficient) $\alg{EvalSim}{VRF}$ satisfying:
-
-    \begin{itemize}
-        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$
-        \item $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \bot \text{ if } \alg{Eval}{VRF}^y(\sk_{cand}, x) \neq \alg{Eval}{VRF}^y(\sk, x)$
-        \item $\alg{EvalSim}{VRF}$ makes \textit{no queries to any oracles}.
-        \item $\alg{EvalSim}{VRF}$ has a \textit{polynomial space complexity}.
+        \item<2-> Initialize the first $\lfloor n/2 \rfloor$ candidate slots with $\O_1$
+        \item<3-> Initialize the remaining $\lceil n/2 \rceil$ slots with $\O_2$
     \end{itemize}
 
-    For $x \in \bin^\lambda, (y,\pi) = \BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]\alg{Eval}{VRF}(\sk, x)$ and $\tau = \text{trace}(\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Vfy}{VRF}(\pk, x, y, \pi))$.
+    \vspace{0.6em}
+    \only<4->{If \emph{either} $\O_1$ or $\O_2$ is secure, at least $\lfloor n/2 \rfloor$ slots are secure $\Rightarrow$ $\BBComb{VRF}$ is secure.}
+
+    \vspace{0.4em}
+    \only<5->{So $\DAGComb{VRF}$ is a robust $(2;1)$ combiner --- contradicting the impossibility above.}
+
+    \vspace{0.4em}
+    \only<6->{\emph{Contraposition:} no robust $(n;\lfloor n/2 \rfloor)$ black-box VRF-combiner.}
 \end{frame}
 
 \begin{frame}
-    \frametitle{How to get $\alg{EvalSim}{VRF}$}
+    \frametitle{Results}
 
-    $\alg{EvalSim}{VRF}$ has a \textit{polynomial space complexity}:
-
-    \begin{itemize}
-        \item $\alg{EvalSim}{VRF}$ in $\textsf{NPSPACE}$ since every branch is an execution of $\alg{Eval}{VRF}$
-        \item $\textsf{NPSPACE} \subseteq \textsf{PSPACE}$
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{How to get $\alg{EvalSim}{VRF}$}
-
-    $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \bot \text{ if } \alg{Eval}{VRF}^y(\sk_{cand}, x) \neq y$:
-
-    \begin{itemize}
-        \item All queries made to $\mathcal O_{uppc}$ answered the same $\alg{Eval}{VRF}(\sk_{cand}, x)$
-        \item All queries made to $\mathcal O_{vrf}$ with $\mathbf q \in \tau$ answered the same
-        \item For all queries made to $\mathcal O_{vrf}$ with $\mathbf q \notin \tau$ there exists a branch which is the same
-    \end{itemize}
-    
-    $\implies$ At least one branch evaluates to $\alg{Eval}{VRF}^y(\sk_{cand}, x) \neq y$.
-\end{frame}
-
-\begin{frame}
-    \frametitle{How to get $\alg{EvalSim}{VRF}$}
-
-    $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$.
-
-    \vspace{.5em}
-
-    \begin{itemize}
-        \item Suppose $\alg{EvalSim}{VRF}(\sk, x, y, \pi, \tau) = \bot$
-        \item Then there exist answers to queries to $\mathcal O_{vrf}$ such that the output is $y' \neq y$
-        \item Modify $\mathcal O_{uppc}$ to make it a secure VRF such that $\mathcal O_{uppc}^*\big|_{\widetilde\SK} = \mathcal O_{uppc}\big|_{\widetilde\SK}$
-        \item Modify $\mathcal O_{vrf}$ to produce the transcript of the branch, $\mathcal O_{vrf}^*$
-        \item $\mathcal O_{vrf}$ and $\mathcal O_{vrf}^*$ only differ on queries $\mathbf q \notin \tau$ and indistinguishable for verification
-    \end{itemize}
-
-    Now we have:
-
-    \begin{align*}
-        y = \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}].\alg{Eval}{VRF}^y(\sk, x) \neq 
-        \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}^*].\alg{Eval}{VRF}^y(\sk, x) = y^*
-    \end{align*}
-\end{frame}
-
-\begin{frame}
-    \frametitle{How to get $\alg{EvalSim}{VRF}$}
-
-    $\alg{EvalSim}{VRF}(\sk_{cand}, x, y, \pi, \tau) = \top \text{ if } \sk_{cand} = \sk$.
-
-    Now we have:
-
-    \begin{align*}
-        y = \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}].\alg{Eval}{VRF}^y(\sk, x) \neq 
-        \BBComb{VRF}[\mathcal O_{uppc}^*, \mathcal O_{vrf}^*].\alg{Eval}{VRF}^y(\sk, x) = y^*
-    \end{align*}
-
-    Since the verification algorithms are however the same on queries $\mathbf q \in \tau$, the proof $\pi$ verifies identically in both executions.
-
-    \vspace{.5em}
-
-    $\implies$ Two distinct values $y \neq y^*$ both verify under the same $(\pk, x, \pi)$, breaking \textbf{unique provability} of $\BBComb{VRF}$.
-\end{frame}
-
-\begin{frame}
-    \frametitle{From $(2;1)$ to $(n;\lfloor n/2\rfloor)$}
-
-    Given a robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner $\BBComb{VRF}$, build a robust $(2;1)$ combiner $\DAGComb{VRF}$:
-
-    \begin{itemize}
-        \item initialize the first $\lfloor n/2\rfloor$ candidates of $\BBComb{VRF}$ with $\mathcal O_1$
-        \item initialize the remaining $\lceil n/2\rceil$ candidates with $\mathcal O_2$
-    \end{itemize}
-
-    If either $\mathcal O_1$ or $\mathcal O_2$ is a secure VRF,
-    at least $\lfloor n/2\rfloor$ candidates of $\BBComb{VRF}$ are secure, so $\DAGComb{VRF}$ is a robust $(2;1)$ combiner.
-
-    \vspace{0.3em}
-    Contraposition with the main theorem yields the impossibility of robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiners.
-\end{frame}
-
-\begin{frame}
-    \frametitle{Result}
-    \begin{block}{Theorem. Impossibility $1$-out-of-$2$ combiner.}
-        There is \textbf{no} robust $(2;1)$ black-box VRF-combiner.\\
+    \begin{block}{Theorem ($1$-out-of-$2$ impossibility)}
+        There is no robust $(2;1)$ black-box VRF-combiner.
     \end{block}
-    \begin{block}{Corollary. Impossibility $\lfloor n/2\rfloor$-out-of-$n$ combiner.}
-        There is \textbf{no} robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner.\\
+
+    \begin{block}{Corollary ($\lfloor n/2 \rfloor$-out-of-$n$ impossibility)}
+        There is no robust $(n;\lfloor n/2 \rfloor)$ black-box VRF-combiner.
     \end{block}
-    \begin{block}{Conjecture. Impossibility $(n{-}1)$-out-of-$n$ combiner.}
-        There is \textbf{no} robust $(n;n{-}1)$ black-box VRF-combiner.\\
+
+    \begin{block}{Conjecture ($(n-1)$-out-of-$n$ impossibility)}
+        There is no robust $(n;n-1)$ black-box VRF-combiner.
     \end{block}
+
+    \vspace{0.4em}
+    \only<2->{The same proof yields impossibility for VUF and wVRF.}
 \end{frame}
 
-\begin{frame}
-    \frametitle{What We Showed}
-
-    Additionally the same proof shows that:
-
-    \begin{block}{Lemma. Impossibility $\lfloor n/2\rfloor$-out-of-$n$ VUF-combiner.}
-        There is \textbf{no} robust $(2;1)$ black-box VRF-combiner.\\
-    \end{block}
-    \begin{block}{Lemma. Impossibility $\lfloor n/2\rfloor$-out-of-$n$ wVRF-combiner.}
-        There is \textbf{no} robust $(2;1)$ black-box VRF-combiner.\\
-    \end{block}
-\end{frame}
+\section{Beyond Impossibility}
 
 \begin{frame}
-    \frametitle{Beyond Impossibility}
-    Let assume \emph{unique provability} for all $n$ candidates:
+    \frametitle{Stronger Candidate Assumptions}
+
+    What if all candidates are \emph{uniquely provable} \emph{and} \emph{perfectly correct}?
 
     \begin{itemize}
-        \item \emph{Then construction similar to combiner for PRF is applicable}
+        \item<2-> Both are \emph{information-theoretic} properties --- typically proven, not assumed.
+        \item<3-> No need to hedge against them with combiners.
     \end{itemize}
 
-    Too strong of an assumption?
-
-    \begin{itemize}
-        \item No, unique provability is an information theoretic property and typically proven.
-    \end{itemize}
+    \vspace{0.8em}
+    \only<4->{Under these assumptions, a simple robust $(n;1)$ black-box VRF-combiner exists.}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Robust $1$-out-of-$n$ Black-Box Combiner for UP-VRF}
+    \frametitle{Robust $(n;1)$ Black-Box UP-VRF-Combiner}
 
-    \begin{figure}[htbp]
-        \begin{pchstack}[space=1em]
-            \procedure[linenumbering]%
-            {Adversary $\mathcal A^{}$}
-            {
-                b \sample \bin\\ 
-                (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
-                S \gets \varnothing\\ 
-                (x^*, \sigma) \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)\\ 
-                (y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
-                y_1 \sample \Y\\ 
-                b' \sample \mathcal A_2(1^\lambda, x^*, \sigma, y_b) \\ 
-                \pcreturn b = b' \land x^* \notin S
-            }
-            \procedure[linenumbering]%
-            {Oracle $\mathcal O_{\text{eval}}(x)$}
-            {
-                S \gets S \cup \{x\}\\ 
-                (y,\pi) \sample \alg{Eval}{VF}(\sk, x)\\ 
-                \pcreturn y
-            }
-        \end{pchstack}
-        \label{fig:prf_wprf_up_experiment}
-    \end{figure}
+    \begin{center}
+        \begin{adjustbox}{max width=\textwidth}
+            \begin{pchstack}[space=1em]
+                \procedure[linenumbering]
+                {$\BBComb{VRF}[\O_1, \O_2].\alg{Gen}{VRF}(1^\lambda)$}
+                {
+                    (\sk_1, \pk_1) \sample \O_1.\alg{Gen}{VRF}(1^\lambda)\\
+                    (\sk_2, \pk_2) \sample \O_2.\alg{Gen}{VRF}(1^\lambda)\\
+                    \pcreturn ((\sk_1, \sk_2), (\pk_1, \pk_2))
+                }
+                \procedure[linenumbering]
+                {$\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk, x)$}
+                {
+                    (\sk_1, \sk_2) \gets \sk\\
+                    (y_1, \pi_1) \gets \O_1.\alg{Eval}{VRF}(\sk_1, x)\\
+                    (y_2, \pi_2) \gets \O_2.\alg{Eval}{VRF}(\sk_2, x)\\
+                    y \gets y_1 \xor y_2\\
+                    \pi \gets (y_1, \pi_1, y_2, \pi_2)\\
+                    \pcreturn (y, \pi)
+                }
+                \procedure[linenumbering]
+                {$\BBComb{VRF}[\O_1, \O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi)$}
+                {
+                    (\pk_1, \pk_2) \gets \pk\\
+                    (y_1, \pi_1, y_2, \pi_2) \gets \pi\\
+                    b_1 \gets \O_1.\alg{Vfy}{VRF}(\pk_1, x, y_1, \pi_1)\\
+                    b_2 \gets \O_2.\alg{Vfy}{VRF}(\pk_2, x, y_2, \pi_2)\\
+                    \pcreturn b_1 \land b_2 \land (y = y_1 \xor y_2)
+                }
+            \end{pchstack}
+        \end{adjustbox}
+    \end{center}
+
+    \vspace{0.6em}
+    \only<2->{Iterate pairwise to obtain a robust $(n;1)$ combiner.}
 \end{frame}
