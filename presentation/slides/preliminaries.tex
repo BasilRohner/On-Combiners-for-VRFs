@@ -199,14 +199,16 @@
     \end{block}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[c]
     \frametitle{Why Should We Care About VRFs?}
 
-    \begin{itemize}
+    {\huge
+    \begin{itemize}\setlength{\itemsep}{1em}
         \item<1-> Signatures with Strong Verifiability Guarantees \only<1->{\cite{C:GolOst92}}
         \item<2-> Resettable Zero-Knowledge proofs \only<2->{\cite{C:MicRey01}}
         \item<3-> Distributed Leader Election in PoS blockchains \only<3->{\cite{C:KRDO17,EC:DGKR18,EPRINT:BASV23b}}
     \end{itemize}
+    }
 \end{frame}
 
 \begin{frame}
@@ -222,3 +224,21 @@
 
     With inefficient we mean adversaries with access to a PSPACE complete oracle.
 \end{frame}
+
+\begin{frame}
+    \frametitle{Example}
+    \begin{figure}[htbp]
+        \begin{pchstack}[space=1em]
+            \procedure[linenumbering]%
+            {Algorithm $\BBComb{PRF}[\mathcal O_1, \mathcal O_2].\alg{Eval}{PRF}(k_1,k_2,x)$}
+            {
+                y_1 \gets \mathcal O_1(k_1, x)\\ 
+                y_2 \gets \mathcal O_2(k_2, x)\\ 
+                \pcreturn y_1 \xor y_2
+            }
+        \end{pchstack}
+        \label{fig:prf_wprf_up_experiment}
+        \caption{Robust $(2;1)$ Black-Box PRF-Combiner.}
+    \end{figure}
+\end{frame}
+

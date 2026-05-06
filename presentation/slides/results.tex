@@ -3,26 +3,17 @@
 \begin{frame}
     \frametitle{Robust Black-Box DAG Combiners}
 
-    We consider robust black-box combiners in a DAG normal form.
-
-    \begin{itemize}
-        \item Dedicated \textbf{source} $s$ (the input) and \textbf{sink} $t$ (the output).
-        \item Every other vertex $v$ carries
-            \begin{itemize}
-                \item a label $\ell(v) = (i,j)$ specifying \emph{which candidate's} $j$-th oracle is queried, and
-                \item a ppt.\ Turing machine $f^v$ that computes the query input from the responses
-                    of the predecessors $\mathcal N^-_\G(v)$.
-            \end{itemize}
-        \item Execution traces the DAG in topological order:
-            at each $v$, build $\mathbf q_v \gets f^v(\{\mathbf x_w\}_{w \in \mathcal N^-_\G(v)})$
-            and set $\mathbf x_v \gets \mathcal O_{\ell(v)}(\mathbf q_v)$.
-            The sink's Turing machine $f^t$ produces the final output.
-    \end{itemize}
-
-    \vspace{0.3em}
-    \textbf{Equivalence.}
-    Every robust $(n;k)$ black-box combiner has a \emph{computationally equivalent}
-    DAG combiner --- the DAG form is a convenient normal form for our proofs.
+    \begin{block}{Definition (Robust $(n;k)$ Black-Box Combiner (Informal))}
+        Robust $(n;k)$ black-box DAG $\prim{P}$-combiner $\DAGComb{P}$ consist for every algorithm:
+        \begin{itemize}
+            \item Directed acyclic graph $\G$
+            \item Source $s \in V(\G)$
+            \item Sink $t \in V(\G)$
+            \item Vertex labeling $\ell : V(\G) \to \prim{P} \times [n]$
+            \item PPT Turing machines $\{f^v\}_{v \in V(\G) \setminus \{s\}}$ 
+        \end{itemize}
+        Execute $\DAGComb{P}$ in topological order. At $v \in V(\G)$ evaluate $f^v$ on all predecessor outputs and query $\mathcal O_{\ell(v)}$.
+    \end{block}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -376,10 +367,28 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Proof Setup}
+\begin{frame}[c]
+    \frametitle{What we show}
 
-    Suppose $\BBComb{VRF}$ is a robust $(2;1)$ black-box DAG VRF-combiner.
+    \begin{center}
+        \begin{minipage}{0.9\textwidth}
+            \Large
+            \raggedright
+            \hyphenpenalty=10000\exhyphenpenalty=10000
+            There exists no robust $(2;1)$ black-box combiner for VRF.
+        \end{minipage}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Setup}
+
+    Suppose $\BBComb{VRF}$ is a robust $(2;1)$ black-box DAG VRF-combiner. The proof works by
+
+    \begin{itemize}
+        \item Candidates $\mathcal O_1, \mathcal O_2$ of which at least one is secure
+        \item Adversary $\mathcal A$ against 
+    \end{itemize}
 
     \begin{itemize}
         \item $\mathcal O_{vrf}$: a secure VRF
@@ -401,7 +410,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proof}
+    \frametitle{The Adversary}
 
     Assume we have a Turing machine (inefficient) $\alg{EvalSim}{VRF}$ satisfying:
 
@@ -416,36 +425,31 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Adversary}
-    \begin{figure}[htbp]
-        \begin{pchstack}[space=1em]
-            \procedure[linenumbering]%
-            {Adversary $\mathcal A^{}$}
-            {
-                b \sample \bin\\ 
-                (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\ 
-                S \gets \varnothing\\ 
-                (x^*, \sigma) \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)\\ 
-                (y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\ 
-                y_1 \sample \Y\\ 
-                b' \sample \mathcal A_2(1^\lambda, x^*, \sigma, y_b) \\ 
-                \pcreturn b = b' \land x^* \notin S
-            }
-            \procedure[linenumbering]%
-            {Oracle $\mathcal O_{\text{eval}}(x)$}
-            {
-                S \gets S \cup \{x\}\\ 
-                (y,\pi) \sample \alg{Eval}{VF}(\sk, x)\\ 
-                \pcreturn y
-            }
-        \end{pchstack}
-        \label{fig:prf_wprf_up_experiment}
-    \end{figure}
+    \frametitle{The Adversary}
+
+    Adversary $\mathcal A_1^{\textsf{PSPACE}, \mathcal O_{vrf}, \mathcal O_{uppc}, \mathcal O_{\text{eval}}}(\pk)$:
+
+    \begin{enumerate}
+        \setlength{\itemsep}{1em}
+        \item Sample $x_i \sample \bin^\lambda$ for all $i \in [s(\lambda) + \lambda]$
+        \item For all $i \in [s(\lambda) + \lambda]$ query
+        \[
+            (y_i, \pi_i) \gets \mathcal O_{\text{eval}}(x_i) 
+        \]
+        \item For all $i \in [s(\lambda) + \lambda]$ compute the verification trace
+        \[
+            \tau_i \gets \text{trace}\left(\BBComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}].\alg{Vfy}{VRF}(\pk, x_i, y_i, \pi_i)\right)
+        \]  
+        \item Sample a candidate secret key $\sk_{cand}$ using the PSPACE-complete oracle
+        \[
+            \sk_{cand} \sample \left\{\sk \in \SK : \forall i \in [s(\lambda) + \lambda], \alg{EvalSim}{VRF}(\sk, x_i, y_i, \pi_i, \tau_i) = \top\right\}
+        \]
+    \end{enumerate}
 \end{frame}
 
 
 \begin{frame}
-    \frametitle{Adversary}
+    \frametitle{The Adversary}
 
 
     \[
@@ -571,13 +575,6 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Construction of $\mathcal O_{uppc}^*$}
-
-    \hlb{TODO: Move to backup}
-
-\end{frame}
-
-\begin{frame}
     \frametitle{From $(2;1)$ to $(n;\lfloor n/2\rfloor)$}
 
     Given a robust $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner $\BBComb{VRF}$, build a robust $(2;1)$ combiner $\DAGComb{VRF}$:
@@ -625,7 +622,7 @@
     Let assume \emph{unique provability} for all $n$ candidates:
 
     \begin{itemize}
-        \item \emph{Then a parallel combiner for PRF is applicable}
+        \item \emph{Then construction similar to combiner for PRF is applicable}
     \end{itemize}
 
     Too strong of an assumption?

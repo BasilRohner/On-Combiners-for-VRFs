@@ -1,19 +1,42 @@
 \section{Introduction}
 \label{sec:intro}
 
-\begin{frame}
-    \frametitle{Research Question}
-    Can we \emph{combine} multiple instances of verifiable random function (VRFs)
-    into a single VRF that is secure as long as \emph{enough} of the instances are?
+\begin{frame}[c]
+    \frametitle{Cryptographic Hardness Assumptions}
 
-    \vspace{0.8em}
+    {\large
+        Most cryptographic constructions are built on a \emph{hardness assumption}.
+        \par
+    }
 
-    \begin{itemize}
-        \item<1-> How do we \emph{combine} the candidate schemes?
-        \item<2-> What are \emph{enough} candidates to combine?
+    \vspace{1.2em}
+
+    \begin{itemize}\setlength{\itemsep}{0.6em}
+        \item<2-> Factoring, Diffie--Hellman, LWE, isogenies, \ldots
+        \item<3-> Each one \emph{might} fail: cryptanalysis, quantum computers, \ldots
+        \item<4-> A broken assumption breaks every construction that relies on it
     \end{itemize}
 
-    \vspace{0.8em}
+    \vspace{2em}
 
-    \only<3->{Can we combine \emph{$k$-out-of-$n$} VRF instances in a \emph{black-box} fashion?}
+    \only<5->{%
+        \begin{center}
+            \Large
+            Don't bet on a \hlb{single} assumption.\\[0.25em]
+            \emph{Combine} candidates based on \hlb{different} ones.
+        \end{center}%
+    }
+\end{frame}
+
+\begin{frame}[c]
+    \frametitle{Research Question}
+
+    \begin{center}
+        \begin{minipage}{0.9\textwidth}
+            \Large
+            \raggedright
+            \hyphenpenalty=10000\exhyphenpenalty=10000
+            Can we \emph{combine} \alt<2->{}{many }verifiable random function (VRF) instances\only<3->{ \hlb{in a black-box fashion}} such that the resulting VRF is secure if \alt<2->{\hlb{$k$-out-of-$n$}}{\emph{enough}} candidates are secure?
+        \end{minipage}
+    \end{center}
 \end{frame}
