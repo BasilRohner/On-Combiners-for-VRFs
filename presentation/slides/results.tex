@@ -121,14 +121,15 @@
     ]
         \node[box, fill=hlblue]  (dag) at (0, 0)   {Robust $(n;k)$\\black-box \emph{DAG} combiner};
         \node[box, fill=hlpeach] (bb)  at (8.5, 0) {Robust $(n;k)$\\black-box combiner};
-        \draw[<->, double, double distance=2pt, line width=1pt] (dag) -- (bb);
+        \only<1>{\draw[->, line width=1pt] (dag) -- (bb);}
+        \only<2->{\draw[<->, line width=1pt] (dag) -- (bb);}
     \end{tikzpicture}
     \end{center}
 
     \vspace{2em}
     \begin{center}
         \Large
-        \only<2->{It suffices to (dis)prove the \emph{DAG} version.}
+        \only<3->{It suffices to (dis)prove the existence of the \emph{DAG} version.}
     \end{center}
 \end{frame}
 
@@ -193,10 +194,8 @@
     \end{center}
 
     \vspace{0.3em}
-    \only<2->{Use the $\textsf{PSPACE}$ oracle to \emph{filter} $\SK$ down to a small $\SK_{cand}$ that still contains $\sk^*$.}
+    \only<2->{Use the $\textsf{PSPACE}$ oracle to \emph{filter} $\SK$ down to a non-empty $\SK_{cand}$ that contains candidates likely to agree with $\sk^*$ on a uniformly random challenge.}
 
-    \vspace{0.4em}
-    \only<3->{If $\abs{\SK_{cand}} \in \poly$, sampling uniformly gives $\sk_{cand} = \sk^*$ with non-negligible probability.}
 \end{frame}
 
 \begin{frame}
@@ -317,10 +316,29 @@
 \begin{frame}[c]
     \frametitle{Extending to $(n;\lfloor n/2 \rfloor)$ Combiners}
 
-    Fill the $n$ slots of an $(n;\lfloor n/2\rfloor)$ combiner with two oracles $\O_1, \O_2$.
+    Fill the $n$ slots of an $(n;\lfloor n/2\rfloor)$ combiner with two oracles $\O_1, \O_2$:
 
-    \vspace{0.8em}
-    \only<2->{Security of either $\Rightarrow$ $\geq \lfloor n/2\rfloor$ slots secure $\Rightarrow$ a $(2;1)$ combiner.}
+    \vspace{1em}
+    \begin{center}
+    \begin{tikzpicture}[
+        slot/.style={draw, minimum width=1.2cm, minimum height=1cm, font=\small}
+    ]
+        \node[slot, fill=hlblue]  at (0,    0) {$\O_1$};
+        \node[slot, fill=hlblue]  at (1.2,  0) {$\O_1$};
+        \node                     at (2.4,  0) {$\cdots$};
+        \node[slot, fill=hlblue]  at (3.6,  0) {$\O_1$};
+        \node[slot, fill=hlpeach] at (5.0,  0) {$\O_2$};
+        \node                     at (6.2,  0) {$\cdots$};
+        \node[slot, fill=hlpeach] at (7.4,  0) {$\O_2$};
+        \node[slot, fill=hlpeach] at (8.6,  0) {$\O_2$};
+
+        \node[font=\footnotesize] at (1.8, -0.9) {$\lfloor n/2 \rfloor$ slots};
+        \node[font=\footnotesize] at (6.8, -0.9) {$\lceil n/2 \rceil$ slots};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{1em}
+    \only<2->{Security of either $\Rightarrow \geq \lfloor n/2\rfloor$ slots secure $\Rightarrow$ a $(2;1)$ combiner.}
 
     \vspace{0.5em}
     \only<3->{Contraposition $\Rightarrow$ no $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner.}
