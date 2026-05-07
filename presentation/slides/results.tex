@@ -4,15 +4,13 @@
     \frametitle{Robust Black-Box DAG Combiners}
 
     \begin{block}{Definition (Robust $(n;k)$ Black-Box DAG Combiner, informal)}
-        Each algorithm of $\DAGComb{P}$ is given by a directed acyclic graph $\G$:
-        \begin{itemize}
-            \item source $s$, sink $t$, intermediate vertices labeled $\ell : V(\G) \to [n] \times [\abs{\prim{P}}]$
-            \item at each vertex $v$, a PPT machine $f^v$ computes a query $\mathbf q_v$ from predecessors' outputs and queries $\O_{\ell(v)}$
-        \end{itemize}
-        Execute in topological order. The sink emits the final output.
+        A DAG $\G$ where each vertex $v$ runs a PPT $f^v$ and queries one candidate $\O_{\ell(v)}$; topological traversal produces the algorithm's output.
+
+        \smallskip
+        \emph{Robust $(n;k)$:} the induced oracle TM is a robust $(n;k)$ black-box $\prim{P}$-combiner.
     \end{block}
 
-    \only<2->{\emph{Why DAGs?} Decouples \hlb{local computation} from \hlb{oracle queries}. Structure becomes explicit.}
+    \only<2->{\emph{Why DAGs?} Decouples \hlb{local computation} from \hlb{oracle queries}.}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -24,9 +22,8 @@
             \item<1-> \emph{Source $s$}: forwards $(k_1, k_2, x)$.
             \item<2-> \emph{Intermediate vertices}:
                 \begin{itemize}\setlength\itemsep{0.2em}
-                    \item<2-> PPT TM $f^v$ pre-computes the query
-                    \item<3-> query the candidate oracle
-                    \item<4-> return the response
+                    \item<2-> PPT TM $f^v$ computes the query
+                    \item<3-> query the candidate oracle $\O_{\ell(v)}$
                 \end{itemize}
             \item<5-> \emph{Sink $t$}: computes the final output.
         \end{itemize}
@@ -50,7 +47,7 @@
                 \alt<4->{}{\color{black!25}}
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
-                    {{\alt<2->{\color{black}}{}Vertex $v_1$}}
+                    {Vertex $v_1$}
                     {
                         \alt<2->{\color{black}}{}
                         \mathbf q_{v_1} \gets
@@ -70,7 +67,7 @@
                 \alt<4->{}{\color{black!25}}
                 \begin{pcvstack}[center, boxed, space=1em]
                     \procedure[linenumbering]
-                    {{\alt<2->{\color{black}}{}Vertex $v_2$}}
+                    {Vertex $v_2$}
                     {
                         \alt<2->{\color{black}}{}
                         \mathbf q_{v_2} \gets
@@ -112,17 +109,23 @@
     \end{columns}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Equivalence}
+\begin{frame}[c]
+    \frametitle{Generality of DAG Combiners}
 
-    \begin{itemize}
-        \item<1-> Robust $(n;k)$ black-box DAG combiner $\implies$ robust $(n;k)$ black-box combiner
-        \item<2-> Robust $(n;k)$ black-box combiner $\implies$ robust $(n;k)$ black-box DAG combiner
-    \end{itemize}
-
-    \vspace{1.5em}
     \begin{center}
-        \only<3->{\textbf{It suffices to (dis)prove the DAG version.}}
+    \begin{tikzpicture}[
+        box/.style={draw, rounded corners, align=center, inner sep=12pt, font=\large, minimum width=5cm}
+    ]
+        \node[box, fill=hlblue]  (dag) at (0, 0)   {Robust $(n;k)$\\black-box \emph{DAG} combiner};
+        \node[box, fill=hlpeach] (bb)  at (8.5, 0) {Robust $(n;k)$\\black-box combiner};
+        \draw[<->, double, double distance=2pt, line width=1pt] (dag) -- (bb);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{2em}
+    \begin{center}
+        \Large
+        \only<2->{It suffices to (dis)prove the \emph{DAG} version.}
     \end{center}
 \end{frame}
 

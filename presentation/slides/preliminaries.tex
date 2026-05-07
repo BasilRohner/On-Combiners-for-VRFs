@@ -16,19 +16,11 @@
 
 \begin{frame}
     \frametitle{Properties of Verifiable Functions}
-    \begin{block}{$\varepsilon$-Correctness}
-        Honestly generated image-proof pairs verify with probability at least $\varepsilon$:
+    \begin{block}{Correctness}
+        For all $(\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)$, $x \in \bin^\lambda$, and $(y, \pi) \gets \alg{Eval}{VF}(\sk, x)$:
         \[
-            \Pr{
-                \begin{aligned}
-                    (\sk, \pk) &\sample \alg{Gen}{VF}(1^\lambda)\\ 
-                    x &\sample \bin^\lambda\\
-                    (y, \pi) &\gets \alg{Eval}{VF}(\sk, x)
-                \end{aligned} :
-                \alg{Vfy}{VF}(\pk, x, y, \pi) = 1 
-            } \ge \varepsilon(\lambda)
+            \alg{Vfy}{VF}(\pk, x, y, \pi) = 1.
         \]
-        $\prim{VF}$ is \emph{correct} if it is $1$-correct and \emph{statistically correct} if it is $(1-\varepsilon)$-correct and $\varepsilon \in \negl(\lambda)$.
     \end{block}
 \end{frame}
 
@@ -50,6 +42,7 @@
         \[
             \Adv{VF}{prf}{\lambda, \mathcal A} := 2 \cdot \abs*{\Pr{\Exp{VF}{prf}(\lambda, \mathcal A) = 1} - \frac{1}{2}} \le \varepsilon(\lambda)
         \]
+        \emph{Pseudorandom} if $\varepsilon \in \negl(\lambda)$ for $\frakt \in \poly(\lambda)$.
     \end{block}
 \end{frame}
 
@@ -101,8 +94,8 @@
                 b \sample \bin\\
                 (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\
                 S \gets \varnothing\\
-                \highlight{\sigma \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)}\\
-                \highlight{x^* \sample \bin^\lambda}\\
+                \highlight[hlblue]{\sigma \sample \mathcal A_1^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)}\\
+                \highlight[hlblue]{x^* \sample \bin^\lambda}\\
                 (y_0, \pi_0) \gets \alg{Eval}{VF}(\sk, x^*)\\
                 y_1 \sample \Y\\
                 b' \sample \mathcal A_2(1^\lambda, x^*, \sigma, y_b)\\
@@ -139,9 +132,9 @@
             {
                 (\sk, \pk) \sample \alg{Gen}{VF}(1^\lambda)\\
                 S \gets \varnothing\\
-                \highlight{(x^*, y^*) \sample \mathcal A^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)}\\
+                \highlight[hlblue]{(x^*, y^*) \sample \mathcal A^{\mathcal O_{\text{eval}}}(1^\lambda, \pk)}\\
                 (y, \pi) \gets \alg{Eval}{VF}(\sk, x^*)\\
-                \highlight{\pcreturn y^* = y \land x^* \notin S}
+                \highlight[hlblue]{\pcreturn y^* = y \land x^* \notin S}
             }
             \procedure[linenumbering]%
             {Oracle $\mathcal O_{\text{eval}}(x)$}
@@ -205,9 +198,9 @@
 \begin{frame}
     \frametitle{Robust Black-Box Combiners}
     \begin{block}{Definition (Robust $(n;k)$ Black-Box Combiner (Informal))}
-        Robust $(n;k)$ black-box $\prim{P}$-combiner $\BBComb{P}$ satisfy:
+        A robust $(n;k)$ black-box $\prim{P}$-combiner $\BBComb{P}$ is an efficient (PPT) oracle Turing machine such that:
         \begin{itemize}
-            \item Give oracle access to $n$ candidate schemes $\mathcal O_1, \ldots, \mathcal O_n$
+            \item Given oracle access to $n$ candidate schemes $\mathcal O_1, \ldots, \mathcal O_n$
             \item Implements primitive $\prim{P}$
             \item Is secure if at least $k$ candidates are secure \only<2->{\textbf{even against \alt<3->{adversaries with a $\textsf{PSPACE}$ oracle}{inefficient adversaries}}}
         \end{itemize}
