@@ -159,18 +159,15 @@
         cand/.style={draw, rounded corners, minimum width=4.5cm, minimum height=2cm, align=center, inner sep=8pt}
     ]
         \node[cand, fill=hlblue]  (vrf)  at (0,0)   {\large $\mathcal O_{vrf}$\\[0.3em] secure VRF};
-        \node[cand, fill=hlpeach] (uppc) at (6.5,0) {\large $\mathcal O_{uppc}$\\[0.3em] trivial VF};
+        \node[cand, fill=hlpeach] (uppc) at (6.5,0) {\large $\mathcal O_{uppc}$\\[0.3em] returns default $y_{def}$};
     \end{tikzpicture}
     \end{center}
 
     \vspace{0.4em}
-    \only<2->{$\mathcal O_{uppc}$: every $\alg{Eval}{}(\sk, x)$ returns the same default $y_{def}$.}
+    \only<2->{$\mathcal O_{vrf}$ secure $\Rightarrow$ $\DAGComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$ is a secure VRF.}
 
     \vspace{0.4em}
-    \only<3->{$\mathcal O_{vrf}$ secure $\Rightarrow$ $\DAGComb{VRF}[\mathcal O_{vrf}, \mathcal O_{uppc}]$ is a secure VRF.}
-
-    \vspace{0.4em}
-    \only<4->{\textbf{Goal:} adversary $\mathcal A^{\textsf{PSPACE}}$ breaking its pseudorandomness.}
+    \only<3->{\textbf{Goal:} adversary $\mathcal A^{\textsf{PSPACE}}$ breaking its pseudorandomness.}
 \end{frame}
 
 \begin{frame}
@@ -298,22 +295,6 @@
 \section{Results}
 
 \begin{frame}[c]
-    \frametitle{Results}
-
-    \begin{block}{Theorem}
-        No robust $(2;1)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
-    \end{block}
-
-    \begin{block}{Corollary}
-        No robust $(n;\lfloor n/2\rfloor)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
-    \end{block}
-
-    \begin{block}{Conjecture}
-        No robust $(n;n-1)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
-    \end{block}
-\end{frame}
-
-\begin{frame}[c]
     \frametitle{Extending to $(n;\lfloor n/2 \rfloor)$ Combiners}
 
     Fill the $n$ slots of an $(n;\lfloor n/2\rfloor)$ combiner with two oracles $\O_1, \O_2$:
@@ -338,52 +319,25 @@
     \end{center}
 
     \vspace{1em}
-    \only<2->{Security of either $\Rightarrow \geq \lfloor n/2\rfloor$ slots secure $\Rightarrow$ a $(2;1)$ combiner.}
-
-    \vspace{0.5em}
-    \only<3->{Contraposition $\Rightarrow$ no $(n;\lfloor n/2\rfloor)$ black-box VRF-combiner.}
+    \begin{center}
+        \only<2>{$(n;\lfloor n/2\rfloor)$ black-box combiner $\implies$ $(2;1)$ black-box combiner}
+        \only<3->{no $(2;1)$ black-box combiner $\implies$ no $(n;\lfloor n/2\rfloor)$ black-box combiner}
+    \end{center}
 \end{frame}
-
-\section{Beyond Impossibility}
 
 \begin{frame}[c]
-    \frametitle{Beyond Impossibility}
+    \frametitle{Results}
 
-    If all candidates are \emph{uniquely provable} and \emph{perfectly correct} (information-theoretic, typically proven):
+    \begin{block}{Theorem}
+        No robust $(2;1)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
+    \end{block}
 
-    \vspace{1em}
-    \only<2->{a simple robust $(n;1)$ black-box VRF-combiner exists.}
+    \begin{block}{Corollary}
+        No robust $(n;\lfloor n/2\rfloor)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
+    \end{block}
+
+    \begin{block}{Conjecture}
+        No robust $(n;n-1)$ black-box \alt<2->{VRF/VUF/wVRF}{VRF}-combiner.
+    \end{block}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Robust $(n;1)$ Black-Box UP-VRF-Combiner}
-
-    \begin{center}
-        \begin{adjustbox}{max width=\textwidth}
-            \begin{pchstack}[space=1em]
-                \procedure[linenumbering]
-                {$\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk, x)$}
-                {
-                    (\sk_1, \sk_2) \gets \sk\\
-                    (y_1, \pi_1) \gets \O_1.\alg{Eval}{VRF}(\sk_1, x)\\
-                    (y_2, \pi_2) \gets \O_2.\alg{Eval}{VRF}(\sk_2, x)\\
-                    y \gets y_1 \xor y_2\\
-                    \pi \gets (y_1, \pi_1, y_2, \pi_2)\\
-                    \pcreturn (y, \pi)
-                }
-                \procedure[linenumbering]
-                {$\BBComb{VRF}[\O_1, \O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi)$}
-                {
-                    (\pk_1, \pk_2) \gets \pk\\
-                    (y_1, \pi_1, y_2, \pi_2) \gets \pi\\
-                    b_1 \gets \O_1.\alg{Vfy}{VRF}(\pk_1, x, y_1, \pi_1)\\
-                    b_2 \gets \O_2.\alg{Vfy}{VRF}(\pk_2, x, y_2, \pi_2)\\
-                    \pcreturn b_1 \land b_2 \land (y = y_1 \xor y_2)
-                }
-            \end{pchstack}
-        \end{adjustbox}
-    \end{center}
-
-    \vspace{0.6em}
-    \only<2->{Iterate pairwise to obtain a robust $(n;1)$ combiner.}
-\end{frame}

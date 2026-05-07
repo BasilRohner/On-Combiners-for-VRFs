@@ -1,0 +1,45 @@
+\section{Beyond Impossibility}
+
+\begin{frame}[c]
+    \frametitle{Beyond Impossibility}
+
+    If all candidates are \hlb{uniquely provable} and \hlb{perfectly correct}:
+
+    \vspace{1em}
+    \begin{center}
+        \only<2->{A simple robust $(n;1)$ black-box VRF-combiner exists.}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Robust $(n;1)$ Black-Box UP-VRF-Combiner}
+
+    \begin{center}
+        \begin{adjustbox}{max width=\textwidth}
+            \begin{pchstack}[space=1em]
+                \procedure[linenumbering]
+                {$\BBComb{VRF}[\O_1, \O_2].\alg{Eval}{VRF}(\sk, x)$}
+                {
+                    (\sk_1, \sk_2) \gets \sk\\
+                    (y_1, \pi_1) \gets \O_1.\alg{Eval}{VRF}(\sk_1, x)\\
+                    (y_2, \pi_2) \gets \O_2.\alg{Eval}{VRF}(\sk_2, x)\\
+                    y \gets y_1 \xor y_2\\
+                    \pi \gets (y_1, \pi_1, y_2, \pi_2)\\
+                    \pcreturn (y, \pi)
+                }
+                \procedure[linenumbering]
+                {$\BBComb{VRF}[\O_1, \O_2].\alg{Vfy}{VRF}(\pk, x, y, \pi)$}
+                {
+                    (\pk_1, \pk_2) \gets \pk\\
+                    (y_1, \pi_1, y_2, \pi_2) \gets \pi\\
+                    b_1 \gets \O_1.\alg{Vfy}{VRF}(\pk_1, x, y_1, \pi_1)\\
+                    b_2 \gets \O_2.\alg{Vfy}{VRF}(\pk_2, x, y_2, \pi_2)\\
+                    \pcreturn b_1 \land b_2 \land (y = y_1 \xor y_2)
+                }
+            \end{pchstack}
+        \end{adjustbox}
+    \end{center}
+
+    \vspace{0.6em}
+    \only<2->{Iterate pairwise to obtain a robust $(n;1)$ combiner.}
+\end{frame}
