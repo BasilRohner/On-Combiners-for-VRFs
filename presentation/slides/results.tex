@@ -4,10 +4,13 @@
     \frametitle{Robust Black-Box DAG Combiners}
 
     \begin{block}{Definition (Robust $(n;k)$ Black-Box DAG Combiner, informal)}
-        A DAG $\G$ where each vertex $v$ runs a PPT $f^v$ and queries one candidate $\O_{\ell(v)}$; topological traversal produces the algorithm's output.
-
-        \smallskip
-        \emph{Robust $(n;k)$:} the induced oracle TM is a robust $(n;k)$ black-box $\prim{P}$-combiner.
+        Algorithms of $\DAGComb{P}$ are specified by:
+        \begin{itemize}\setlength\itemsep{0.2em}
+            \item a DAG $\G$ with a source $s$ and a sink $t$
+            \item vertex labels $\ell : V(\G) \to [n] \times [\abs{\prim{P}}]$
+            \item a PPT machine $f^v$ at each vertex $v$
+        \end{itemize}
+        Execution: traverse $\G$ in topological order. At vertex $v$, $f^v$ computes a query for candidate $\ell(v)$.
     \end{block}
 
     \only<2->{\emph{Why DAGs?} Decouples \hlb{local computation} from \hlb{oracle queries}.}
