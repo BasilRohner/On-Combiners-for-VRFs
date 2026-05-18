@@ -1,0 +1,138 @@
+\documentclass[11pt]{article}
+
+\def\templateroot{~/Documents/latex-template/}
+\def\format{notes}
+\input{\templateroot core.tex}
+
+\title{Extension to $(n-1)$-out-of-$n$ VRF-Combiner}
+
+\begin{document}
+
+The issue why this breaks is the following case:
+Assume for two oracles $\O_j, \O_k$ there exist obscure queries 
+and both are secure vrf oracles. Then we cannot expect that by 
+branching over both sets of obscure oracle queries that the output 
+for the true secret key $\sk^*$ is $y$ over all branches.
+
+That is because the obscure queries of a secure vrf oracle $\O_i$
+are only oracle-wide jointly-irrelevant. If we would follow the proof 
+over two changed oracles $\O_j, \O_k$ then we'd arrive at a point 
+where we would need to consider the second execution which is possibly 
+not uniquely provable or perfectly correct and therefore violate 
+the robustness condition, breaking the contradiction.
+
+We \emph{still} know that oracle-wide joint-independence holds however.
+Assume $f_t$ is the PPT Turing machine in the terminal node and fix the 
+inputs $\mathbf y$ corresponding to oracle outputs to \emph{exposed}
+queries of $\O_{vrf}$ or queries to $\O_{uppc}$. Then if we 
+group the remaining \emph{obscure} queries to $\O_{vrf}$ by oracle:
+
+\begin{align*}
+	f_t(\underbrace{\mathbf C}_{\text{known queries}}, \underbrace{\mathbf y_1^{(1)}, \ldots, \mathbf y_{k_1}^{(1)}}_{\text{obscure queries to }\O_1}, \ldots, \underbrace{\mathbf y_1^{(n)}, \ldots, \mathbf y_{k_n}^{(n)}}_{\text{obscure queries to }\O_n}) = f_t(\mathbf C, \vec{\mathbf y}^{(1)}, \ldots, \vec{\mathbf y}^{(n)})
+\end{align*}
+
+We know that, by oracle-wide joint irrelevance, $f_t$ must satisfy:
+
+\begin{align*}
+	\forall k \in [n], \forall j \in [n], \forall \vec{\mathbf y}^{(j)}, \vec{\mathbf z}^{(k)} \text{ well formed}, f_t(\mathbf C, \vec{\mathbf y}^{(1)}, \ldots, \vec{\mathbf y}^{(k)}, \ldots, \vec{\mathbf y}^{(n)})
+	= f_t(\mathbf C, \vec{\mathbf y}^{(1)}, \ldots, \vec{\mathbf z}^{(k)}, \ldots, \vec{\mathbf y}^{(n)})
+\end{align*}
+
+We say the function corresponding to $f_t$ is \emph{axis-constant} since for every single possible input (with fixed $\mathbf C$) the output remains constant if we keep at least $n-1$ inputs constant. If there doesn't exist a robust $(2;3)$ black-box VRF-combiner than this means that there exist two input values such that keeping the third constant, there exist two different, well-formed assignments which results in a different output. That is:
+
+\begin{align*}
+	\exists k_1, k_2 \in [3], \forall j \in [3], \forall \vec{\mathbf y}^{(j)}, \vec{\mathbf z}^{(k_1)}, \vec{\mathbf z}^{(k_2)} \text{ well formed}, f_t(\mathbf C, \vec{\mathbf y}^{(j)}, \vec{\mathbf y}^{(k_1)}, \vec{\mathbf y}^{(k_2)}) \neq f_t(\mathbf C, \vec{\mathbf y}^{(j)}, \vec{\mathbf z}^{(k_1)}, \vec{\mathbf z}^{(k_2)})
+\end{align*}
+
+\paragraph{The idea.} Only consider branches that can be jointly embedded into a globally consistent family of secure VRFs. We show that in that case axis-irrelevance must generalize to global joint irrelevance of the obscure oracle queries. Specifically when branching the simulator $\textsf{EvalSim}_{\textsf{VRF}}$ maintains a list of objects $(\sk, \pk)$ and mappings $(\sk, x) \mapsto (y, \pi), (\pk, x, y, \pi) \mapsto b$ seen during the execution. Branching then only considers values admitting such globally consistent secure VRF-families as follows after first building a closue of oracle characterization:
+
+\begin{itemize}
+	\item If $(\pk, x, y, \pi) \mapsto 1$ then add $\forall (\sk, \pk), (\sk, x) \mapsto (y, \pi)$
+	\item If $(\sk, x) \mapsto (y, \pi)$ then add $\forall (\sk, \pk), (\pk, x, y, \pi) \mapsto 1$
+\end{itemize}
+
+\newpage
+
+\begin{itemize}
+	\item For $\textsf{Gen}_{\textsf{VRF}}$: we branch 
+	\item For $\textsf{Eval}_{\textsf{VRF}}$:
+	\item For $\textsf{Vfy}_{\textsf{VRF}}$:
+\end{itemize}
+
+\paragraph{The idea.}
+The obstruction to extending the proof to the $(n-1)$-out-of-$n$
+setting is that arbitrary combinations of obscure-query answers
+need not correspond to any globally valid execution of the VRF
+oracles. In particular, after independently branching over obscure
+queries to two secure oracles $\O_j,\O_k$, the resulting mixed
+assignment may violate either perfect correctness or unique
+provability and therefore fail to correspond to any realizable
+secure VRF-family.
+
+To avoid this issue, we restrict branching to assignments that are
+\emph{globally realizable}. Intuitively, every branch considered by
+the simulator must admit a completion into a family of secure VRF
+oracles satisfying perfect correctness and unique provability.
+
+Formally, let $\mathcal T$ denote the partial transcript generated
+during the execution. The simulator maintains the following sets:
+
+\begin{align*}
+    \mathcal K &:= \{ (\sk,\pk) \}, \\
+    \mathcal E &:= \{ ((\sk,x),(y,\pi)) \}, \\
+    \mathcal V &:= \{ ((\pk,x,y,\pi),b) \}.
+\end{align*}
+
+Here:
+\begin{itemize}
+    \item $(\sk,\pk) \in \mathcal K$ records generated key pairs,
+    \item $((\sk,x),(y,\pi)) \in \mathcal E$ records evaluation
+    queries,
+    \item $((\pk,x,y,\pi),b) \in \mathcal V$ records verification
+    queries.
+\end{itemize}
+
+We say that a partial transcript $\mathcal T$ is
+\emph{globally consistent} if it admits an extension to a family of
+secure VRF oracles satisfying:
+\begin{enumerate}
+    \item perfect correctness,
+    \item unique provability,
+    \item consistency of repeated oracle queries.
+\end{enumerate}
+
+Equivalently, $\mathcal T$ must satisfy the closure conditions
+induced by VRF correctness:
+
+\begin{itemize}
+    \item If $((\pk,x,y,\pi),1) \in \mathcal V$, then for every
+    $(\sk,\pk) \in \mathcal K$ we must have
+    $((\sk,x),(y,\pi)) \in \mathcal E$.
+
+    \item If $((\sk,x),(y,\pi)) \in \mathcal E$, then for every
+    $(\sk,\pk) \in \mathcal K$ we must have
+    $((\pk,x,y,\pi),1) \in \mathcal V$.
+\end{itemize}
+
+Branching is then restricted to assignments preserving global
+consistency.
+
+Under this restriction, every obscure-query assignment considered by
+the proof corresponds to a realizable secure VRF-family. Hence the
+space of admissible assignments becomes closed under single-coordinate
+replacement. Consequently, oracle-wise joint irrelevance implies full
+joint irrelevance by a standard telescoping argument over the
+coordinates.
+
+Assume there exist two admissible globally consistent assignments
+$\mathbf y,\mathbf z$ such that
+\[
+f_t(\mathbf C,\mathbf y) \neq f_t(\mathbf C,\mathbf z).
+\]
+Since the admissible assignment space is closed under
+single-coordinate replacement, one may interpolate between
+$\mathbf y$ and $\mathbf z$ by changing one oracle-coordinate at a
+time. Oracle-wise joint irrelevance implies that the value of $f_t$
+remains invariant at every step, yielding a contradiction.
+
+\end{document}

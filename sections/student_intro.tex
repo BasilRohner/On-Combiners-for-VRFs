@@ -130,7 +130,7 @@ We illustrate the concept of a robust black-box DAG combiner in \Cref{fig:prf_da
                     \procedure[linenumbering]
                     {Source $s$}
                     {
-                        \x_s \gets (k, x)\\
+                        \x_s \gets (k_1, k_2, x)\\
                         \pcreturn \x_s
                     }
                 \end{pcvstack}
@@ -146,7 +146,8 @@ We illustrate the concept of a robust black-box DAG combiner in \Cref{fig:prf_da
                         \mathbf q_{v_1} \gets 
                         \begin{subprocedure}
                         \dbox{\procedure{$f_{\text{Eval}}^{v_1}(\x_s)$}{
-                            \pcreturn \x_s
+                            (k_1, k_2, x) \gets \mathbf x_s\\ 
+                            \pcreturn (k_1, x)
                         }}
                         \end{subprocedure}\\ 
                         \x_{v_1} \gets \O_{\ell_{\text{Eval}}(v_1)}(\mathbf q_{v_1})\\ 
@@ -165,7 +166,8 @@ We illustrate the concept of a robust black-box DAG combiner in \Cref{fig:prf_da
                         \mathbf q_{v_2} \gets 
                         \begin{subprocedure}
                         \dbox{\procedure{$f_{\text{Eval}}^{v_2}(\x_s)$}{
-                            \pcreturn \x_s
+                            (k_1, k_2, x) \gets \mathbf x_s\\ 
+                            \pcreturn (k_2, x)
                         }}
                         \end{subprocedure}\\ 
                         \x_{v_2} \gets \O_{\ell_{\text{Eval}}(v_2)}(\mathbf q_{v_2})\\ 
